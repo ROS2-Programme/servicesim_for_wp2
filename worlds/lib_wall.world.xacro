@@ -1,0 +1,329 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:property name="pRet" value="${[]}" />
+<!--
+<xacro:property name="PI_HALF" value="${pi / 2}" />
+-->
+<xacro:property name="sPI_LOW_PREC"      value="_3.141593" />
+<xacro:property name="sPI_HALF_LOW_PREC" value="_1.570796" />
+<xacro:property name="sPI_QTR_LOW_PREC"  value="_0.785398" />
+
+<xacro:property name="sPI_MED_PREC"      value="_3.14159265359" />
+<xacro:property name="sPI_HALF_MED_PREC" value="_1.57079632679" />
+<xacro:property name="sPI_QTR_MED_PREC"  value="_0.78539816340" />
+
+<xacro:property name="sPI"      value="_3.141592653589793" />
+<xacro:property name="sPI_HALF" value="_1.5707963267948966" />
+<xacro:property name="sPI_QTR"  value="_0.7853981633974483" />
+
+<!-- ######################################## -->
+<xacro:macro name="induce_eval" params="RET:=^">
+	<xacro:if value="False">
+		<RET>${RET}</RET>
+	</xacro:if>
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="force_str" params="val pRet:=^ _szDebug:=''
+		_bPedantic:=True">
+
+	<xacro:property name="RET" value="" />
+	<xacro:property name="_bSpecial" value="False" />
+	<xacro:property name="_val" value="" />
+	<xacro:property name="signCh" value="" />
+
+	<xacro:if value="${str(val).endswith( '_NEG')}">
+		<xacro:property name="signCh" value="-" />
+	</xacro:if>
+
+
+	<xacro:if value="${str(val).startswith( 'PI')}">
+		<xacro:property name="_val" value="${sPI}" />
+		<xacro:property name="_bSpecial" value="True" />
+		<xacro:if value="${_szDebug != ''}">
+			<WTF>${_szDebug} PI ${sPI}</WTF>
+		</xacro:if>
+	</xacro:if>
+	<xacro:if value="${str(val).startswith( 'PI_HALF')}">
+		<xacro:property name="_val" value="${sPI_HALF}" />
+		<xacro:property name="_bSpecial" value="True" />
+		<xacro:if value="${_szDebug != ''}">
+			<WTF>${_szDebug} PI_HALF ${sPI_HALF}</WTF>
+		</xacro:if>
+	</xacro:if>
+	<xacro:if value="${str(val).startswith( 'PI_QTR')}">
+		<xacro:property name="_val" value="${sPI_QTR}" />
+		<xacro:property name="_bSpecial" value="True" />
+		<xacro:if value="${_szDebug != ''}">
+			<WTF>${_szDebug} PI_QTR ${sPI_QTR}</WTF>
+		</xacro:if>
+	</xacro:if>
+
+	<xacro:if value="${str(val).startswith( '_PI')}">
+		<xacro:property name="_val" value="${sPI_MED_PREC}" />
+		<xacro:property name="_bSpecial" value="True" />
+	</xacro:if>
+	<xacro:if value="${str(val).startswith( '_PI_HALF')}">
+		<xacro:property name="_val" value="${sPI_HALF_MED_PREC}" />
+		<xacro:property name="_bSpecial" value="True" />
+	</xacro:if>
+	<xacro:if value="${str(val).startswith( '_PI_QTR')}">
+		<xacro:property name="_val" value="${sPI_QTR_MED_PREC}" />
+		<xacro:property name="_bSpecial" value="True" />
+	</xacro:if>
+
+	<xacro:if value="${str(val).startswith( '__PI')}">
+		<xacro:property name="_val" value="${sPI_LOW_PREC}" />
+		<xacro:property name="_bSpecial" value="True" />
+	</xacro:if>
+	<xacro:if value="${str(val).startswith( '__PI_HALF')}">
+		<xacro:property name="_val" value="${sPI_HALF_LOW_PREC}" />
+		<xacro:property name="_bSpecial" value="True" />
+	</xacro:if>
+	<xacro:if value="${str(val).startswith( '__PI_QTR')}">
+		<xacro:property name="_val" value="${sPI_QTR_LOW_PREC}" />
+		<xacro:property name="_bSpecial" value="True" />
+	</xacro:if>
+
+	<xacro:if value="${_bSpecial}">
+		<xacro:property name="RET"
+			value="${pRet.append( _val[:1] + signCh + _val[1:])}" />
+	</xacro:if>
+
+
+	<xacro:if value="${not( _bSpecial) and str( val).startswith( '_')}">
+		<xacro:property name="RET" value="${pRet.append( val)}" />
+		<xacro:property name="_bSpecial" value="True" />
+		<xacro:if value="${_szDebug != ''}">
+			<WTF>${_szDebug} ${val}</WTF>
+		</xacro:if>
+	</xacro:if>
+
+
+	<xacro:unless value="${_bSpecial}">
+		<xacro:property name="_bNoPrec" value="${str( val).find('.') == -1}" />
+		<xacro:if value="${_bPedantic and _bNoPrec}">
+			<xacro:property name="RET"
+				value="${pRet.append( '_' + str( val) + '.0')}" />
+		</xacro:if>
+		<xacro:unless value="${_bPedantic and _bNoPrec}">
+			<xacro:property name="RET"
+				value="${pRet.append( '_' + str( val))}" />
+		</xacro:unless>
+	</xacro:unless>
+
+	<xacro:induce_eval />
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="set_str_joiner" params="sz1 sz2 pRet:=^ szSep:='_'
+		bDebug:=False">
+
+	<xacro:property name="is_blank1" value="${str( sz1).strip() == ''}" />
+	<xacro:property name="is_blank2" value="${str( sz2).strip() == ''}" />
+
+	<xacro:if value="${bDebug}">
+		<is_blank1>${sz1}__${is_blank1}</is_blank1>
+		<is_blank2>${sz2}__${is_blank2}</is_blank2>
+	</xacro:if>
+
+	<xacro:property name="RET" value="" />
+
+	<xacro:if value="${is_blank1 or is_blank2}">
+		<xacro:property name="RET" value="${pRet.append('')}" />
+	</xacro:if>
+
+	<xacro:unless value="${is_blank1 or is_blank2}">
+		<xacro:property name="RET" value="${pRet.append( szSep)}" />
+	</xacro:unless>
+
+<!--
+	<xacro:if value="True">
+		<RET>${RET}</RET>
+	</xacro:if>
+-->
+	<xacro:induce_eval />
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_material" params="name_part:=^ name_main:=^">
+
+	<xacro:set_str_joiner sz1="${name_main}" sz2="${name_part}" pRet="${pRet}"
+		bDebug="False" szSep="/" />
+	<xacro:property name="_sep" value="${pRet.pop()}" />
+
+	<material>
+		<script>
+			<uri>file://media/materials/scripts/</uri>
+			<uri>file://media/materials/textures/</uri>
+			<name>${name_main}${_sep}${name_part}</name>
+		</script>
+	</material>
+
+</xacro:macro>
+
+<!-- ############################################################ -->
+<xacro:macro name="make_one_pose_plane" params="pX:=^ pY:=^ pZ:=^ sL:=^ sB:=^
+		plane:='0 0 1'">
+
+	<geometry>
+		<plane>
+			<normal>${plane}</normal>
+			<size>${sL} ${sB}</size>
+		</plane>
+	</geometry>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_plane_link_named" params="name_of_link pX pY pZ
+		name_part id:='' dZ:=1 sL:=49.5 sB:=22.5 pfx_visual:='visual'
+		pfx_collision:='collision' name_main:='ServiceSim'">
+
+	<xacro:set_str_joiner sz1="${pfx_visual}" sz2="${id}" pRet="${pRet}"
+		bDebug="False" />
+	<xacro:property name="_sepV" value="${pRet.pop()}" />
+
+	<xacro:set_str_joiner sz1="${pfx_collision}" sz2="${id}" pRet="${pRet}"
+		bDebug="False" />
+	<xacro:property name="_sepC" value="${pRet.pop()}" />
+
+	<xacro:property name="_bFlipped" value="${(dZ == -1)}" />
+
+	<xacro:if value="${_bFlipped}">
+		<xacro:property name="oY" value="PI" />
+	</xacro:if>
+
+	<xacro:unless value="${_bFlipped}">
+		<xacro:property name="oY" value="_0" />
+	</xacro:unless>
+
+
+	<xacro:make_one_pose oX="_0" oZ="_0" />
+
+	<static>true</static>
+	<link name="${name_of_link}">
+		<visual name="${pfx_visual}${_sepV}${id}">
+			<xacro:make_one_pose_plane />
+			<xacro:make_one_material />
+		</visual>
+
+		<xacro:unless value="${_bFlipped}">
+		<collision name="${pfx_collision}${_sepC}${id}">
+			<xacro:make_one_pose_plane />
+			<surface>
+				<friction>
+					<ode>
+						<mu>1</mu>
+						<mu2>1</mu2>
+					</ode>
+				</friction>
+			</surface>
+		</collision>
+		</xacro:unless>
+	</link>
+
+</xacro:macro>
+
+<!-- ############################################################ -->
+<xacro:macro name="make_one_pose" params="pX:=^ pY:=^ pZ:=^ oX:=^|0.0 oY:=^|0.0
+		oZ:=^|0.0 _bDebug:=False _bPedanticPZ:=True _bPedanticOX:=True
+		_bPedanticOY:=True _bPedanticOZ:=False">
+
+	<xacro:force_str val="${pX}" />
+	<xacro:force_str val="${pY}" />
+	<xacro:force_str val="${pZ}" _bPedantic="${_bPedanticPZ}" />
+
+	<xacro:property name="_pZ" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_pZ}" />
+
+	<xacro:property name="_pY" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_pY}" />
+
+	<xacro:property name="_pX" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_pX}" />
+
+	<xacro:force_str val="${oX}" _szDebug="" _bPedantic="${_bPedanticOX}" />
+	<xacro:force_str val="${oY}" _bPedantic="${_bPedanticOY}" />
+	<xacro:force_str val="${oZ}" _szDebug="" _bPedantic="${_bPedanticOZ}" />
+
+	<xacro:if value="${_bDebug}">
+		<WTF>${pRet}</WTF>
+	</xacro:if>
+
+	<xacro:property name="_oZ" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_oZ}" />
+
+	<xacro:property name="_oY" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_oY}" />
+
+	<xacro:property name="_oX" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_oX}" />
+
+	<pose>
+		${_pX[1:]}
+		${_pY[1:]}
+		${_pZ[1:]}
+		${_oX[1:]}
+		${_oY[1:]}
+		${_oZ[1:]}
+	</pose>
+
+	<xacro:if value="${_bDebug}">
+		<oX>${oX} ${_oX}</oX>
+		<oZ>${oZ} ${_oZ}</oZ>
+	</xacro:if>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_geom" params="sW:=^ sT:=^ sH:=^">
+
+	<geometry>
+		<box>
+			<size>
+				${sW}
+				${sT}
+				${sH}
+			</size>
+		</box>
+	</geometry>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_pose_geom"
+		params="pX:=^ pY:=^ sW:=^ sT:=^|0.01 sH:=^|3.0 pZ:=^|1.5 oZ:=^|0.0">
+
+	<xacro:make_one_pose />
+	<xacro:make_one_geom />
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_wall_named" params="id pX pY sW oX:=0 oY:=0 oZ:=0
+		name_part:='PlainWall' sT:=0.01 sH:=3.0 pZ:=1.5 pfx_visual:='visual'
+		pfx_collision:='collision' name_main:='ServiceSim'">
+
+	<xacro:set_str_joiner sz1="${pfx_visual}" sz2="${id}" pRet="${pRet}" />
+	<xacro:property name="_sepV" value="${pRet.pop()}" />
+
+	<xacro:set_str_joiner sz1="${pfx_collision}" sz2="${id}" pRet="${pRet}" />
+	<xacro:property name="_sepC" value="${pRet.pop()}" />
+
+	<visual name="${pfx_visual}${_sepV}${id}">
+		<xacro:make_one_pose_geom />
+		<xacro:make_one_material />
+	</visual>
+
+	<collision name="${pfx_collision}${_sepC}${id}">
+		<xacro:make_one_pose_geom />
+	</collision>
+
+</xacro:macro>
+
+</robot>

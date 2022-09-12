@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+<!-- ######################################## -->
+<xacro:macro name="plugin_sensor_velodyne" params="hz:=10
+		ref_link:='velodyne_link' topic_lidar:='velodyne_points'
+		frame_lidar:='velodyne' topic_prefix:=''
+		gpu:=False num_line:=16 pname:='gazebo_ros_laser_controller'
+		ray_range:='${dict( min=0.3, res=0.001)}'
+		p_param:='${dict( min=0.9, max=130.0, noise=0.008, org_cloud=False)}'
+		M_PI:='3.141592653589793'
+">
+	<xacro:property name="_type" value="ray" />
+	<xacro:property name="_lib" value="libgazebo_ros_velodyne_laser.so" />
+	<xacro:if value="${gpu}">
+		<xacro:property name="_type" value="gpu_ray" />
+		<xacro:property name="_lib" value="libgazebo_ros_velodyne_gpu_laser.so"
+			/>
+	</xacro:if>
+
+	<xacro:property name="_param_map" value="${dict(
+		16=dict( name_suffix='-VLP16', v_angle_min=-15.0, v_angle_max=15.0,
+			h_sample=1875, v_sample=16
+		),
+		32=dict( name_suffix='-HDL32E', v_angle_min=-30.67, v_angle_max=10.67,
+			h_sample=2187, v_sample=32
+		),
+	)}" />
+
+	<xacro:property name="h_angle_max" value="${M_PI}" />
+	<xacro:property name="h_angle_min" value="${-1 * M_PI}" />
+
+	<xacro:property name="_param" value="${_param_map.get( num_line)}" />
+
+<!-- Gazebo requires the velodyne_gazebo_plugins package -->
+<gazebo reference="${ref_link}">
+<sensor type="${_type}" name="${ref_link}${_param['name_suffix']">
+	<pose>0 0 0 0 0 0</pose>
+	<visualize>false</visualize>
+	<update_rate>${hz}</update_rate>
+	<ray>
+		<scan>
+			<horizontal>
+				<samples>${_param['h_sample']}</samples>
+				<resolution>1</resolution>
+				<min_angle>${h_angle_min}</min_angle>
+				<max_angle>${h_angle_max}</max_angle>
+			</horizontal>
+			<vertical>
+				<samples>${_param['v_sample']}</samples>
+				<resolution>1</resolution>
+				<min_angle>${_param['v_angle_min'] * M_PI / 180.0}</min_angle>
+				<max_angle>${_param['v_angle_max'] * M_PI / 180.0}</max_angle>
+			</vertical>
+		</scan>
+		<range>
+			<min>${ray_range.get('min')}</min>
+			<max>${ray_range.get('max', p_param.get('max') + 1)}</max>
+			<resolution>${ray_range.get('res')}</resolution>
+		</range>
+		<noise>
+			<type>gaussian</type>
+			<mean>0.0</mean>
+			<stddev>0.0</stddev>
+		</noise>
+	</ray>
+
+	<plugin name="${pname}" filename="${_lib}">
+		<topicName>${topic_prefix}${topic_lidar}</topicName>
+		<frameName>${frame_lidar}</frameName>
+		<organize_cloud>${p_param.get('org_cloud')}}</organize_cloud>
+		<min_range>${p_param.get('min')}</min_range>
+		<max_range>${p_param.get('max')}</max_range>
+		<gaussianNoise>${p_param.get('noise')}</gaussianNoise>
+	</plugin>
+</sensor>
+</gazebo>
+</xacro:macro>
+
+</robot>

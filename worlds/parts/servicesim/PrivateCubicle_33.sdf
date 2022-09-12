@@ -1,0 +1,758 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<model name="PrivateCubicle_33">
+
+  <static>true</static>
+
+  <pose>
+    -21.0
+    16.5
+    0.0
+    0.0
+    0.0
+    0.0
+  </pose>
+
+  <link name="walls">
+
+    <!-- center wall -->
+
+      <visual name="visual_1">
+
+        <pose>
+          -0.3
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_2">
+
+        <pose>
+          0.3
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_3">
+
+        <pose>
+          0.8999999999999999
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_4">
+
+        <pose>
+          1.4999999999999998
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_5">
+
+        <pose>
+          2.1
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_6">
+
+        <pose>
+          2.7
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_7">
+
+        <pose>
+          3.3
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_8">
+
+        <pose>
+          3.9000000000000004
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_9">
+
+        <pose>
+          4.5
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_10">
+
+        <pose>
+          5.1
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_11">
+
+        <pose>
+          5.7
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_12">
+
+        <pose>
+          6.3
+          0.0
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_closed.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+    <!-- row divisions -->
+
+      <visual name="visual_13">
+
+        <pose>
+          0.0
+          0.9
+          0.0
+          0.0
+          0.0
+          -1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_14">
+
+        <pose>
+          0.0
+          -0.9
+          0.0
+          0.0
+          0.0
+          1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_15">
+
+        <pose>
+          1.7999999999999998
+          0.9
+          0.0
+          0.0
+          0.0
+          -1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_16">
+
+        <pose>
+          1.7999999999999998
+          -0.9
+          0.0
+          0.0
+          0.0
+          1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_17">
+
+        <pose>
+          3.5999999999999996
+          0.9
+          0.0
+          0.0
+          0.0
+          -1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_18">
+
+        <pose>
+          3.5999999999999996
+          -0.9
+          0.0
+          0.0
+          0.0
+          1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_19">
+
+        <pose>
+          5.3999999999999995
+          0.9
+          0.0
+          0.0
+          0.0
+          -1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_20">
+
+        <pose>
+          5.3999999999999995
+          -0.9
+          0.0
+          0.0
+          0.0
+          1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_21">
+
+        <pose>
+          7.199999999999999
+          0.9
+          0.0
+          0.0
+          0.0
+          -1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_22">
+
+        <pose>
+          7.199999999999999
+          -0.9
+          0.0
+          0.0
+          0.0
+          1.5707963267948966
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+
+    <!-- openings -->
+
+      <visual name="visual_23">
+
+        <pose>
+          0.9
+          1.2249999999999999
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_24">
+
+        <pose>
+          2.6999999999999997
+          1.2249999999999999
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_25">
+
+        <pose>
+          0.8999999999999998
+          -1.2249999999999999
+          0.0
+          0.0
+          0.0
+          3.141592653589793
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_26">
+
+        <pose>
+          4.5
+          1.2249999999999999
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_27">
+
+        <pose>
+          2.6999999999999997
+          -1.2249999999999999
+          0.0
+          0.0
+          0.0
+          3.141592653589793
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_28">
+
+        <pose>
+          6.3
+          1.2249999999999999
+          0.0
+          0.0
+          0.0
+          0.0
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <visual name="visual_29">
+
+        <pose>
+          4.499999999999999
+          -1.2249999999999999
+          0.0
+          0.0
+          0.0
+          3.141592653589793
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+      <visual name="visual_30">
+
+        <pose>
+          6.299999999999999
+          -1.2249999999999999
+          0.0
+          0.0
+          0.0
+          3.141592653589793
+        </pose>
+
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_wall/meshes/cubicle_wall.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+
+
+    <collision name="collision">
+
+      <pose>
+        3.5999999999999996
+        0.0
+        0.75
+        0.0
+        0.0
+        0.0
+      </pose>
+
+      <geometry>
+        <box>
+          <size>
+            7.249999999999999
+            2.4999999999999996
+            1.5
+          </size>
+        </box>
+      </geometry>
+    </collision>
+
+  </link>
+
+
+  <!-- furniture -->
+
+	<xacro:include_one_desk_db_model id="31" pX="0.884" pY="0.1" oZ="0.0" />
+
+	<xacro:make_one_computer_mesh_link id="31" pX="0.884" pY="0.15" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="31"
+	pX="_0.8799387513705383"
+	pY="_0.5897029832787084"
+	oZ="_0.4759581381045075" />
+
+
+
+	<xacro:include_one_desk_db_model id="32" pX="0.884" pY="-0.1" />
+
+	<xacro:make_one_computer_mesh_link id="32" pX="0.884" pY="-0.15" oZ="0.0" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="32"
+	pX="_0.8748327109250418"
+	pY="_-0.6035902498938496"
+	oZ="_2.5714004685168717" />
+
+
+
+
+	<xacro:include_one_desk_db_model id="33" pX="_2.6839999999999997" pY="0.1"
+		oZ="0.0" />
+
+	<xacro:make_one_computer_mesh_link id="33" pX="_2.6839999999999997"
+		pY="0.15" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="33"
+	pX="_2.5960875857740757"
+	pY="_0.6727146493256569"
+	oZ="_0.25578904237175204" />
+
+
+
+	<xacro:include_one_desk_db_model id="34" pX="_2.6839999999999997" pY="-0.1"
+		/>
+
+	<xacro:make_one_computer_mesh_link id="34" pX="_2.6839999999999997"
+		pY="-0.15" oZ="0.0" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="34"
+	pX="_2.7201471545903955"
+	pY="_-0.6270477492324747"
+	oZ="_3.3382386697490976" />
+
+
+
+
+	<xacro:include_one_desk_db_model id="35" pX="4.484" pY="0.1" oZ="0.0" />
+
+	<xacro:make_one_computer_mesh_link id="35" pX="4.484" pY="0.15" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="35"
+	pX="_4.39782783698258"
+	pY="_0.4381240131339456"
+	oZ="_-0.5465502774595885" />
+
+
+
+	<xacro:include_one_desk_db_model id="36" pX="4.484" pY="-0.1" />
+
+	<xacro:make_one_computer_mesh_link id="36" pX="4.484" pY="-0.15" oZ="0.0" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="36"
+	pX="_4.417811152060499"
+	pY="_-0.5597866025663215"
+	oZ="_3.527921560942752" />
+
+
+
+
+	<xacro:include_one_desk_db_model id="37" pX="6.284" pY="0.1" oZ="0.0" />
+
+	<xacro:make_one_computer_mesh_link id="37" pX="6.284" pY="0.15" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="37"
+	pX="_6.354888902507722"
+	pY="_0.636884066791834"
+	oZ="_-0.592701387082198" />
+
+
+
+	<xacro:include_one_desk_db_model id="38" pX="6.284" pY="-0.1" />
+
+	<xacro:make_one_computer_mesh_link id="38" pX="6.284" pY="-0.15" oZ="0.0" />
+
+
+
+
+<xacro:make_one_chair_mesh_link id="38"
+	pX="_6.341782959735616"
+	pY="_-0.5357499999529037"
+	oZ="_3.5423494583378705" />
+
+
+
+
+
+
+</model>
+</robot>

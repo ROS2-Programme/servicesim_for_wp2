@@ -1,0 +1,502 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<model name="PublicCafe">
+
+	<static>true</static>
+
+	<pose>
+		13.7
+		6.0
+		0
+		0
+		0
+		1.5707963267948966
+	</pose>
+
+	<link name="link">
+		<collision name="right_of_door">
+			<pose>
+				2.13
+				0.05
+				1.5
+				0
+				0
+				0
+			</pose>
+			<geometry>
+				<box>
+					<size>
+						4.74
+						0.1
+						3.0
+					</size>
+				</box>
+			</geometry>
+		</collision>
+
+		<collision name="left_of_door">
+			<pose>
+				-3.63
+				0.05
+				1.5
+				0
+				0
+				0
+			</pose>
+			<geometry>
+				<box>
+					<size>
+						4.74
+						0.1
+						3.0
+					</size>
+				</box>
+			</geometry>
+		</collision>
+
+		<collision name="top_of_door">
+			<pose>
+				-0.75
+				0.05
+				2.55
+				0
+				0
+				0
+			</pose>
+			<geometry>
+				<box>
+					<size>
+						1.5
+						0.1
+						0.9
+					</size>
+				</box>
+			</geometry>
+		</collision>
+
+		<collision name="right">
+			<pose>
+				4.55
+				-3.75
+				1.5
+				0
+				0
+				0
+			</pose>
+			<geometry>
+				<box>
+					<size>
+						0.1
+						7.5
+						3.0
+					</size>
+				</box>
+			</geometry>
+		</collision>
+
+		<collision name="left">
+			<pose>
+				-6.05
+				-3.75
+				1.5
+				0
+				0
+				0
+			</pose>
+			<geometry>
+				<box>
+					<size>
+						0.1
+						7.5
+						3.0
+					</size>
+				</box>
+			</geometry>
+		</collision>
+
+		<collision name="back">
+			<pose>
+				-0.75
+				-7.55
+				1.5
+				0
+				0
+				0
+			</pose>
+			<geometry>
+				<box>
+					<size>
+						10.5
+						0.1
+						3.0
+					</size>
+				</box>
+			</geometry>
+		</collision>
+
+		<visual name="visual">
+			<geometry>
+				<mesh>
+					<uri>file://media/meshes/refreshment_area.obj</uri>
+					<scale>0.01 0.01 0.01</scale>
+				</mesh>
+			</geometry>
+		</visual>
+
+		<!-- floor -->
+
+		<xacro:make_one_floor_visual id="-3_-4" pX="-4.5" pY="-6.0" />
+		<xacro:make_one_floor_visual id="-3_-3" pX="-4.5" pY="-4.5" />
+		<xacro:make_one_floor_visual id="-3_-2" pX="-4.5" pY="-3.0" />
+		<xacro:make_one_floor_visual id="-3_-1" pX="-4.5" pY="-1.5" />
+		<xacro:make_one_floor_visual id="-3_0" pX="-4.5" pY="0.0" />
+
+		<xacro:make_one_floor_visual id="-2_-4" pX="-3.0" pY="-6.0" />
+		<xacro:make_one_floor_visual id="-2_-3" pX="-3.0" pY="-4.5" />
+		<xacro:make_one_floor_visual id="-2_-2" pX="-3.0" pY="-3.0" />
+		<xacro:make_one_floor_visual id="-2_-1" pX="-3.0" pY="-1.5" />
+		<xacro:make_one_floor_visual id="-2_0" pX="-3.0" pY="0.0" />
+
+		<xacro:make_one_floor_visual id="-1_-4" pX="-1.5" pY="-6.0" />
+		<xacro:make_one_floor_visual id="-1_-3" pX="-1.5" pY="-4.5" />
+		<xacro:make_one_floor_visual id="-1_-2" pX="-1.5" pY="-3.0" />
+		<xacro:make_one_floor_visual id="-1_-1" pX="-1.5" pY="-1.5" />
+		<xacro:make_one_floor_visual id="-1_0" pX="-1.5" pY="0.0" />
+
+		<xacro:make_one_floor_visual id="0_-4" pX="0.0" pY="-6.0" />
+		<xacro:make_one_floor_visual id="0_-3" pX="0.0" pY="-4.5" />
+		<xacro:make_one_floor_visual id="0_-2" pX="0.0" pY="-3.0" />
+		<xacro:make_one_floor_visual id="0_-1" pX="0.0" pY="-1.5" />
+		<xacro:make_one_floor_visual id="0_0" pX="0.0" pY="0.0" />
+
+		<xacro:make_one_floor_visual id="1_-4" pX="1.5" pY="-6.0" />
+		<xacro:make_one_floor_visual id="1_-3" pX="1.5" pY="-4.5" />
+		<xacro:make_one_floor_visual id="1_-2" pX="1.5" pY="-3.0" />
+		<xacro:make_one_floor_visual id="1_-1" pX="1.5" pY="-1.5" />
+		<xacro:make_one_floor_visual id="1_0" pX="1.5" pY="0.0" />
+
+		<xacro:make_one_floor_visual id="2_-4" pX="3.0" pY="-6.0" />
+		<xacro:make_one_floor_visual id="2_-3" pX="3.0" pY="-4.5" />
+		<xacro:make_one_floor_visual id="2_-2" pX="3.0" pY="-3.0" />
+		<xacro:make_one_floor_visual id="2_-1" pX="3.0" pY="-1.5" />
+		<xacro:make_one_floor_visual id="2_0" pX="3.0" pY="0.0" />
+
+		<xacro:make_one_floor_visual id="3_-4" pX="4.5" pY="-6.0" />
+		<xacro:make_one_floor_visual id="3_-3" pX="4.5" pY="-4.5" />
+		<xacro:make_one_floor_visual id="3_-2" pX="4.5" pY="-3.0" />
+		<xacro:make_one_floor_visual id="3_-1" pX="4.5" pY="-1.5" />
+		<xacro:make_one_floor_visual id="3_0" pX="4.5" pY="0.0" />
+	</link>
+
+
+	<link name="door_frame">
+		<pose>-0.75 0.1 0 0 0 3.141592653589793</pose>
+		<collision name="collision">
+			<geometry>
+				<mesh>
+					<uri>model://door/meshes/door_frame.obj</uri>
+					<scale>0.01 0.01 0.01</scale>
+				</mesh>
+			</geometry>
+		</collision>
+		<visual name="visual">
+			<geometry>
+				<mesh>
+					<uri>model://door/meshes/door_frame.obj</uri>
+					<scale>0.01 0.01 0.01</scale>
+				</mesh>
+			</geometry>
+		</visual>
+	</link>
+
+	<link name="door">
+		<pose>-0.3 -0.05 0 0 0 ${_custom_cafe_door_yaw[1:]}</pose>
+		<collision name="collision">
+			<pose>0.45 -0.15 0 0 0 0</pose>
+			<geometry>
+				<mesh>
+					<uri>model://door/meshes/door_door.obj</uri>
+					<scale>0.01 0.01 0.01</scale>
+				</mesh>
+			</geometry>
+		</collision>
+		<visual name="visual">
+			<pose>0.45 -0.15 0 0 0 0</pose>
+			<geometry>
+				<mesh>
+					<uri>model://door/meshes/door_door.obj</uri>
+					<scale>0.01 0.01 0.01</scale>
+				</mesh>
+			</geometry>
+		</visual>
+	</link>
+
+
+	<!-- Furniture if door is open -->
+
+	<xacro:make_one_counter_mesh_link lname="counter_0" pX="-5.7" pY="-6.7" />
+	<xacro:make_one_counter_mesh_link lname="counter_1" pX="-5.7" pY="-5.5" />
+	<xacro:make_one_counter_mesh_link lname="counter_2" pX="-5.7" pY="-4.3" />
+	<xacro:make_one_counter_mesh_link lname="counter_3" pX="-5.7" pY="-3.1"
+		uri_file="counter_sink.obj" />
+
+	<xacro:make_one_model_wrapper mname="realsense_1" pX="-5.4" pY="-4.3"
+		pZ="0.95" oZ="0.0">
+		<xacro:make_one_X_mesh_link X="kinect" lname="realsense" id="1"
+			pX="0.0" pY="0.0" pZ="0.02" oZ="0.0" />
+		<xacro:plugin_sensor_rgbd ref_link="realsense_1" topic_cam="camera1"
+			frame_cam="realsense_1_optical_frame" />
+	</xacro:make_one_model_wrapper>
+
+	<xacro:make_one_model_wrapper mname="realsense_2" pX="-5.9" pY="-3.8"
+		pZ="2.0" oZ="0.0">
+		<xacro:make_one_X_mesh_link X="kinect" lname="realsense" id="2"
+			pX="0.0" pY="0.0" pZ="0.02" oY="_0.2617993877991494" oZ="0.0" />
+		<xacro:plugin_sensor_rgbd ref_link="realsense_2" topic_cam="camera2"
+			frame_cam="realsense_2_optical_frame" />
+	</xacro:make_one_model_wrapper>
+
+	<xacro:make_one_model_wrapper mname="realsense_3" pX="4.4" pY="-3.8"
+		pZ="2.0" oZ="_PI_NEG">
+		<xacro:make_one_X_mesh_link X="kinect" lname="realsense" id="3"
+			pX="0.0" pY="0.0" pZ="0.02" oY="_0.2617993877991494"
+			/>
+		<xacro:plugin_sensor_rgbd ref_link="realsense_3" topic_cam="camera3"
+			frame_cam="realsense_3_optical_frame" />
+	</xacro:make_one_model_wrapper>
+
+	<xacro:make_one_model_wrapper mname="realsense_4" pX="-0.75" pY="-7.4"
+		pZ="2.0" oZ="_PI_HALF">
+		<xacro:make_one_X_mesh_link X="kinect" lname="realsense" id="4"
+			pX="0.0" pY="0.0" pZ="0.02" oY="_0.2617993877991494"
+			/>
+		<xacro:plugin_sensor_rgbd ref_link="realsense_4" topic_cam="camera4"
+			frame_cam="realsense_4_optical_frame" />
+	</xacro:make_one_model_wrapper>
+
+	<xacro:make_one_model_wrapper mname="realsense_5" pX="-0.75" pY="-0.13"
+		pZ="2.0" oZ="_PI_HALF_NEG">
+		<xacro:make_one_X_mesh_link X="kinect" lname="realsense" id="5"
+			pX="0.0" pY="0.0" pZ="0.02" oY="_0.2617993877991494"
+			/>
+		<xacro:plugin_sensor_rgbd ref_link="realsense_5" topic_cam="camera5"
+			frame_cam="realsense_5_optical_frame" />
+	</xacro:make_one_model_wrapper>
+
+
+
+
+	<xacro:make_one_model_wrapper mname="velodyne_1" pX="-0.75" pY="-2.3"
+		pZ="0.95" oZ="0.0">
+		<xacro:make_one_Y_mesh_link X="velodyne_hdl32" lname="velodyne" id="1"
+			pX="0.0" pY="0.0" pZ="0.02" oZ="0.0" />
+		<xacro:plugin_sensor_velodyne ref_link="velodyne_1"
+			topic_lidar="velodyne1" frame_lidar="velodyne_1_optical_frame" />
+	</xacro:make_one_model_wrapper>
+
+
+
+
+
+	<xacro:include_one_X_db_model X="microwave" id="1" pX="-5.54" pY="-6.94"
+		pZ="0.92" oZ="PI_HALF" />
+	<xacro:include_one_X_db_model X="microwave" id="2" pX="-5.54" pY="-6.38"
+		pZ="0.92" oZ="PI_HALF" />
+
+	<xacro:include_one_X_db_model X="coffee_maker" id="1" pX="-5.54" pY="-5.82"
+		pZ="0.92" oZ="PI_HALF" />
+	<xacro:include_one_X_db_model X="coffee_maker" id="2" pX="-5.54" pY="-5.54"
+		pZ="0.92" oZ="PI_HALF" />
+	<xacro:include_one_X_db_model X="coffee_maker" id="3" pX="-5.54" pY="-5.26"
+		pZ="0.92" oZ="PI_HALF" />
+
+	<xacro:include_one_X_db_model X="dishwasher" id="" pX="-5.65" pY="-2.18"
+		pZ="_0" oZ="PI_HALF" />
+
+	<xacro:include_one_X_db_model X="refrigerator" id="1" pX="-5.54" pY="-1.4"
+		pZ="_0" oZ="PI_HALF" />
+	<xacro:include_one_X_db_model X="refrigerator" id="2" pX="-5.54" pY="-0.59"
+		pZ="_0" oZ="PI_HALF" />
+
+<xacro:if value="${do_public_cafe_default_fixture}">
+	<xacro:include_one_X_db_model X="tv_stand" id="" pX="3.51" pY="-1.0"
+		pZ="_0" oZ="PI_QTR_NEG" />
+</xacro:if>
+
+
+	<!-- Table 1 -->
+	<xacro:include_one_X_db_model X="table" id="1" M="office_cafe_table"
+		pX="_-3.064101859517016"
+		pY="_-5.987063816009494"
+		pZ="_0" oZ="PI_QTR" />
+
+<xacro:if value="${do_public_cafe_default_fixture}">
+	<xacro:make_one_chair_collision_model id="1"
+		pX="_-3.564101859517016"
+		pY="_-6.487063816009494"
+		oZ="_-2.429086107711591" />
+
+	<xacro:make_one_chair_collision_model id="2"
+		pX="_-3.564101859517016"
+		pY="_-5.487063816009494"
+		oZ="_2.2439607748603367" bAltAmbient="True" />
+
+	<xacro:make_one_chair_collision_model id="3"
+		pX="_-2.564101859517016"
+		pY="_-6.487063816009494"
+		oZ="_-0.5369865551884657" />
+	<xacro:make_one_chair_collision_model id="4"
+		pX="_-2.564101859517016"
+		pY="_-5.487063816009494"
+		oZ="_0.5621632237129148" bAltAmbient="True" />
+</xacro:if>
+
+
+	<!-- Table 2 -->
+	<xacro:include_one_X_db_model X="table" id="2" M="office_cafe_table"
+		pX="_-2.863643220699783"
+		pY="_-3.573028620559729"
+		pZ="_0" oZ="PI_QTR" />
+
+<xacro:if value="${do_public_cafe_default_fixture}">
+	<xacro:make_one_chair_collision_model id="5"
+		pX="_-3.363643220699783"
+		pY="_-4.073028620559729"
+		oZ="_-2.7993317817883803" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="6"
+		pX="_-3.363643220699783"
+		pY="_-3.073028620559729"
+		oZ="_2.454168177374157" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="7"
+		pX="_-2.363643220699783"
+		pY="_-4.073028620559729"
+		oZ="_-0.7250062962505313" />
+	<xacro:make_one_chair_collision_model id="8"
+		pX="_-2.363643220699783"
+		pY="_-3.073028620559729"
+		oZ="_0.37745376607996095" bAltAmbient="True" />
+</xacro:if>
+
+
+	<!-- Table 3 -->
+	<xacro:include_one_X_db_model X="table" id="3" M="office_cafe_table"
+		pX="_-0.2701379308628278"
+		pY="_-5.910458418344506"
+		pZ="_0" oZ="PI_QTR" />
+
+<xacro:if value="${do_public_cafe_default_fixture}">
+	<xacro:make_one_chair_collision_model id="9"
+		pX="_-0.7701379308628278"
+		pY="_-6.410458418344506"
+		oZ="_-2.417259552484257" />
+	<xacro:make_one_chair_collision_model id="10"
+		pX="_-0.7701379308628278"
+		pY="_-5.410458418344506"
+		oZ="_2.8483525286123386" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="11"
+		pX="_0.22986206913717222"
+		pY="_-6.410458418344506"
+		oZ="_-1.0464455268333919" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="12"
+		pX="_0.22986206913717222"
+		pY="_-5.410458418344506"
+		oZ="_1.0908487027667508" />
+</xacro:if>
+
+
+	<!-- Table 4 -->
+	<xacro:include_one_X_db_model X="table" id="4" M="office_cafe_table"
+		pX="_-0.4604197995651922"
+		pY="_-3.598533845249485"
+		pZ="_0" oZ="PI_QTR" />
+
+<xacro:if value="${do_public_cafe_default_fixture}">
+	<xacro:make_one_chair_collision_model id="13"
+		pX="_-0.9604197995651922"
+		pY="_-4.098533845249484"
+		oZ="_-2.8003416047084864" />
+	<xacro:make_one_chair_collision_model id="14"
+		pX="_-0.9604197995651922"
+		pY="_-3.098533845249485"
+		oZ="_2.152988241594105" />
+	<xacro:make_one_chair_collision_model id="15"
+		pX="_0.03958020043480781"
+		pY="_-4.098533845249484"
+		oZ="_-0.8988017797977348" />
+	<xacro:make_one_chair_collision_model id="16"
+		pX="_0.03958020043480781"
+		pY="_-3.098533845249485"
+		oZ="_0.7423772962552341" bAltAmbient="True" />
+</xacro:if>
+
+
+	<!-- Table 5 -->
+	<xacro:include_one_X_db_model X="table" id="5" M="office_cafe_table"
+		pX="_2.676073950013953"
+		pY="_-6.0631614455981815"
+		pZ="_0" oZ="PI_QTR" />
+
+<xacro:if value="${do_public_cafe_default_fixture}">
+	<xacro:make_one_chair_collision_model id="17"
+		pX="_2.176073950013953"
+		pY="_-6.5631614455981815"
+		oZ="_-2.4954460696762872" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="18"
+		pX="_2.176073950013953"
+		pY="_-5.5631614455981815"
+		oZ="_2.5138193009575027" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="19"
+		pX="_3.176073950013953"
+		pY="_-6.5631614455981815"
+		oZ="_-1.0608169868008481" />
+	<xacro:make_one_chair_collision_model id="20"
+		pX="_3.176073950013953"
+		pY="_-5.5631614455981815"
+		oZ="_0.895726316652425" bAltAmbient="True" />
+</xacro:if>
+
+
+<!--
+	<xacro:include_one_X_db_model X="table" id="1" M="office_cafe_table"
+		pX="_"
+		pY="_"
+		pZ="0" oZ="PI_QTR" />
+-->
+	<!-- Table 6 -->
+	<xacro:include_one_X_db_model X="table" id="6" M="office_cafe_table"
+		pX="_2.80956293573886"
+		pY="_-3.8243140372418294"
+		pZ="_0" oZ="PI_QTR" />
+
+<xacro:if value="${do_public_cafe_default_fixture}">
+<!--
+	<xacro:make_one_chair_collision_model id="1"
+		pX="_"
+		pY="_"
+		oZ="_" />
+	<xacro:make_one_chair_collision_model id="2"
+		pX="_"
+		pY="_"
+		oZ="_" bAltAmbient="True" />
+-->
+	<xacro:make_one_chair_collision_model id="21"
+		pX="_2.30956293573886"
+		pY="_-4.324314037241829"
+		oZ="_-2.2562072593174385" />
+	<xacro:make_one_chair_collision_model id="22"
+		pX="_2.30956293573886"
+		pY="_-3.3243140372418294"
+		oZ="_2.83860231662428" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="23"
+		pX="_3.30956293573886"
+		pY="_-4.324314037241829"
+		oZ="_-0.8456186400642177" bAltAmbient="True" />
+	<xacro:make_one_chair_collision_model id="24"
+		pX="_3.30956293573886"
+		pY="_-3.3243140372418294"
+		oZ="_0.308576298632638" />
+</xacro:if>
+
+</model>
+</robot>

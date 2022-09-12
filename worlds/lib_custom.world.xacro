@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:macro name="loop_through_custom_cfg" params="rname:=^ custom_list:=^
+		_bDebug:=^|False">
+
+	<xacro:if value="${custom_list}">
+		<xacro:property name="_cfg_opt" value="${custom_list.pop(0)}" />
+
+		<xacro:property name="_vel" value="0" />
+		<xacro:property name="_scene" value="0" />
+		<xacro:property name="_human" value="" />
+		<xacro:property name="_shirt" value="" />
+		<xacro:property name="_traj" value="${[]}" />
+
+		<xacro:if value="${_cfg_opt.endswith( '.a')}">
+			<xacro:property name="_vel" value="0.9" />
+		</xacro:if>
+		<xacro:if value="${_cfg_opt.endswith( '.b')}">
+			<xacro:property name="_vel" value="1.05" />
+		</xacro:if>
+		<xacro:if value="${_cfg_opt.endswith( '.c')}">
+			<xacro:property name="_vel" value="1.2" />
+		</xacro:if>
+
+		<xacro:if value="${_bDebug}">
+		<_vel>${_vel}</_vel>
+		</xacro:if>
+
+		<xacro:unless value="${_vel == 0}">
+			<xacro:property name="_scene" value="${_cfg_opt[:-2]}" />
+		</xacro:unless>
+
+		<xacro:if value="${_bDebug}">
+		<_scene>${_scene}</_scene>
+		</xacro:if>
+
+		<xacro:if value="${_scene == 1}">
+			<xacro:property name="_human" value="80283" />
+			<xacro:property name="_shirt" value="red" />
+			<xacro:property name="_traj" value="${[
+				[ 18.8, 10.0 ],
+				[ 18.8, 7.9 ],
+				[ 18.8, 5.8 ],
+				[ 18.8, 3.7 ],
+				[ 18.8, 1.6 ],
+
+				[ 16.0, 1.6 ],
+				[ 16.0, 3.7 ],
+				[ 16.0, 5.8 ],
+				[ 16.0, 7.9 ],
+				[ 16.0, 10.0 ],
+			]}" />
+		</xacro:if>
+		<xacro:if value="${_scene == 2}">
+			<xacro:property name="_human" value="25954" />
+			<xacro:property name="_shirt" value="blue" />
+			<xacro:property name="_traj" value="${[
+				[ 20.6, 4.3 ],
+				[ 19.1, 4.3 ],
+				[ 17.6, 4.3 ],
+				[ 16.1, 4.3 ],
+
+				[ 16.1, 5.6 ],
+
+				[ 16.1, 6.9 ],
+				[ 17.6, 6.9 ],
+				[ 19.1, 6.9 ],
+				[ 20.6, 6.9 ],
+
+				[ 20.6, 5.6 ],
+			]}" />
+		</xacro:if>
+		<xacro:if value="${_scene == 3}">
+			<xacro:property name="_human" value="94763" />
+			<xacro:property name="_shirt" value="green" />
+			<xacro:property name="_traj" value="${[
+				[ 15.3, 10.0 ],
+				[ 16.2, 8.95 ],
+				[ 15.3, 7.9 ],
+				[ 14.4, 6.85 ],
+				[ 15.3, 5.8 ],
+				[ 16.2, 4.75 ],
+				[ 15.3, 3.7 ],
+				[ 14.4, 2.65 ],
+				[ 15.3, 1.6 ],
+
+				[ 16.2, 2.65 ],
+				[ 15.3, 3.7 ],
+				[ 14.4, 4.75 ],
+				[ 15.3, 5.8 ],
+				[ 16.2, 6.85 ],
+				[ 15.3, 7.9 ],
+				[ 14.4, 8.95 ],
+			]}" />
+		</xacro:if>
+
+
+		<xacro:make_one_human_collision_model id="${_human}" />
+
+		<xacro:make_one_actor_traj_model id="${_human}" pX="${_traj[0][0]}"
+			pY="${_traj[0][1]}" vel="${_vel}" colour="${_shirt}"
+			rname="${rname}" pTrajXY="${_traj}" />
+
+		<xacro:if value="${_bDebug}">
+		<_human>${_human}</_human>
+		<_shirt>${_shirt}</_shirt>
+		<_traj>${_traj}</_traj>
+		</xacro:if>
+
+
+		<xacro:loop_through_custom_cfg />
+
+	</xacro:if>
+</xacro:macro>
+
+</robot>

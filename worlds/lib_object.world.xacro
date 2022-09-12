@@ -1,0 +1,343 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:property name="material_diff_spec">
+	<diffuse>
+		0.5
+		0.5
+		0.5
+		1
+	</diffuse>
+	<specular>
+		0.5
+		0.5
+		0.5
+		1
+	</specular>
+</xacro:property>
+
+<!-- ######################################## -->
+<xacro:macro name="insert_material" params="*ambient_block">
+	<material>
+		<xacro:insert_block name="material_diff_spec" />
+		<xacro:insert_block name="ambient_block" />
+	</material>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="insert_material_0">
+	<xacro:insert_material>
+		<ambient>
+			0.47
+			0.36
+			0.19
+			1
+		</ambient>
+	</xacro:insert_material>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="insert_material_1">
+	<xacro:insert_material>
+		<ambient>
+			0.36
+			0.26
+			0.13
+			1
+		</ambient>
+	</xacro:insert_material>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_link_collision_cylinder" params="pX pY pZ sR:=0.26
+		sL:=1.4">
+
+	<link name='colision'>
+		<pose>${pX} ${pY} ${pZ} 0 -0 0</pose>
+		<collision name='collision'>
+			<geometry>
+				<cylinder>
+					<radius>${sR}</radius>
+					<length>${sL}</length>
+				</cylinder>
+			</geometry>
+		</collision>
+	</link>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_link_visual_cylinder" params="lname pX pY pZ
+		sR:=0.0139887 sL:=0.624683 oZ:=0.0 bAltAmbient:=^|False">
+
+	<link name="${lname}">
+		<pose frame=''>${pX} ${pY} ${pZ} 0 -0 0</pose>
+		<visual name='visual'>
+			<geometry>
+				<cylinder>
+					<radius>${sR}</radius>
+					<length>${sL}</length>
+				</cylinder>
+			</geometry>
+			<xacro:if value="${bAltAmbient}">
+				<xacro:insert_material_1 />
+			</xacro:if>
+			<xacro:unless value="${bAltAmbient}">
+				<xacro:insert_material_0 />
+			</xacro:unless>
+		</visual>
+	</link>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_link_visual_box" params="lname pX pY pZ oZ oY:=0
+		sW:=0.085272 sD:=0.095133 sH:=0.269596 bAltAmbient:=^|False">
+
+	<xacro:force_str val="${oY}" _bPedantic="False" />
+
+	<xacro:property name="_oY" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_oY}" />
+
+	<link name="${lname}">
+		<pose frame="">${pX} ${pY} ${pZ} 0 ${_oY[1:]} ${oZ}</pose>
+		<visual name='visual'>
+			<geometry>
+				<box>
+					<size>${sW} ${sD} ${sH}</size>
+				</box>
+			</geometry>
+			<xacro:if value="${bAltAmbient}">
+				<xacro:insert_material_1 />
+			</xacro:if>
+			<xacro:unless value="${bAltAmbient}">
+				<xacro:insert_material_0 />
+			</xacro:unless>
+		</visual>
+	</link>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_chair_collision_model" params="id pX pY oZ
+		bAltAmbient:=False">
+
+<model name='chair_${id}'>
+
+	<static>true</static>
+
+	<xacro:make_one_pose _bDebug="False" pZ="0.85" oX="_0" oY="_0" />
+
+	<xacro:make_one_link_collision_cylinder pX="-0.112954" pY="0.0" pZ="-0.15"
+		/>
+
+	<xacro:make_one_link_visual_cylinder lname="link_0" pX="-0.112954"
+		pY="0.002154" pZ="-0.208402" sR="0.254492" sL="0.0690057" />
+
+	<xacro:make_one_link_visual_cylinder lname="link_0_clone"
+		pX="-0.23509" pY="-0.177559" pZ="-0.509133" />
+	<xacro:make_one_link_visual_cylinder lname="link_0_clone_clone"
+		pX="-0.240938" pY="0.153013" pZ="-0.509133" />
+	<xacro:make_one_link_visual_cylinder lname="link_0_clone_clone_0"
+		pX="0.036021" pY="0.151623" pZ="-0.509133" />
+	<xacro:make_one_link_visual_cylinder lname="link_0_clone_clone_1"
+		pX="0.010219" pY="-0.181073" pZ="-0.509133" />
+
+	<xacro:make_one_link_visual_cylinder lname="link_0_clone_clone_1_clone"
+		pX="0.014987" pY="-0.161898" pZ="0.047314" sL="0.470785" />
+	<xacro:make_one_link_visual_cylinder
+		lname="link_0_clone_clone_1_clone_clone"
+		pX="0.067643" pY="-0.07581" pZ="0.047314" sL="0.470785" />
+	<xacro:make_one_link_visual_cylinder
+		lname="link_0_clone_clone_1_clone_clone_0"
+		pX="0.09896" pY="0.009345" pZ="0.047314" sL="0.470785" />
+	<xacro:make_one_link_visual_cylinder
+		lname="link_0_clone_clone_1_clone_clone_1"
+		pX="0.062061" pY="0.101632" pZ="0.047314" sL="0.470785" />
+	<xacro:make_one_link_visual_cylinder
+		lname="link_0_clone_clone_1_clone_clone_2"
+		pX="0.017719" pY="0.173047" pZ="0.047314" sL="0.470785" />
+
+	<xacro:make_one_link_visual_box lname="link_1"
+		pX="0.029884" pY="-0.160862" pZ="0.401672" oZ="-0.896575" />
+	<xacro:make_one_link_visual_box lname="link_1_clone"
+		pX="0.07344" pY="-0.104423" pZ="0.401674" oZ="-0.405782" />
+
+	<xacro:make_one_link_visual_box lname="link_1_clone_0"
+		pX="0.086562" pY="0.003017" pZ="0.401674" oZ="0.028173" sD="0.161256"
+		oY="_-0" />
+	<xacro:make_one_link_visual_box lname="link_1_clone_1"
+		pX="0.06694" pY="0.106481" pZ="0.401674" oZ="0.482169"
+		oY="_-0" />
+	<xacro:make_one_link_visual_box lname="link_1_clone_2"
+		pX="0.021757" pY="0.157964" pZ="0.401674" oZ="0.877817"
+		oY="_-0" />
+
+	<static>0</static>
+</model>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_chair_mesh_link" params="id pX pY oZ">
+
+<link name='chair_${id}'>
+	<xacro:make_one_pose pZ="_0" oX="_0" oY="_0" />
+
+	<visual name="visual">
+		<geometry>
+			<mesh>
+				<uri>model://office_chair/meshes/office_chair.dae</uri>
+				<scale>1.4 1.4 1.4</scale>
+			</mesh>
+		</geometry>
+	</visual>
+</link>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="include_one_X_db_model" params="X id:=^ pX:=^ pY:=^ pZ:=^
+		oZ:=^ M:=''">
+
+	<xacro:property name="_model" value="${X}" />
+	<xacro:if value="${M != ''}">
+		<xacro:property name="_model" value="${M}" />
+	</xacro:if>
+
+<include>
+	<xacro:unless value="${(id == '0') or (id == '')}">
+		<name>${X}_${id}</name>
+	</xacro:unless>
+	<xacro:make_one_pose oX="_0" oY="_0" _bPedanticPZ="True" />
+	<uri>model://${_model}</uri>
+</include>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="include_one_desk_db_model" params="id pX pY oZ:='PI'">
+
+<!--
+<include>
+	<name>desk_${id}</name>
+	<xacro:make_one_pose pZ="0.1" oX="_0" oY="_0" />
+	<uri>model://desk</uri>
+</include>
+-->
+	<xacro:include_one_X_db_model X="desk" pZ="0.1" />
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_computer_mesh_link" params="id pX pY oZ:='PI'">
+
+<link name='computer_${id}'>
+	<xacro:make_one_pose pZ="0.78" oX="_0" oY="_0" />
+
+	<visual name="monitor">
+		<geometry>
+			<mesh>
+				<uri>model://computer/meshes/computer_monitor.obj</uri>
+				<scale>0.01 0.01 0.01</scale>
+			</mesh>
+		</geometry>
+	</visual>
+</link>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="include_one_chair_db_model" params="id pX pY oZ:='PI'">
+
+<!--
+<include>
+	<name>chair_${id}</name>
+	<xacro:make_one_pose pZ="0.76" oX="_0" oY="_0" />
+	<uri>model://chair</uri>
+</include>
+-->
+	<xacro:include_one_X_db_model X="chair" pZ="_0" M="office_chair" />
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="include_one_computer_db_model" params="id pX pY
+		oZ:='PI_HALF_NEG'">
+
+	<xacro:include_one_X_db_model X="computer" pZ="0.76" />
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_X_mesh_link" params="X lname id pX pY pZ
+		scale:=1.0 oY:='_0' oZ:='_0' M:='' C:='' m_extn:='dae'">
+
+	<xacro:property name="_mesh" value="${X}" />
+	<xacro:if value="${M != ''}">
+		<xacro:property name="_mesh" value="${M}" />
+	</xacro:if>
+
+	<xacro:property name="_cmesh" value="" />
+	<xacro:if value="${C != ''}">
+		<xacro:property name="_cmesh" value="${C}" />
+		<xacro:if value="${C.endswith( '/')}">
+			<xacro:property name="_cmesh" value="${C}${_mesh}" />
+		</xacro:if>
+	</xacro:if>
+
+<link name="${lname}_${id}">
+	<xacro:make_one_pose oX="_0" />
+
+	<visual name="visual">
+		<geometry>
+			<mesh>
+				<uri>model://${X}/meshes/${_mesh}.${m_extn}</uri>
+				<scale>${scale} ${scale} ${scale}</scale>
+			</mesh>
+		</geometry>
+	</visual>
+	<xacro:unless value="${_cmesh == ''}">
+	<collision name="collision">
+		<geometry>
+			<mesh>
+				<uri>model://${X}/meshes/${_cmesh}.${m_extn}</uri>
+				<scale>${scale} ${scale} ${scale}</scale>
+			</mesh>
+		</geometry>
+	</collision>
+	</xacro:unless>
+
+	<link name="${lname}_${id}_optical_frame">
+<!--
+		<xacro:make_one_pose pX="0.18" pZ="-0.05" oX="PI_HALF_NEG"
+			oZ="PI_HALF_NEG" />
+-->
+		<xacro:make_one_pose pX="0.18" pZ="-0.05" oY="0.0" oZ="0.0" />
+	</link>
+</link>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_model_wrapper" params="mname pX pY pZ oZ=0.0
+		*visual_block **X">
+
+<model name="${mname}">
+	<xacro:make_one_pose />
+	<static>True</static>
+	<xacro:insert_block name="visual_block" />
+	<link name="link">
+		<xacro:insert_block name="X" />
+	</link>
+</model>
+
+</xacro:macro>
+
+</robot>

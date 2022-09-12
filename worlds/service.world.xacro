@@ -1,0 +1,1516 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="lib_wall.world.xacro" />
+<xacro:include filename="lib_actor.world.xacro" />
+<xacro:include filename="lib_object.world.xacro" />
+<xacro:include filename="lib_floor.world.xacro" />
+<xacro:include filename="lib_custom.world.xacro" />
+
+<xacro:include filename="kinect_macro.urdf.xacro" />
+<xacro:include filename="../plugins/camera.xacro" />
+<xacro:include filename="../plugins/kinect.xacro" />
+
+<xacro:arg name="robot_name" default="servicebot" />
+<xacro:arg name="custom_cfg" default="1.a" />
+
+<xacro:property name="_custom_cfg" value="$(arg custom_cfg)" />
+<xacro:property name="no_custom" value="${str(_custom_cfg).strip() == '0'}"
+	/>
+
+<xacro:property name="do_public_cafe_default_fixture" value="${no_custom}"
+	/>
+<xacro:property name="do_actor_default_dynamic" value="${no_custom}" />
+<xacro:property name="do_actor_default_idle" value="${no_custom}" />
+<xacro:property name="do_competition" value="${no_custom}" />
+
+<xacro:if value="${no_custom}">
+<xacro:property name="_custom_cafe_door_yaw" value="_-0.36158626085699286" />
+</xacro:if>
+<xacro:unless value="${no_custom}">
+<xacro:property name="_custom_cafe_door_yaw" value="_-3.141592653589793" />
+</xacro:unless>
+
+
+<sdf version="1.6">
+<world name="default">
+
+	<debug>
+		<custom_cfg>$(arg custom_cfg)</custom_cfg>
+		<_custom_cfg>${_custom_cfg}</_custom_cfg>
+
+		<no_custom>${no_custom}</no_custom>
+
+		<do_public_cafe_default_fixture>
+			${do_public_cafe_default_fixture}
+		</do_public_cafe_default_fixture>
+		<do_actor_default_dynamic>
+			${do_actor_default_dynamic}
+		</do_actor_default_dynamic>
+
+		<do_actor_default_idle>${do_actor_default_idle}</do_actor_default_idle>
+		<do_competition>${do_competition}</do_competition>
+	</debug>
+
+	<!-- Physics -->
+	<physics type="ode">
+		<real_time_update_rate>500.0</real_time_update_rate>
+		<max_step_size>0.002</max_step_size>
+		<real_time_factor>1</real_time_factor>
+		<ode>
+			<solver>
+				<type>quick</type>
+				<iters>300</iters>
+				<precon_iters>0</precon_iters>
+				<sor>1.400000</sor>
+				<use_dynamic_moi_rescaling>1</use_dynamic_moi_rescaling>
+			</solver>
+			<constraints>
+				<cfm>0.000000</cfm>
+				<erp>0.800000</erp>
+				<contact_max_correcting_vel>
+					2000.000000
+				</contact_max_correcting_vel>
+				<contact_surface_layer>0.01000</contact_surface_layer>
+			</constraints>
+		</ode>
+	</physics>
+
+	<!-- Scene -->
+	<scene>
+		<ambient>0.8 0.8 0.8 1.0</ambient>
+		<background>0.66 0.77 0.84 1.0</background>
+		<grid>0</grid>
+		<origin_visual>0</origin_visual>
+	</scene>
+
+	<!-- Light just so some objects are shaded -->
+	<light name='directional_light' type='directional'>
+		<pose>0.0 0.0 -100.0 0 0 0</pose>
+		<diffuse>0.5 0.5 0.5 1</diffuse>
+		<specular>0.1 0.1 0.1 1</specular>
+		<direction>0.1 0.1 -0.9</direction>
+		<attenuation>
+			<range>20</range>
+			<constant>0.5</constant>
+			<linear>0.01</linear>
+			<quadratic>0.001</quadratic>
+		</attenuation>
+		<cast_shadows>0</cast_shadows>
+	</light>
+
+	<!-- Ceiling -->
+<model name="ceiling">
+	<xacro:make_one_plane_link_named name_of_link="link" pX="-2.97"
+			pY="11.25" pZ="3.0" name_part="Ceiling" dZ="-1" />
+</model>
+
+	<!-- Floor -->
+<model name="floor">
+	<xacro:make_one_plane_link_named name_of_link="link" pX="-2.97"
+			pY="11.25" pZ="-0.001" name_part="Hallway" />
+</model>
+
+	<!-- Extra walls -->
+
+<model name="walls">
+	<static>true</static>
+
+	<link name="link">
+		<xacro:make_one_wall_named id="1" pX="-8.25" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="2" pX="-6.75" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="3" pX="-5.25" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="4" pX="-3.75" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="5" pX="-2.25" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="6" pX="-0.75" pY="0.0" sW="1.5"
+			name_part="Elevator" />
+		<xacro:make_one_wall_named id="7" pX="0.75" pY="0.0" sW="1.5"
+			name_part="Elevator" />
+		<xacro:make_one_wall_named id="8" pX="2.25" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="9" pX="3.75" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="10" pX="5.25" pY="0.0" sW="1.5" />
+		<xacro:make_one_wall_named id="11" pX="6.749" pY="0.0" sW="1.5" />
+
+		<xacro:make_one_wall_named id="12" pX="-8.25" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="13" pX="-6.75" pY="4.6" sW="1.5" />
+
+		<xacro:make_one_wall_named id="14" pX="5.25" pY="3.1" sW="1.5" />
+		<xacro:make_one_wall_named id="15" pX="6.75" pY="3.1" sW="1.5" />
+
+		<xacro:make_one_wall_named id="16" pX="7.4" pY="0.75" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="17" pX="7.4" pY="2.25" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="18" pX="7.4" pY="3.05" sW="0.1"
+			oZ="PI_HALF" />
+
+		<xacro:make_one_wall_named id="19" pX="7.45" pY="3.1" sW="0.1" />
+		<xacro:make_one_wall_named id="20" pX="7.55" pY="3.1" sW="0.1" />
+
+		<xacro:make_one_wall_named id="21" pX="9.75" pY="3.1" sW="1.5" />
+
+		<xacro:make_one_wall_named id="22" pX="10.55" pY="3.1" sW="0.1" />
+		<xacro:make_one_wall_named id="23" pX="10.65" pY="3.1" sW="0.1" />
+
+		<xacro:make_one_wall_named id="24" pX="12.85" pY="3.1" sW="1.5" />
+
+		<xacro:make_one_wall_named id="25" pX="13.6" pY="3.85" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="26" pX="13.6" pY="6.75" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="27" pX="13.6" pY="8.25" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="28" pX="13.6" pY="9.75" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="29" pX="13.6" pY="10.55" sW="0.1"
+			oZ="PI_HALF"
+			/>
+
+		<xacro:make_one_wall_named id="30" pX="14.35" pY="10.6" sW="1.5" />
+		<xacro:make_one_wall_named id="31" pX="15.85" pY="10.6" sW="1.5" />
+		<xacro:make_one_wall_named id="32" pX="17.35" pY="10.6" sW="1.5" />
+		<xacro:make_one_wall_named id="33" pX="18.85" pY="10.6" sW="1.5" />
+		<xacro:make_one_wall_named id="34" pX="20.35" pY="10.6" sW="1.5" />
+
+		<xacro:make_one_wall_named id="35" pX="21.15" pY="10.6" sW="0.1" />
+		<xacro:make_one_wall_named id="36" pX="21.2" pY="11.35" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="37" pX="21.2" pY="12.85" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="38" pX="21.2" pY="14.35" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="39" pX="21.2" pY="15.85" sW="1.5"
+			oZ="PI_HALF"
+			/>
+
+		<xacro:make_one_wall_named id="40" pX="20.95" pY="16.4" sW="0.1" />
+		<xacro:make_one_wall_named id="41" pX="21.05" pY="16.4" sW="0.1" />
+		<xacro:make_one_wall_named id="42" pX="21.15" pY="16.4" sW="0.1" />
+		<xacro:make_one_wall_named id="43" pX="20.25" pY="16.4" sW="1.5" />
+		<xacro:make_one_wall_named id="44" pX="17.25" pY="16.4" sW="1.5" />
+		<xacro:make_one_wall_named id="45" pX="15.75" pY="16.4" sW="1.5" />
+		<xacro:make_one_wall_named id="46" pX="14.25" pY="16.4" sW="1.5" />
+		<xacro:make_one_wall_named id="47" pX="12.75" pY="16.4" sW="1.5" />
+		<xacro:make_one_wall_named id="48" pX="11.95" pY="16.4" sW="0.1" />
+
+		<xacro:make_one_wall_named id="49" pX="11.9" pY="17.15" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="50" pX="11.9" pY="18.65" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="51" pX="11.15" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="52" pX="8.15" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="53" pX="7.35" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="54" pX="6.55" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="55" pX="3.55" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="56" pX="2.75" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="57" pX="2.7" pY="19.45" sW="0.1"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="58" pX="2.7" pY="20.25" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="59" pX="2.7" pY="21.75" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="60" pX="1.95" pY="22.5" sW="1.5" />
+		<xacro:make_one_wall_named id="61" pX="0.75" pY="22.5" sW="1.5" />
+		<xacro:make_one_wall_named id="62" pX="-0.75" pY="22.5" sW="1.5" />
+		<xacro:make_one_wall_named id="63" pX="-2.25" pY="22.5" sW="1.5"
+			name_part="Door" />
+		<xacro:make_one_wall_named id="64" pX="-2.9" pY="21.75" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="65" pX="-2.9" pY="20.25" sW="1.5"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="66" pX="-2.9" pY="19.45" sW="0.1"
+			oZ="PI_HALF"
+			/>
+		<xacro:make_one_wall_named id="67" pX="-2.95" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="68" pX="-3.05" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="69" pX="-5.25" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="70" pX="-6.05" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="71" pX="-8.35" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="72" pX="-9.15" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="73" pX="-9.95" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="74" pX="-12.95" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="75" pX="-13.75" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="76" pX="-14.55" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="77" pX="-18.35" pY="19.4" sW="0.1" />
+		<xacro:make_one_wall_named id="78" pX="-17.55" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="79" pX="-19.15" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="80" pX="-22.15" pY="19.4" sW="1.5" />
+		<xacro:make_one_wall_named id="81" pX="-22.9" pY="17.25" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="82" pX="-22.9" pY="15.75" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="83" pX="-22.9" pY="14.95" sW="0.1"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="84" pX="-22.95" pY="14.9" sW="0.1" />
+		<xacro:make_one_wall_named id="85" pX="-23.75" pY="14.9" sW="1.5" />
+		<xacro:make_one_wall_named id="86" pX="-25.25" pY="14.9" sW="1.5" />
+		<xacro:make_one_wall_named id="87" pX="-26.75" pY="14.9" sW="1.5" />
+
+		<xacro:make_one_wall_named id="88" pX="-27.5" pY="14.15" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="89" pX="-27.5" pY="12.65" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="90" pX="-27.5" pY="11.15" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="91" pX="-27.5" pY="9.65" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="92" pX="-27.5" pY="8.15" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="93" pX="-27.5" pY="6.65" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="94" pX="-27.5" pY="5.15" sW="1.5"
+			oZ="PI_HALF" />
+
+		<xacro:make_one_wall_named id="95" pX="-27.45" pY="4.6" sW="0.1" />
+		<xacro:make_one_wall_named id="96" pX="-27.35" pY="4.6" sW="0.1" />
+		<xacro:make_one_wall_named id="97" pX="-27.25" pY="4.6" sW="0.1" />
+		<xacro:make_one_wall_named id="98" pX="-26.45" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="99" pX="-23.45" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="100" pX="-21.95" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="101" pX="-21.15" pY="4.6" sW="0.1" />
+		<xacro:make_one_wall_named id="102" pX="-20.35" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="103" pX="-17.35" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="104" pX="-15.85" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="105" pX="-15.05" pY="4.6" sW="0.1" />
+		<xacro:make_one_wall_named id="106" pX="-14.25" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="107" pX="-11.25" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="108" pX="-9.75" pY="4.6" sW="1.5" />
+		<xacro:make_one_wall_named id="109" pX="-8.95" pY="4.6" sW="0.1" />
+		<xacro:make_one_wall_named id="110" pX="-8.9" pY="4.55" sW="0.1"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="111" pX="-8.9" pY="3.75" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="112" pX="-8.9" pY="2.25" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="113" pX="-8.9" pY="0.75" sW="1.5"
+			oZ="PI_HALF" />
+
+		<xacro:make_one_wall_named id="114" pX="-4.65" pY="4.4" sW="0.1" />
+		<xacro:make_one_wall_named id="115" pX="-3.85" pY="4.4" sW="1.5" />
+		<xacro:make_one_wall_named id="116" pX="-2.35" pY="4.4" sW="1.5" />
+		<xacro:make_one_wall_named id="117" pX="-0.85" pY="4.4" sW="1.5" />
+		<xacro:make_one_wall_named id="118" pX="-0.05" pY="4.4" sW="0.1" />
+		<xacro:make_one_wall_named id="119" pX="0.75" pY="4.4" sW="1.5" />
+		<xacro:make_one_wall_named id="120" pX="2.25" pY="4.4" sW="1.5" />
+		<xacro:make_one_wall_named id="121" pX="3.75" pY="4.4" sW="1.5" />
+		<xacro:make_one_wall_named id="122" pX="4.55" pY="4.4" sW="0.1" />
+		<xacro:make_one_wall_named id="123" pX="4.6" pY="4.45" sW="0.1"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="124" pX="4.6" pY="5.25" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="125" pX="4.6" pY="6.75" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="126" pX="4.6" pY="9.75" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="127" pX="4.6" pY="10.55" sW="0.1"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="128" pX="4.6" pY="11.35" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="129" pX="4.6" pY="12.85" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="130" pX="4.6" pY="15.85" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="131" pX="4.6" pY="16.65" sW="0.1"
+			oZ="PI_HALF" />
+
+		<xacro:make_one_wall_named id="132" pX="-4.65" pY="16.7" sW="0.1" />
+		<xacro:make_one_wall_named id="133" pX="-3.85" pY="16.7" sW="1.5" />
+		<xacro:make_one_wall_named id="134" pX="-2.35" pY="16.7" sW="1.5" />
+		<xacro:make_one_wall_named id="135" pX="-0.85" pY="16.7" sW="1.5" />
+		<xacro:make_one_wall_named id="136" pX="-0.05" pY="16.7" sW="0.1" />
+		<xacro:make_one_wall_named id="137" pX="0.75" pY="16.7" sW="1.5" />
+		<xacro:make_one_wall_named id="138" pX="2.25" pY="16.7" sW="1.5" />
+		<xacro:make_one_wall_named id="139" pX="3.75" pY="16.7" sW="1.5" />
+		<xacro:make_one_wall_named id="140" pX="4.55" pY="16.7" sW="0.1" />
+
+		<xacro:make_one_wall_named id="141" pX="-4.7" pY="4.45" sW="0.1"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="142" pX="-4.7" pY="5.25" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="143" pX="-4.7" pY="8.25" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="144" pX="-4.7" pY="9.75" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="145" pX="-4.7" pY="10.55" sW="0.1"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="146" pX="-4.7" pY="11.35" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="147" pX="-4.7" pY="14.35" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="148" pX="-4.7" pY="15.85" sW="1.5"
+			oZ="PI_HALF" />
+		<xacro:make_one_wall_named id="149" pX="-4.7" pY="16.65" sW="0.1"
+			oZ="PI_HALF" />
+	</link>
+</model>
+
+	<!-- Rooms -->
+
+<xacro:include filename="./parts/servicesim/PublicBathroomA.sdf" />
+<xacro:include filename="./parts/servicesim/PublicBathroomB.sdf" />
+
+<xacro:include filename="./parts/servicesim/PublicCafe.sdf" />
+
+<xacro:include filename="./parts/servicesim/PublicMeetingRoomA.sdf" />
+<xacro:include filename="./parts/servicesim/PublicMeetingRoomB.sdf" />
+<xacro:include filename="./parts/servicesim/PublicMeetingRoomC.sdf" />
+<xacro:include filename="./parts/servicesim/PublicMeetingRoomD.sdf" />
+<xacro:include filename="./parts/servicesim/PublicMeetingRoomE.sdf" />
+
+<xacro:include filename="./parts/servicesim/PrivateMeetingRoomA.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateMeetingRoomB.sdf" />
+
+<xacro:include filename="./parts/servicesim/PrivateBathroomA.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateBathroomB.sdf" />
+
+<xacro:include filename="./parts/servicesim/PrivateOfficeA.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateOfficeB.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateOfficeC.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateOfficeD.sdf" />
+
+<xacro:include filename="./parts/servicesim/PrivateMeetingRoomC.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateMeetingRoomD.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateMeetingRoomE.sdf" />
+
+	<!-- Public cubicles -->
+	<!-- Islands -->
+
+<xacro:include filename="./parts/servicesim/PublicCubicle_25.sdf" />
+<xacro:include filename="./parts/servicesim/PublicCubicle_26.sdf" />
+
+	<!-- Corners -->
+
+<xacro:include filename="./parts/servicesim/PublicCubicle_27.sdf" />
+<xacro:include filename="./parts/servicesim/PublicCubicle_28.sdf" />
+<xacro:include filename="./parts/servicesim/PublicCubicle_29.sdf" />
+<xacro:include filename="./parts/servicesim/PublicCubicle_30.sdf" />
+
+	<!-- Private cubicles -->
+
+<xacro:include filename="./parts/servicesim/PrivateCubicle_31.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateCubicle_32.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateCubicle_33.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateCubicle_34.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateCubicle_35.sdf" />
+<xacro:include filename="./parts/servicesim/PrivateCubicle_36.sdf" />
+
+	<!-- Private cafe -->
+
+<xacro:include filename="./parts/servicesim/PrivateCafe.sdf" />
+
+	<!-- Back entrance -->
+
+<xacro:include filename="./parts/servicesim/BackEntrance.sdf" />
+
+	<!-- Front entrance -->
+
+<xacro:include filename="./parts/servicesim/FrontEntrance.sdf" />
+
+
+	<!-- Custom sensors -->
+<!--
+<xacro:add_kinect prefix="realsense" parent_link="PublicCafe"
+	x="0.0" y="0.92" pitch="0.0" />
+<xacro:plugin_sensor_rgbd ref_link="realsense_1" topic_cam="camera1"
+	frame_cam="realsense_1_optical_frame" />
+-->
+
+
+	<!-- Trajectory actors -->
+
+<xacro:if value="${do_actor_default_dynamic}">
+
+<!--
+<xacro:make_one_human_collision_model id="" />
+
+<xacro:make_one_actor_traj_model id="" pX="" pY=""
+	vel="_" colour="" rname="$(arg robot_name)"
+	pTrajXY="${[
+	]}" />
+
+-->
+<xacro:make_one_human_collision_model id="14942" />
+
+<xacro:make_one_actor_traj_model id="14942" pX="-12.4711" pY="13.7521"
+	vel="_1.1671637840602365" colour="green" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ -12.4711, 13.7521 ],
+				[ -12.5163, 10.117987 ],
+				[ -6.171264, 10.116618 ],
+				[ -6.2575, 13.6915 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="20632" />
+
+<xacro:make_one_actor_traj_model id="20632" pX="-12.5163" pY="10.117987"
+	vel="_1.1870630696390418" colour="red" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ -12.5163, 10.117987 ],
+		[ -6.171264, 10.116618 ],
+		[ -6.2575, 13.6915 ],
+		[ -12.4711, 13.7521 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="72563" />
+
+<xacro:make_one_actor_traj_model id="72563" pX="4.24307" pY="1.33246"
+	vel="_1.1588837010932638" colour="green" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ 4.24307, 1.33246 ],
+		[ 5.73804, 0.57919 ],
+		[ 4.92099, 1.79494 ],
+		[ 3.97233, 2.61649 ],
+
+		[ 3.80775, 3.75994 ],
+		[ 5.260433, 3.78449 ],
+		[ 5.164691, 17.968399 ],
+		[ 2.06448, 18.5096 ],
+
+		[ 0.880134, 19.172422 ],
+		[ 0.629188, 20.632648 ],
+		[ -1.98216, 21.1175 ],
+		[ -1.29948, 19.322399 ],
+
+		[ -3.52062, 17.694099 ],
+		[ -5.25849, 17.376499 ],
+		[ -5.2171, 4.85426 ],
+		[ -6.80757, 2.21765 ],
+
+		[ -5.42005, 0.928583 ],
+		[ -3.5244, 0.95478 ],
+		[ 0.133735, 2.10273 ],
+		[ 3.57247, 2.54955 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="62620" />
+
+<xacro:make_one_actor_traj_model id="62620" pX="18.697857" pY="15.7464"
+	vel="_1.130734550499087" colour="red" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ 18.697857, 15.7464 ],
+		[ 18.697857, 20.0874 ],
+		[ 20.506599, 19.421101 ],
+		[ 20.538099, 17.3319 ],
+
+		[ 19.028212, 17.399599 ],
+		[ 18.885065, 15.7129 ],
+		[ 11.0484, 15.652 ],
+		[ 10.0429, 17.692699 ],
+
+		[ 7.8387, 17.7792 ],
+		[ 6.33662, 16.371099 ],
+		[ 6.51252, 11.1019 ],
+		[ 10.4842, 11.0926 ],
+
+		[ 12.5155, 13.2793 ],
+		[ 18.30191, 13.4166 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="98443" />
+
+<xacro:make_one_actor_traj_model id="98443" pX="-13.2529" pY="18.580999"
+	vel="_1.1557185264570933" colour="green" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ -13.2529, 18.580999 ],
+		[ -22.38113, 18.87678 ],
+		[ -23.494101, 18.9972 ],
+		[ -23.4842, 20.4646 ],
+
+		[ -26.001801, 20.2019 ],
+		[ -26.606701, 18.231199 ],
+		[ -23.3948, 18.7012 ],
+		[ -22.129801, 18.5949 ],
+
+		[ -21.9725, 14.8722 ],
+		[ -13.4044, 14.7422 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="99236" />
+
+<xacro:make_one_actor_traj_model id="99236" pX="20.538099" pY="17.3319"
+	vel="_1.0997080124700098" colour="red" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ 20.538099, 17.3319 ],
+		[ 19.028212, 17.399599 ],
+		[ 18.885065, 15.7129 ],
+		[ 11.0484, 15.652 ],
+
+		[ 10.0429, 17.692699 ],
+		[ 7.8387, 17.7792 ],
+		[ 6.33662, 16.371099 ],
+		[ 6.51252, 11.1019 ],
+
+		[ 10.4842, 11.0926 ],
+		[ 12.5155, 13.2793 ],
+		[ 18.30191, 13.4166 ],
+		[ 18.697857, 15.7464 ],
+
+		[ 18.697857, 20.0874 ],
+		[ 20.506599, 19.421101 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="26421" />
+
+<xacro:make_one_actor_traj_model id="26421" pX="-6.16816" pY="18.587"
+	vel="_1.0064386817557514" colour="green" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ -6.16816, 18.587 ],
+		[ -12.4968, 18.6143 ],
+		[ -12.4028, 14.6816 ],
+		[ -6.1741, 14.5956 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="25954" />
+
+<xacro:make_one_actor_traj_model id="25954" pX="10.3737" pY="3.89311"
+	vel="_1.1434382940808563" colour="red" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ 10.3737, 3.89311 ],
+		[ 7.96763, 4.71297 ],
+		[ 6.41362, 5.11439 ],
+		[ 6.32939, 8.46126 ],
+
+		[ 7.37067, 9.849683 ],
+		[ 10.5193, 9.81355 ],
+		[ 12.1611, 8.39257 ],
+		[ 13.1988, 5.185326 ],
+
+		[ 14.704, 5.185326 ],
+		[ 14.846853, 7.988438 ],
+		[ 16.0257, 8.12129 ],
+		[ 16.195299, 1.99335 ],
+
+		[ 14.1699, 1.91747 ],
+		[ 14.176, 5.385326 ],
+		[ 12.1254, 5.385326 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="94763" />
+
+<xacro:make_one_actor_traj_model id="94763" pX="12.1254" pY="5.385326"
+	vel="_1.0516294306711416" colour="green" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ 12.1254, 5.385326 ],
+		[ 10.3737, 3.89311 ],
+		[ 7.96763, 4.71297 ],
+		[ 6.41362, 5.11439 ],
+
+		[ 6.32939, 8.46126 ],
+		[ 7.37067, 9.849683 ],
+		[ 10.5193, 9.81355 ],
+		[ 12.1611, 8.39257 ],
+
+		[ 13.1988, 5.185326 ],
+		[ 14.704, 5.185326 ],
+		[ 14.846853, 7.988438 ],
+		[ 16.0257, 8.12129 ],
+
+		[ 16.195299, 1.99335 ],
+		[ 14.1699, 1.91747 ],
+		[ 14.176, 5.385326 ],
+	]}" />
+
+
+<xacro:make_one_human_collision_model id="80283" />
+
+<xacro:make_one_actor_traj_model id="80283" pX="12.1611" pY="8.39257"
+	vel="_0.9195337494809606" colour="red" rname="$(arg robot_name)"
+	pTrajXY="${[
+		[ 12.1611, 8.39257 ],
+		[ 13.1988, 5.185326 ],
+		[ 14.704, 5.185326 ],
+		[ 14.846853, 7.988438 ],
+
+		[ 16.0257, 8.12129 ],
+		[ 16.195299, 1.99335 ],
+		[ 14.1699, 1.91747 ],
+		[ 14.176, 5.385326 ],
+
+		[ 12.1254, 5.385326 ],
+		[ 10.3737, 3.89311 ],
+		[ 7.96763, 4.71297 ],
+		[ 6.41362, 5.11439 ],
+
+		[ 6.32939, 8.46126 ],
+		[ 7.37067, 9.849683 ],
+		[ 10.5193, 9.81355 ],
+	]}" />
+</xacro:if>
+
+
+	<!-- Custom trajectory actors -->
+
+<xacro:unless value="${do_actor_default_dynamic}">
+<xacro:unless value="${no_custom}">
+
+	<xacro:property name="_custom_list" value="${_custom_cfg.split(',')}" />
+	<xacro:loop_through_custom_cfg rname="$(arg robot_name)"
+		custom_list="${_custom_list}" />
+
+</xacro:unless>
+</xacro:unless>
+
+
+	<!-- Idling actors -->
+
+<xacro:if value="${do_actor_default_idle}">
+
+<!--
+<xacro:make_one_actor_idle_model id="" mesh=""
+	pX="_"
+	pY="_"
+	oZ="_" />
+
+-->
+<xacro:make_one_actor_idle_model id="34903" mesh="elegant_female2"
+	pX="_7.5125313723695335"
+	pY="_18.954767308208083"
+	oZ="_-0.15801548069713356" />
+
+<xacro:make_one_actor_idle_model id="12177" mesh="casual_male2"
+	pX="_-27.248094074653846"
+	pY="_17.778365645398097"
+	oZ="_1.258947617390029" />
+
+<xacro:make_one_actor_idle_model id="87643" mesh="casual_male2"
+	pX="_-26.570459912719286"
+	pY="_14.46826586534369"
+	oZ="_-2.0030285934304772" />
+
+<xacro:make_one_actor_idle_model id="32907" mesh="elegant_female"
+	pX="_-2.66753443625759"
+	pY="_0.39453715174337123"
+	oZ="_3.3537435999006306" />
+
+<xacro:make_one_actor_idle_model id="44236" mesh="casual_female"
+	pX="_19.94927191400569"
+	pY="_1.6570256463757247"
+	oZ="_-0.3985047983071147" />
+
+<xacro:make_one_actor_idle_model id="29498" mesh="casual_male2"
+	pX="_11.019910844459746"
+	pY="_18.557552767024593"
+	oZ="_-1.2608772139034476" />
+
+<xacro:make_one_actor_idle_model id="56677" mesh="elegant_male"
+	pX="_20.27952101195733"
+	pY="_14.891239378771123"
+	oZ="_-1.188157022435626" />
+
+<xacro:make_one_actor_idle_model id="51287" mesh="casual_male"
+	pX="_2.047180949545775"
+	pY="_1.3091843375512189"
+	oZ="_-1.0755309186049797" />
+
+<xacro:make_one_actor_idle_model id="65002" mesh="casual_male2"
+	pX="_17.747548425764563"
+	pY="_4.622739325095297"
+	oZ="_0.44322250113916073" />
+
+<xacro:make_one_actor_idle_model id="78801" mesh="elegant_male"
+	pX="_14.630170822068555"
+	pY="_21.33363963478526"
+	oZ="_-0.3984767032715312" />
+
+<xacro:make_one_actor_idle_model id="12847" mesh="elegant_male"
+	pX="_-25.23133331132317"
+	pY="_15.46445642007445"
+	oZ="_2.924382909176997" />
+
+<xacro:make_one_actor_idle_model id="94174" mesh="elegant_female"
+	pX="_-0.03085587701685072"
+	pY="_17.09828752828538"
+	oZ="_3.210141619855966" />
+
+<xacro:make_one_actor_idle_model id="83467" mesh="casual_male"
+	pX="_2.247953035356955"
+	pY="_20.718343490585376"
+	oZ="_-1.7864168580632938" />
+
+
+<xacro:make_one_actor_idle_model id="69958" mesh="elegant_female"
+	pX="_6.3506873723256465"
+	pY="_18.80368100783691"
+	oZ="_-0.44761187482922693" />
+
+<xacro:make_one_actor_idle_model id="47270" mesh="elegant_male"
+	pX="_13.126944494765922"
+	pY="_21.229255521609932"
+	oZ="_0.39248804563860806" />
+
+<xacro:make_one_actor_idle_model id="10793" mesh="casual_female"
+	pX="_-25.875556061601028"
+	pY="_5.5235817959356535"
+	oZ="_2.0520136297495375" />
+
+<xacro:make_one_actor_idle_model id="74152" mesh="casual_male2"
+	pX="_-2.825814641982735"
+	pY="_3.8141752327784926"
+	oZ="_-0.22765553688998297" />
+
+<xacro:make_one_actor_idle_model id="75984" mesh="casual_male"
+	pX="_17.87502833866729"
+	pY="_1.5692100218318328"
+	oZ="_-0.15812110592811468" />
+
+<xacro:make_one_actor_idle_model id="93994" mesh="elegant_female"
+	pX="_-3.8746325436749194"
+	pY="_0.3553853297135057"
+	oZ="_3.6048862841712186" />
+
+<xacro:make_one_actor_idle_model id="94727" mesh="casual_male"
+	pX="_14.402414523522559"
+	pY="_16.958928593602035"
+	oZ="_3.2108565784205587" />
+
+<xacro:make_one_actor_idle_model id="30116" mesh="casual_male"
+	pX="_-26.579119878608424"
+	pY="_13.526656511335833"
+	oZ="_-1.1707034946482384" />
+
+<xacro:make_one_actor_idle_model id="87064" mesh="elegant_male"
+	pX="_-2.1717188937232668"
+	pY="_21.611169452872677"
+	oZ="_0.11039390424522066" />
+
+<xacro:make_one_actor_idle_model id="88117" mesh="casual_male"
+	pX="_18.784961656671005"
+	pY="_7.2980211513806665"
+	oZ="_-1.2222017241963854" />
+
+<xacro:make_one_actor_idle_model id="58391" mesh="casual_male"
+	pX="_17.6371354232584"
+	pY="_7.350275247005763"
+	oZ="_-0.7142064087437918" />
+
+<xacro:make_one_actor_idle_model id="34611" mesh="casual_male2"
+	pX="_-26.574410080828777"
+	pY="_11.230184686968043"
+	oZ="_-1.4323821071713692" />
+
+<xacro:make_one_actor_idle_model id="52786" mesh="elegant_female"
+	pX="_-25.995802095847036"
+	pY="_6.313319570245283"
+	oZ="_1.3282149884983763" />
+
+<xacro:make_one_actor_idle_model id="78111" mesh="casual_male"
+	pX="_5.746171276931683"
+	pY="_2.534837651902381"
+	oZ="_-0.3052579268489237" />
+
+<xacro:make_one_actor_idle_model id="32752" mesh="casual_female"
+	pX="_8.588053164281803"
+	pY="_19.159978798958104"
+	oZ="_-0.3803252145679541" />
+
+<xacro:make_one_actor_idle_model id="95221" mesh="elegant_male"
+	pX="_-27.24602502376945"
+	pY="_19.17102776142174"
+	oZ="_1.335475999860932" />
+
+<xacro:make_one_actor_idle_model id="25668" mesh="casual_male2"
+	pX="_-26.113645393792606"
+	pY="_5.034625205914837"
+	oZ="_1.1018667507303377" />
+</xacro:if>
+
+
+	<!-- Competition plugin -->
+
+<xacro:if value="${do_competition}">
+
+	<plugin name="competition" filename="libCompetitionPlugin.so">
+
+		<sor_lcp_tolerance>0.1</sor_lcp_tolerance>
+
+		<pick_up_location>
+			FrontElevator
+		</pick_up_location>
+
+		<drop_off_location>
+			PrivateCubicle_32_1
+		</drop_off_location>
+
+		<robot_start_pose>
+			10.97535653560282
+			3.75
+			0.75
+			0.0
+			0.0
+			3.14
+		</robot_start_pose>
+
+		<guest_name>human_20843</guest_name>
+		<robot_name>servicebot</robot_name>
+		<ground_name>floor</ground_name>
+		<human_name>human</human_name>
+
+		<weight>
+			<!--
+			Contact and approximation weights are multiplied by contact depth
+			-->
+
+			<!--
+			Collision is usually very brief and millimiters deep, so we
+			compensate with high weights
+			-->
+			<human_contact>40000</human_contact>
+			<obj_contact>20000</obj_contact>
+
+			<!--
+			Approximation usually lasts longer and may get very deep, so we
+			compensate with low weights
+			-->
+			<human_approximation>1</human_approximation>
+			<obj_approximation>0.25</obj_approximation>
+
+		</weight>
+
+		<go_to_pick_up>
+			<name>Go to pick-up location</name>
+			<weight>
+				<time>1</time>
+			</weight>
+			<!-- for contain plugin -->
+			<namespace>/servicesim/go_to_pick_up</namespace>
+		</go_to_pick_up>
+
+		<pick_up>
+			<name>Pick-up guest</name>
+			<weight>
+				<time>2</time>
+				<failed_attempt>40</failed_attempt>
+			</weight>
+		</pick_up>
+
+		<drop_off>
+			<name>Drop-off guest</name>
+			<weight>
+				<time>2</time>
+				<too_fast>25</too_fast>
+				<failed_attempt>50</failed_attempt>
+			</weight>
+			<guest_name>human_20843</guest_name>
+			<!-- for contain plugin -->
+			<namespace>/servicesim/drop_off</namespace>
+		</drop_off>
+
+		<return_to_start>
+			<name>Return to start</name>
+			<weight>
+				<time>1</time>
+			</weight>
+			<!-- for contain plugin -->
+			<namespace>/servicesim/return_to_start</namespace>
+		</return_to_start>
+
+
+		<room_info
+			name="PublicBathroomA"
+			min="6.75 3.0 0"
+			max="9.75 4.5 0"
+		/>
+		<room_info
+			name="PublicBathroomB"
+			min="9.85 3.0 0"
+			max="12.85 4.5 0"
+		/>
+
+		<room_info
+			name="PublicCafe"
+			min="13.7 3.0 0"
+			max="16.7 6.0 0"
+		/>
+
+		<room_info
+			name="PublicMeetingRoomA"
+			min="18.0 16.5 0"
+			max="21.0 19.5 0"
+		/>
+		<room_info
+			name="PublicMeetingRoomB"
+			min="1.5 7.5 0"
+			max="4.5 10.5 0"
+		/>
+		<room_info
+			name="PublicMeetingRoomD"
+			min="8.9 19.5 0"
+			max="11.9 22.5 0"
+		/>
+		<room_info
+			name="PublicMeetingRoomE"
+			min="4.3 19.5 0"
+			max="7.300000000000001 22.5 0"
+		/>
+
+		<room_info
+			name="PrivateMeetingRoomA"
+			min="-4.6 4.5 0"
+			max="-1.5999999999999996 7.5 0"
+		/>
+
+		<room_info
+			name="PrivateBathroomA"
+			min="-5.25 18.0 0"
+			max="-2.25 19.5 0"
+		/>
+
+		<room_info
+			name="PrivateOfficeC"
+			min="-21.4 19.5 0"
+			max="-18.4 22.5 0"
+		/>
+		<room_info
+			name="PrivateOfficeD"
+			min="-26.0 18.0 0"
+			max="-23.0 21.0 0"
+		/>
+
+		<room_info
+			name="PublicCubicle_25_1"
+			min="6.0 4.5 0"
+			max="9.0 7.5 0"
+		/>
+		<room_info
+			name="PublicCubicle_25_2"
+			min="6.0 7.5 0"
+			max="9.0 10.5 0"
+		/>
+		<room_info
+			name="PublicCubicle_25_3"
+			min="9.0 4.5 0"
+			max="12.0 7.5 0"
+		/>
+		<room_info
+			name="PublicCubicle_25_4"
+			min="9.0 7.5 0"
+			max="12.0 10.5 0"
+		/>
+
+		<room_info
+			name="PublicCubicle_26_1"
+			min="6.0 10.5 0"
+			max="9.0 13.5 0"
+		/>
+		<room_info
+			name="PublicCubicle_26_2"
+			min="6.0 13.5 0"
+			max="9.0 16.5 0"
+		/>
+		<room_info
+			name="PublicCubicle_26_3"
+			min="9.0 10.5 0"
+			max="12.0 13.5 0"
+		/>
+		<room_info
+			name="PublicCubicle_26_4"
+			min="9.0 13.5 0"
+			max="12.0 16.5 0"
+		/>
+
+		<room_info
+			name="PublicCubicle_27"
+			min="13.6 12.6 0"
+			max="15.6 13.6 0"
+		/>
+
+		<room_info
+			name="PublicCubicle_28"
+			min="15.5 12.6 0"
+			max="17.5 13.6 0"
+		/>
+
+		<room_info
+			name="PublicCubicle_29"
+			min="17.4 12.6 0"
+			max="19.4 13.6 0"
+		/>
+
+		<room_info
+			name="PublicCubicle_30"
+			min="19.299999999999997 12.6 0"
+			max="21.299999999999997 13.6 0"
+		/>
+
+		<room_info
+			name="PrivateCubicle_31_1"
+			min="-21.0 4.775 0.0"
+			max="-19.2 6.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_31_2"
+			min="-21.0 8.725 0.0"
+			max="-19.2 10.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_31_3"
+			min="-19.2 4.775 0.0"
+			max="-17.4 6.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_31_4"
+			min="-19.2 8.725 0.0"
+			max="-17.4 10.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_31_5"
+			min="-17.4 4.775 0.0"
+			max="-15.600000000000001 6.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_31_6"
+			min="-17.4 8.725 0.0"
+			max="-15.600000000000001 10.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_31_7"
+			min="-15.600000000000001 4.775 0.0"
+			max="-13.8 6.275 0.0"
+		/>
+
+		<room_info
+			name="PrivateCubicle_31_8"
+			min="-15.600000000000001 8.725 0.0"
+			max="-13.8 10.225 0.0"
+		/>
+
+		<room_info
+			name="PrivateCubicle_32_1"
+			min="-21.0 9.275 0.0"
+			max="-19.2 10.775 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_32_2"
+			min="-21.0 13.225 0.0"
+			max="-19.2 14.725 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_32_3"
+			min="-19.2 9.275 0.0"
+			max="-17.4 10.775 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_32_4"
+			min="-19.2 13.225 0.0"
+			max="-17.4 14.725 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_32_5"
+			min="-17.4 9.275 0.0"
+			max="-15.600000000000001 10.775 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_32_6"
+			min="-17.4 13.225 0.0"
+			max="-15.600000000000001 14.725 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_32_7"
+			min="-15.600000000000001 9.275 0.0"
+			max="-13.8 10.775 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_32_8"
+			min="-15.600000000000001 13.225 0.0"
+			max="-13.8 14.725 0.0"
+		/>
+
+		<room_info
+			name="PrivateCubicle_33_1"
+			min="-21.0 13.775 0.0"
+			max="-19.2 15.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_33_2"
+			min="-21.0 17.725 0.0"
+			max="-19.2 19.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_33_3"
+			min="-19.2 13.775 0.0"
+			max="-17.4 15.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_33_4"
+			min="-19.2 17.725 0.0"
+			max="-17.4 19.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_33_5"
+			min="-17.4 13.775 0.0"
+			max="-15.600000000000001 15.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_33_6"
+			min="-17.4 17.725 0.0"
+			max="-15.600000000000001 19.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_33_7"
+			min="-15.600000000000001 13.775 0.0"
+			max="-13.8 15.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_33_8"
+			min="-15.600000000000001 17.725 0.0"
+			max="-13.8 19.225 0.0"
+		/>
+
+		<room_info
+			name="PrivateCubicle_34_1"
+			min="-12.0 4.775 0.0"
+			max="-10.2 6.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_34_2"
+			min="-12.0 8.725 0.0"
+			max="-10.2 10.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_34_3"
+			min="-10.2 4.775 0.0"
+			max="-8.4 6.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_34_4"
+			min="-10.2 8.725 0.0"
+			max="-8.4 10.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_34_5"
+			min="-8.4 4.775 0.0"
+			max="-6.6000000000000005 6.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_34_6"
+			min="-8.4 8.725 0.0"
+			max="-6.6000000000000005 10.225 0.0"
+		/>
+
+		<room_info
+			name="PrivateCubicle_35_1"
+			min="-12.0 9.275 0.0"
+			max="-10.2 10.775 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_35_2"
+			min="-12.0 13.225 0.0"
+			max="-10.2 14.725 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_35_3"
+			min="-10.2 9.275 0.0"
+			max="-8.4 10.775 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_35_4"
+			min="-10.2 13.225 0.0"
+			max="-8.4 14.725 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_35_5"
+			min="-8.4 9.275 0.0"
+			max="-6.6000000000000005 10.775 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_35_6"
+			min="-8.4 13.225 0.0"
+			max="-6.6000000000000005 14.725 0.0"
+		/>
+
+		<room_info
+			name="PrivateCubicle_36_1"
+			min="-12.0 13.775 0.0"
+			max="-10.2 15.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_36_2"
+			min="-12.0 17.725 0.0"
+			max="-10.2 19.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_36_3"
+			min="-10.2 13.775 0.0"
+			max="-8.4 15.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_36_4"
+			min="-10.2 17.725 0.0"
+			max="-8.4 19.225 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_36_5"
+			min="-8.4 13.775 0.0"
+			max="-6.6000000000000005 15.275 0.0"
+		/>
+		<room_info
+			name="PrivateCubicle_36_6"
+			min="-8.4 17.725 0.0"
+			max="-6.6000000000000005 19.225 0.0"
+		/>
+
+		<room_info
+			name="PrivateCafe"
+			min="-25.5 4.5 0"
+			max="-22.5 7.5 0"
+		/>
+
+		<room_info
+			name="BackEntrance"
+			min="-3.0 18.299999999999997 0"
+			max="1.5 21.299999999999997 0"
+		/>
+
+		<room_info
+			name="FrontElevator"
+			min="-1.5 0.0 0"
+			max="1.5 2.7 0"
+		/>
+
+		<room_info
+			name="FrontCouchA"
+			min="-7.5 0.0 0"
+			max="-4.5 4.5 0"
+		/>
+
+		<room_info
+			name="FrontCouchB"
+			min="3.75 0.0 0"
+			max="6.0 2.25 0"
+		/>
+
+	</plugin>
+
+	<!-- Pick-up area contain plugin -->
+	<!-- Location: FrontElevator -->
+	<plugin name="pick_up" filename="libContainPlugin.so">
+		<entity>servicebot</entity>
+		<namespace>servicesim/go_to_pick_up</namespace>
+		<enabled>false</enabled>
+		<pose>
+			0.0
+			1.35
+			0
+			0
+			0
+			0
+		</pose>
+		<geometry>
+			<box>
+				<size>
+					3.0
+					2.7
+					10
+				</size>
+			</box>
+		</geometry>
+	</plugin>
+
+	<!-- Drop-off area contain plugin -->
+	<!-- Location: PrivateCubicle_32_1 -->
+	<plugin name="drop_off" filename="libContainPlugin.so">
+		<entity>human_20843</entity>
+		<namespace>servicesim/drop_off</namespace>
+		<enabled>false</enabled>
+		<pose>
+			-20.1
+			10.025
+			0
+			0
+			0
+			0
+		</pose>
+		<geometry>
+			<box>
+				<size>
+					1.8000000000000007
+					1.5
+					10
+				</size>
+			</box>
+		</geometry>
+	</plugin>
+
+	<!-- Start area contain plugin -->
+	<!-- Location: PublicBathroomB -->
+	<plugin name="start" filename="libContainPlugin.so">
+		<entity>servicebot</entity>
+		<namespace>servicesim/return_to_start</namespace>
+		<enabled>false</enabled>
+		<pose>
+			11.35
+			3.75
+			0
+			0
+			0
+			0
+		</pose>
+		<geometry>
+			<box>
+				<size>
+					3.0
+					1.5
+					10
+				</size>
+			</box>
+		</geometry>
+	</plugin>
+
+	<!-- Guest -->
+	<model name="human_20843_collision_model">
+		<pose>0 0 -100 0 0 0</pose>
+		<static>true</static>
+		<link name="link">
+			<collision name="link">
+				<pose>0 -0.18 0.05 0 -1.5707963267948966 0</pose>
+				<geometry>
+					<box>
+						<size>0.44 1.62 0.60</size>
+					</box>
+				</geometry>
+			</collision>
+		</link>
+	</model>
+
+	<actor name="human_20843">
+		<!-- Starting pose, nice for when the world is reset -->
+		<pose>
+			-0.04338746661952586
+			1.5116209947033905
+			1.0
+			1.54
+			0
+			-1.1845615157171019
+		</pose>
+
+		<skin>
+			<filename>model://actor/meshes/SKIN_man_blue_shirt.dae</filename>
+		</skin>
+
+		<animation name="animation">
+			<filename>model://actor/meshes/ANIMATION_walking.dae</filename>
+		</animation>
+
+		<!-- Need one waypoint to idle at -->
+		<script>
+			<trajectory id='0' type='animation'>
+				<waypoint>
+					<time>100</time>
+					<pose>
+						-0.04338746661952586
+						1.5116209947033905
+						1.0
+						1.54
+						0
+						-1.1845615157171019
+					</pose>
+				</waypoint>
+			</trajectory>
+		</script>
+
+		<plugin name="trajectory" filename="libFollowActorPlugin.so">
+			<namespace>servicesim</namespace>
+
+			<ignore_obstacle>walls</ignore_obstacle>
+			<ignore_obstacle>floor</ignore_obstacle>
+			<ignore_obstacle>servicebot</ignore_obstacle>
+
+			<drift_time>487</drift_time>
+			<drift_time>654</drift_time>
+			<drift_time>889</drift_time>
+			<drift_time>1038</drift_time>
+
+			<drift_time>1313</drift_time>
+			<drift_time>1606</drift_time>
+			<drift_time>1767</drift_time>
+			<drift_time>1881</drift_time>
+
+			<drift_time>2164</drift_time>
+			<drift_time>2463</drift_time>
+			<drift_time>2643</drift_time>
+			<drift_time>2745</drift_time>
+
+			<drift_time>2966</drift_time>
+			<drift_time>3171</drift_time>
+			<drift_time>3418</drift_time>
+			<drift_time>3581</drift_time>
+
+			<drift_time>3862</drift_time>
+			<drift_time>3989</drift_time>
+			<drift_time>4145</drift_time>
+			<drift_time>4358</drift_time>
+
+			<drift_time>4616</drift_time>
+			<drift_time>4892</drift_time>
+			<drift_time>5039</drift_time>
+			<drift_time>5306</drift_time>
+
+			<drift_time>5515</drift_time>
+			<drift_time>5653</drift_time>
+			<drift_time>5925</drift_time>
+			<drift_time>6043</drift_time>
+
+			<drift_time>6335</drift_time>
+			<drift_time>6619</drift_time>
+		</plugin>
+
+		<plugin name="attach_model" filename="libAttachModelPlugin.so">
+			<link>
+				<link_name>human_20843_pose</link_name>
+				<model>
+					<model_name>human_20843_collision_model</model_name>
+				</model>
+			</link>
+		</plugin>
+	</actor>
+</xacro:if>
+
+	<!-- GUI -->
+	<gui fullscreen='0'>
+		<camera name='user_camera'>
+			<pose>
+				21.5
+				5.25
+				9.65
+				0.0
+				1.157706
+				-3.138537
+			</pose>
+		</camera>
+		<camera name='user_camera_X'>
+			<pose>
+				11.97535653560282
+				4.75
+				1.5
+				0.0
+				0.6
+				-2.356194490192345
+			</pose>
+		</camera>
+	</gui>
+</world>
+
+</sdf>
+</robot>

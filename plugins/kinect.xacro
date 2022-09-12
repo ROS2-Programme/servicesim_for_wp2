@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:macro name="plugin_sensor_rgbd" params="hz:=20.0 camera_spec:=None
+		add_noise:=None ref_link:='camera_link' topic_cam:='camera1'
+		topic_sub_raw:='image_raw' topic_sub_info:='camera_info'
+		frame_cam:='camera_link' topic_prefix:='/' pname:='camera_controller'
+		lib:='libgazebo_ros_openni_kinect.so'
+		p_cfg:=None _bDebug:=False
+">
+
+<!--
+	<xacro:property name="_cam_spec" value="${camera_spec}" />
+-->
+	<xacro:if value="${str(camera_spec) == 'None'}">
+		<xacro:if value="${_bDebug}">
+		<WTF>camera_spec is None</WTF>
+		</xacro:if>
+<!--
+		<xacro:property name="camera_spec" value="${dict( h_fov=1.047198,
+			clip=dict( near=0.05, far=3),
+			image=dict( w=640, h=480, fmt='R8G8B8'))}" />
+-->
+		<xacro:property name="camera_spec" value="${dict( h_fov=1.74533,
+			clip=dict( near=0.02, far=30),
+			image=dict( w=1920, h=1080, fmt='R8G8B8'))}" />
+	</xacro:if>
+
+<!--
+	<xacro:property name="_add_noise" value="${add_noise}" />
+-->
+	<xacro:if value="${str(add_noise) == 'None'}">
+		<xacro:if value="${_bDebug}">
+		<WTF>add_noise is None</WTF>
+		</xacro:if>
+		<xacro:property name="add_noise"
+			value="${dict( type='gaussian', mean=0.0, std_dev=0.007)}" />
+	</xacro:if>
+
+<!--
+	<xacro:property name="_p_cfg" value="${p_cfg}" />
+-->
+	<xacro:if value="${str(p_cfg) == 'None'}">
+		<xacro:if value="${_bDebug}">
+		<WTF>p_cfg is None</WTF>
+		</xacro:if>
+		<xacro:property name="p_cfg" value="${dict( hack=0.0, distort=dict(
+			k1=0.00000001, k2=0.00000001, k3=0.00000001,
+			t1=0.00000001, t2=0.00000001))}" />
+	</xacro:if>
+
+<gazebo reference="${ref_link}">
+<sensor name="${ref_link}_camera" type="depth">
+	<update_rate>${hz}</update_rate>
+	<xacro:plugin_sensor_common_camera_spec camera_spec="${camera_spec}"
+		add_noise="${add_noise}" />
+
+	<plugin name="${ref_link}_controller" filename="${lib}">
+		<baseline>0.2</baseline>
+		<alwaysOn>true</alwaysOn>
+		<updateRate>1.0</updateRate>
+		<cameraName>${topic_cam}</cameraName>
+		<imageTopicName>${topic_prefix}${topic_cam}/color/image_raw</imageTopicName>
+		<cameraInfoTopicName>${topic_prefix}${topic_cam}/color/camera_info</cameraInfoTopicName>
+		<depthImageTopicName>${topic_prefix}${topic_cam}/depth/image_raw</depthImageTopicName>
+		<depthImageInfoTopicName>${topic_prefix}${topic_cam}/depth/camera_info</depthImageInfoTopicName>
+		<pointCloudTopicName>${topic_prefix}${topic_cam}/depth/points</pointCloudTopicName>
+		<frameName>${frame_cam}</frameName>
+		<pointCloudCutoff>0.5</pointCloudCutoff>
+		<pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+		<xacro:plugin_sensor_common_camera_distort p_cfg="${p_cfg}" />
+		<CxPrime>0</CxPrime>
+		<Cx>0</Cx>
+		<Cy>0</Cy>
+		<focalLength>0</focalLength>
+	</plugin>
+</sensor>
+</gazebo>
+</xacro:macro>
+
+</robot>

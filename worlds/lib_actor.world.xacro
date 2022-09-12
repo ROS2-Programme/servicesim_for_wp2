@@ -1,0 +1,126 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_human_collision_model" params="id sW:=^|0.44
+		sH:=^|1.62 sD:=^|_0.60">
+
+	<xacro:force_str val="${sD}" _szDebug="" />
+	<xacro:property name="_sD" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_sD}" />
+
+<model name="human_${id}_collision_model">
+	<pose>0 0 -100 0 0 0</pose>
+	<static>true</static>
+	<link name="link">
+		<collision name="link">
+			<pose>0 -0.18 0.05 0 -${sPI_HALF[1:]} 0</pose>
+			<geometry>
+				<box>
+					<size>${sW} ${sH} ${_sD[1:]}</size>
+				</box>
+			</geometry>
+		</collision>
+	</link>
+</model>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_target" params="pX:=^ pY:=^ **inner_block">
+
+	<target><xacro:insert_block name="inner_block" /></target>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_pose_seq" params="pPoseXY:=^ pZ:=^ oX:=^ oY:=^ oZ:=^
+		tag:='target'">
+
+	<xacro:if value="${pPoseXY}">
+		<xacro:property name="_XY" value="${pPoseXY.pop(0)}" />
+		<xacro:make_one_target>
+			<xacro:make_one_pose pX="${_XY[0]}" pY="${_XY[1]}" _bDebug="False"
+				/>
+		</xacro:make_one_target>
+
+		<xacro:make_pose_seq />
+	</xacro:if>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_actor_traj_model" params="id pX pY vel colour
+		pTrajXY anim:='walking' pZ:=1.0 oX:='__PI_HALF' oY:=-0.0 oZ:='__PI'
+		obs_margin:=0.2 rname:='servicebot'">
+
+<actor name="human_${id}">
+	<!-- Starting pose, nice for when the world is reset -->
+
+	<xacro:make_one_pose _bDebug="False" />
+
+	<skin>
+		<filename>model://actor/meshes/SKIN_man_${colour}_shirt.dae</filename>
+	</skin>
+
+	<animation name="animation">
+		<filename>model://actor/meshes/ANIMATION_${anim}.dae</filename>
+		<interpolate_x>true</interpolate_x>
+	</animation>
+
+	<xacro:force_str val="${vel}" _szDebug="" />
+	<xacro:property name="_vel" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_vel}" />
+
+	<plugin name="trajectory" filename="libTrajectoryActorPlugin.so">
+		<xacro:make_pose_seq pPoseXY="${list( pTrajXY)}" />
+
+		<velocity>${_vel[1:]}</velocity>
+		<obstacle_margin>${obs_margin}</obstacle_margin>
+		<obstacle>${rname}</obstacle>
+	</plugin>
+
+	<!-- Enable collisions -->
+	<plugin name="attach_model" filename="libAttachModelPlugin.so">
+		<link>
+			<link_name>human_${id}_pose</link_name>
+			<model>
+				<model_name>human_${id}_collision_model</model_name>
+			</model>
+		</link>
+	</plugin>
+
+</actor>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_actor_idle_model" params="id pX pY oZ mesh">
+
+<actor name="human_${id}">
+	<xacro:make_one_pose _bDebug="False" pZ="_0" oX="_0" oY="_0" />
+
+	<link name="link">
+		<collision name="box">
+			<pose>0 0 0.9 0 0 0</pose>
+			<geometry>
+				<box>
+					<size>0.76 0.33 1.77</size>
+				</box>
+			</geometry>
+		</collision>
+		<visual name="visual">
+			<pose>0 0 0.02 0.04 0 0</pose>
+			<geometry>
+				<mesh>
+					<uri>model://${mesh}/meshes/${mesh}.dae</uri>
+				</mesh>
+			</geometry>
+		</visual>
+	</link>
+
+</actor>
+
+</xacro:macro>
+
+</robot>

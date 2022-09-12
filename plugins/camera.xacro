@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:macro name="plugin_sensor_common_camera_spec" params="cname:='head'
+		camera_spec:=None add_noise:=None _bDryRun:=False
+">
+	<xacro:if value="${str(camera_spec) == 'None'}">
+		<xacro:property name="camera_spec" value="${dict( h_fov=1.3962634,
+			clip=dict( near=0.02, far=300),
+			image=dict( w=800, h=800, fmt='R8G8B8'))}" />
+	</xacro:if>
+
+	<xacro:if value="${_bDryRun}">
+		<camera_spec>${camera_spec}</camera_spec>
+	</xacro:if>
+
+<xacro:unless value="${_bDryRun}">
+	<camera name="head">
+		<horizontal_fov>${camera_spec.get('h_fov')}</horizontal_fov>
+		<image>
+			<width>${camera_spec.get('image').get('w')}</width>
+			<height>${camera_spec.get('image').get('h')}</height>
+			<format>${camera_spec.get('image').get('fmt')}</format>
+		</image>
+		<clip>
+			<near>${camera_spec.get('clip').get('near')}</near>
+			<far>${camera_spec.get('clip').get('far')}</far>
+		</clip>
+		<xacro:if value="${add_noise}">
+		<noise>
+			<type>${add_noise.get('type')}</type>
+			<!--
+			Noise is sampled independently per pixel on each frame.
+			That pixel's noise value is added to each of its color
+			channels, which at that point lie in the range [0,1].
+			-->
+			<mean>${add_noise.get('mean')}</mean>
+			<stddev>${add_noise.get('std_dev')}</stddev>
+		</noise>
+		</xacro:if>
+	</camera>
+</xacro:unless>
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="plugin_sensor_common_camera_distort" params="
+		p_cfg:='${dict( hack=0.0,
+			distort=dict( k1=0.0, k2=0.0, k3=0.0, t1=0.0, t2=0.0))}'
+		_bDryRun:=False
+">
+	<xacro:if value="${_bDryRun}">
+		<p_cfg>${p_cfg}</p_cfg>
+	</xacro:if>
+
+<xacro:unless value="${_bDryRun}">
+		<hackBaseline>${p_cfg.get('hack')}</hackBaseline>
+		<distortionK1>${p_cfg.get('distort').get('k1')}</distortionK1>
+		<distortionK2>${p_cfg.get('distort').get('k2')}</distortionK2>
+		<distortionK3>${p_cfg.get('distort').get('k3')}</distortionK3>
+		<distortionT1>${p_cfg.get('distort').get('t1')}</distortionT1>
+		<distortionT2>${p_cfg.get('distort').get('t2')}</distortionT2>
+</xacro:unless>
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="plugin_sensor_camera" params="hz:=30.0 camera_spec:=None
+		add_noise:=None ref_link:='camera_link' sname='camera1'
+		topic_cam:='camera1' topic_sub_raw:='image_raw'
+		topic_sub_info:='camera_info' frame_cam:='camera_link' topic_prefix:=''
+		pname:='camera_controller lib:='libgazebo_ros_camera.so'
+		p_cfg:='${dict( hack=0.07,
+			distort=dict( k1=0.0, k2=0.0, k3=0.0, t1=0.0, t2=0.0))}'
+">
+
+	<xacro:if value="${str(camera_spec) == 'None'}">
+		<xacro:property name="camera_spec" value="${dict( h_fov=1.3962634,
+			clip=dict( near=0.02, far=300),
+			image=dict( w=800, h=800, fmt='R8G8B8'))}" />
+	</xacro:if>
+	<xacro:if value="${str(add_noise) == 'None'}">
+		<xacro:property name="add_noise"
+			value="${dict( type='gaussian', mean=0.0, std_dev=0.007)}" />
+	</xacro:if>
+
+<gazebo reference="${ref_link}">
+<sensor type="camera" name="${sname}">
+	<update_rate>${hz}</update_rate>
+	<xacro:plugin_sensor_common_camera_spec camera_spec="${camera_spec}"
+		add_noise="${add_noise}" />
+
+	<plugin name="${pname}" filename="${lib}">
+		<alwaysOn>true</alwaysOn>
+		<updateRate>0.0</updateRate>
+		<cameraName>${topic_prefix}${topic_cam}</cameraName>
+		<imageTopicName>${topic_sub_raw}</imageTopicName>
+		<cameraInfoTopicName>${topic_sub_info}</cameraInfoTopicName>
+		<frameName>${frame_cam}</frameName>
+		<xacro:plugin_sensor_common_camera_distort p_cfg="${p_cfg}" />
+	</plugin>
+</sensor>
+</gazebo>
+</xacro:macro>
+
+</robot>

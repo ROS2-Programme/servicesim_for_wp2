@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<robot name="loop example" xmlns:xacro="http://www.ros.org/wiki/xacro">
+	<xacro:property name="bDebug" value="true" />
+<!--
+	<xacro:property name="bDebug" value="false" />
+-->
+	<xacro:property name="PI" value="3.141592653589793" />
+<!--
+	<xacro:property name="PI_HALF" value="${pi / 2}" />
+-->
+	<xacro:property name="PI_HALF" value="${1.5707963267948966 + 1e-17}" />
+	<xacro:property name="PI_WTF1" value="15707963267948966" />
+	<xacro:property name="PI_WTF2" value="15707963267948966e-16" />
+	<xacro:property name="PI_WTF3" value="_1.5707963267948966" />
+
+	<!-- ######################################## -->
+	<xacro:macro name="do_nothing2" params="RET:=^">
+		<xacro:if value="false">
+			<RET>${RET}</RET>
+		</xacro:if>
+	</xacro:macro>
+
+	<!-- #################### -->
+	<xacro:macro name="do_nothing" params="WTF:=^">
+		<xacro:if value="false">
+			<WTF>${WTF}</WTF>
+		</xacro:if>
+	</xacro:macro>
+
+	<!-- ######################################## -->
+	<xacro:macro name="loop" params="items:=^ pRet:=^">
+		<xacro:if value="${items}">
+			<!-- pop first item from list -->
+			<xacro:property name="item" value="${items.pop(0)}"/>
+<!--
+			<xacro:property name="WTF" value="${pRet.pop()}" />
+-->
+			<xacro:property name="WTF" value="${pRet.append( item)}" />
+
+			<item>${item}</item>
+			<xacro:if value="${bDebug}">
+				<xacro:do_nothing />
+			</xacro:if>
+
+			<!-- recursively call myself -->
+			<xacro:loop/>
+		</xacro:if>
+	</xacro:macro>
+
+	<!-- define the list of items to iterate -->
+	<xacro:property name="items" value="${[1,2,3,4,5]}" />
+<!--
+	<xacro:property name="pRet" value="${[6,7,8,9,10,11,12,13,14,15]}" />
+-->
+	<xacro:property name="pRet" value="${[]}" />
+
+	<xacro:loop items="${list(items)}" pRet="${pRet}" />
+	Passing a list copy, the original list is untouched: ${items}
+	WTF: ${pRet} ${pRet.pop()}
+
+	<xacro:loop items="${items}" pRet="${pRet}" />
+	Passing the list directly, it is emptied: ${items}
+	WTF: ${pRet} ${pRet.pop()}
+
+	<xacro:property name="wtf" value="${pRet.pop()}" />
+	WTF: ${wtf}
+	WTF: ${pi}
+	WTF: ${PI_HALF}
+	WTF: ${acos(0)}
+	WTF: ${PI_WTF1}
+	WTF: ${PI_WTF2}
+	WTF: ${PI_WTF3[1:]}
+<!--
+	<xacro:insert_block name="PI_HALF" />
+-->
+
+</robot>

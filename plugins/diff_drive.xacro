@@ -1,0 +1,84 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:macro name="plugin_model_diff_drive" params="hz jointL='left_joint'
+		jointR:='right_joint' wheel_sep:=0.34 wheel_dia:=0.15 wheel_acc:=0.0
+		wheel_max_torque:=5 topic_cmd_vel:='cmd_vel' topic_odom:='odom'
+		frame_odom:='odom' frame_base:='base_footprint' topic_prefix:=''
+		pname:='differential_drive_controller
+		lib:='libgazebo_ros_diff_drive.so'
+">
+
+<gazebo>
+<plugin name="${pname}" filename="${lib}">
+
+	<!-- Plugin update rate in Hz -->
+	<updateRate>${hz}</updateRate>
+
+	<!-- Name of left joint, defaults to 'left_joint' -->
+	<leftJoint>${jointL}</leftJoint>
+
+	<!-- Name of right joint, defaults to 'right_joint' -->
+	<rightJoint>${jointR}</rightJoint>
+
+	<!--
+	The distance from the center of one wheel to the other, in meters,
+	defaults to 0.34 m
+	-->
+	<wheelSeparation>${wheel_sep}</wheelSeparation>
+
+	<!-- Diameter of the wheels, in meters, defaults to 0.15 m -->
+	<wheelDiameter>${wheel_dia}</wheelDiameter>
+
+	<!-- Wheel acceleration, in rad/s^2, defaults to 0.0 rad/s^2 -->
+	<wheelAcceleration>${wheel_acc}</wheelAcceleration>
+
+	<!--
+	Maximum torque which the wheels can produce, in Nm, defaults to 5 Nm
+	-->
+	<wheelTorque>${wheel_max_torque}</wheelTorque>
+
+	<!--
+	Topic to receive geometry_msgs/Twist message commands,
+	defaults to 'cmd_vel'
+	-->
+	<commandTopic>${topic_prefix}${topic_cmd_vel}</commandTopic>
+
+	<!-- Topic to publish nav_msgs/Odometry messages, defaults to 'odom' -->
+	<odometryTopic>${topic_prefix}${topic_odom}</odometryTopic>
+
+	<!-- Odometry frame, defaults to 'odom' -->
+	<odometryFrame>${frame_odom}</odometryFrame>
+
+	<!--
+	Robot frame to calculate odometry from, defaults to 'base_footprint'
+	-->
+	<robotBaseFrame>${frame_base}</robotBaseFrame>
+
+	<!-- Odometry source, 0 for ENCODER, 1 for WORLD, defaults to WORLD -->
+	<odometrySource>1</odometrySource>
+
+	<!--
+	Set to true to publish transforms for the wheel links, defaults to false
+	-->
+	<publishWheelTF>true</publishWheelTF>
+
+	<!--
+	Set to true to publish transforms for the odometry, defaults to true
+	-->
+	<publishOdom>true</publishOdom>
+
+	<!--
+	Set to true to publish sensor_msgs/JointState on /joint_states for the
+	wheel joints, defaults to false
+	-->
+	<publishWheelJointState>true</publishWheelJointState>
+
+	<!-- Set to true to swap right and left wheels, defaults to true -->
+	<legacyMode>false</legacyMode>
+</plugin>
+</gazebo>
+</xacro:macro>
+
+</robot>

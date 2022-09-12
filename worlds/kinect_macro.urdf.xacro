@@ -1,0 +1,98 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:arg name="_pkg_url_mesh_v"
+	default="package://servicesim_competition/meshes_extra/" />
+<xacro:arg name="_pkg_url_mesh_c" default="$(arg _pkg_url_mesh_v)simple/" />
+
+
+<!-- ############################################################ -->
+<xacro:macro name="kinect_link_inertial">
+	<inertial>
+		<mass value="0.1" />
+		<origin xyz="0 0 0" rpy="0 0 0" />
+		<inertia
+			ixx="1e-6" ixy="0" ixz="0"
+			iyy="1e-6" iyz="0"
+			izz="1e-6" />
+	</inertial>
+</xacro:macro>
+
+<!-- ############################################################ -->
+<xacro:macro name="kinect_link_org_geom" params="prefix real:=true
+	stl_simple:=false x:=0.05 y:=0.15 z:=0.05 scale:=0.5">
+
+	<xacro:unless value="${stl_simple}">
+		<xacro:property name="_url_mesh" value="$(arg _pkg_url_mesh_v)" />
+	</xacro:unless>
+	<xacro:if value="${stl_simple}">
+		<xacro:property name="_url_mesh" value="$(arg _pkg_url_mesh_c)" />
+	</xacro:if>
+
+	<origin xyz="0 0 0" rpy="0 0 0" />
+	<geometry name="${prefix}_visual">
+		<xacro:if value="${real}">
+			<mesh filename="${_url_mesh}kinect.stl"
+				scale="${scale} ${scale} ${scale}" />
+		</xacro:if>
+		<xacro:unless value="${real}">
+			<box size="${x} ${y} ${z}" />
+		</xacro:unless>
+	</geometry>
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="kinect_link_visual" params="prefix real:=true
+		x:=0.05 y:=0.15 z:=0.05 scale:=0.5">
+
+	<visual name="visual">
+		<xacro:kinect_link_org_geom prefix="${prefix}" real="${real}"
+			stl_simple="false" x="${x}" y="${y}" z="${z}" scale="${scale}" />
+		<material name="TopBlack" />
+	</visual>
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="kinect_link_collision" params="prefix real:=true
+		x:=0.05 y:=0.15 z:=0.05 scale:=0.5">
+
+	<collision name="collision">
+		<xacro:kinect_link_org_geom prefix="${prefix}" real="${real}"
+			stl_simple="true" x="${x}" y="${y}" z="${z}" scale="${scale}" />
+	</collision>
+</xacro:macro>
+
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+<xacro:macro name="add_kinect" params="prefix parent_link:=base_link
+	x:=0.18 y:=0.0 z:=-0.05 roll:=0.0 pitch:=0.4 yaw:=0.0">
+
+<link name="${prefix}_link">
+	<xacro:kinect_link_inertial />
+	<xacro:kinect_link_visual prefix="${prefix}" />
+	<xacro:kinect_link_collision prefix="${prefix}" real="false" />
+</link>
+
+<joint name="${prefix}_joint" type="fixed">
+	<parent link="${parent_link}" />
+	<child link="${prefix}_link" />
+	<origin xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}" />
+</joint>
+
+<link name="${prefix}_optical_frame">
+	<inertial>
+		<mass value="0.01" />
+		<origin xyz="0 0 0" rpy="0 0 0" />
+		<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+	</inertial>
+</link>
+
+<joint name="${prefix}_optical_joint" type="fixed">
+    <parent link="${prefix}_link"/>
+    <child link="${prefix}_optical_frame"/>
+    <origin xyz="0 0 0" rpy="-1.57 0 -1.57" />
+</joint>
+
+</xacro:macro>
+
+</robot>

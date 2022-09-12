@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<robot>
+  <model name="PublicCubicle_27">
+    <static>true</static>
+    <pose>
+      13.6
+      10.6
+      0
+      0
+      0
+      3.141592653589793
+    </pose>
+    <link name="link">
+
+      <collision name="collision_x">
+        <pose>
+          -0.925
+          -0.375
+          0.38
+          0 0 0
+        </pose>
+        <geometry>
+          <box>
+            <size>
+              1.85
+              0.75
+              0.76
+            </size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_y">
+        <pose>
+          -0.375
+          -0.925
+          0.38
+          0 0 0
+        </pose>
+        <geometry>
+          <box>
+            <size>
+              0.75
+              1.85
+              0.76
+            </size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_corner/meshes/cubicle_corner.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+
+
+  <include>
+    <pose>
+      -0.45
+      -1.22
+      0.76
+      0
+      0
+      -1.5707963267948966
+    </pose>
+    <uri>model://computer</uri>
+  </include>
+
+
+  <include>
+    <pose>
+      -1.2642326330117932
+      -1.1527594411170277
+      0
+      0
+      0
+      2.90474416337166
+    </pose>
+    <uri>model://office_chair</uri>
+  </include>
+
+  </model>
+</robot>

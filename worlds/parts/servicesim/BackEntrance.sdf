@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<robot>
+<model name="BackEntrance">
+  <static>true</static>
+
+  <include>
+    <name>chair_1</name>
+    <pose>
+      1.4381445149914571
+      21.68155300019426
+      0
+      0
+      0
+      -1.7762139767776872
+    </pose>
+    <uri>model://hangout_chair</uri>
+  </include>
+
+  <include>
+    <name>chair_2</name>
+    <pose>
+      1.8774229434831626
+      20.03622227312375
+      0
+      0
+      0
+      2.3083080086843784
+    </pose>
+    <uri>model://hangout_chair</uri>
+  </include>
+
+  <include>
+    <pose>
+      -0.18
+      22.0
+      0
+      0
+      0
+      -1.5707963267948966
+    </pose>
+    <uri>model://mini_fridge</uri>
+  </include>
+
+  <include>
+    <pose>
+      -0.97
+      22.03
+      0
+      0
+      0
+      -1.5707963267948966
+    </pose>
+    <uri>model://wastebasket</uri>
+  </include>
+
+  <include>
+    <pose>
+      0.0
+      16.9
+      0
+      0
+      0
+      3.141592653589793
+    </pose>
+    <uri>model://reception_desk</uri>
+  </include>
+
+</model>
+</robot>

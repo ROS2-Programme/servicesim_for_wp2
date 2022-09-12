@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_floor_visual" params="id pX:=^ pY:=^
+		uri_type:='file' uri_path:='media/meshes/' uri_file:='tile.obj'">
+
+	<visual name="floor_${id}">
+		<xacro:make_one_pose pZ="_0" oX="_0" oY="_0" oZ="_0" />
+
+		<geometry>
+			<mesh>
+				<uri>${uri_type}://${uri_path}${uri_file}</uri>
+				<scale>0.01 0.01 0.01</scale>
+			</mesh>
+		</geometry>
+
+	</visual>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_counter_mesh_link" params="lname pX:=^ pY:=^
+		oZ:=^|PI_HALF sW:=1.2 sD:=0.67 sH:=0.92
+		uri_file:='counter_no_sink.obj'">
+
+	<link name="${lname}">
+		<xacro:make_one_pose pZ="_0" oX="_0" oY="_0" />
+
+		<collision name="collision">
+			<pose>0.0 -0.025 0.46 0 0 0</pose>
+			<geometry>
+				<box>
+					<size>${sW} ${sD} ${sH}</size>
+				</box>
+			</geometry>
+		</collision>
+
+		<visual name='visual'>
+			<geometry>
+				<mesh>
+					<uri>model://cafe_counter/meshes/${uri_file}</uri>
+					<scale>0.01 0.01 0.01</scale>
+				</mesh>
+			</geometry>
+		</visual>
+	</link>
+
+</xacro:macro>
+
+</robot>

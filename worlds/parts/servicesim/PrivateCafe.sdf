@@ -1,0 +1,274 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<model name="PrivateCafe">
+  <static>true</static>
+
+  <link name="counter_0">
+    <pose>
+      -27.15
+      14.25
+      0
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <collision name="collision">
+      <pose>0.0 -0.025 0.46 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>1.2 0.67 0.92</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <geometry>
+        <mesh>
+          <uri>model://cafe_counter/meshes/counter_no_sink.obj</uri>
+          <scale>0.01 0.01 0.01</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="counter_1">
+    <pose>
+      -27.15
+      13.05
+      0
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <collision name="collision">
+      <pose>0.0 -0.025 0.46 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>1.2 0.67 0.92</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <geometry>
+        <mesh>
+          <uri>model://cafe_counter/meshes/counter_no_sink.obj</uri>
+          <scale>0.01 0.01 0.01</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="counter_2">
+    <pose>
+      -27.15
+      11.85
+      0
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <collision name="collision">
+      <pose>0.0 -0.025 0.46 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>1.2 0.67 0.92</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <geometry>
+        <mesh>
+          <uri>model://cafe_counter/meshes/counter_sink.obj</uri>
+          <scale>0.01 0.01 0.01</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+
+
+
+  <include>
+    <name>microwave_1</name>
+    <pose>
+      -27.1
+      14.47
+      0.92
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <uri>model://microwave</uri>
+  </include>
+
+  <include>
+    <name>microwave_2</name>
+    <pose>
+      -27.1
+      13.9
+      0.92
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <uri>model://microwave</uri>
+  </include>
+
+
+
+  <include>
+    <name>coffee_maker_1</name>
+    <pose>
+      -27.0
+      13.21
+      0.92
+      0
+      0
+      1.5707963267948966
+    </pose>
+  <uri>model://coffee_maker</uri>
+  </include>
+
+  <include>
+    <name>coffee_maker_2</name>
+    <pose>
+      -27.0
+      12.91
+      0.92
+      0
+      0
+      1.5707963267948966
+    </pose>
+  <uri>model://coffee_maker</uri>
+  </include>
+
+
+<include>
+  <pose>
+    -27.12
+    10.92
+    0
+    0
+    0
+    1.5707963267948966
+  </pose>
+  <uri>model://dishwasher</uri>
+</include>
+
+
+  <include>
+    <name>refrigerator_1</name>
+    <pose>
+      -27.0
+      10.1
+      0
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <uri>model://refrigerator</uri>
+  </include>
+
+  <include>
+    <name>refrigerator_2</name>
+    <pose>
+      -27.0
+      9.27
+      0
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <uri>model://refrigerator</uri>
+  </include>
+
+
+
+
+  <include>
+    <name>table_1</name>
+    <pose>
+      -24
+      12.22
+      0
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <uri>model://office_table</uri>
+  </include>
+
+
+
+  <include>
+    <name>table_2</name>
+    <pose>
+      -24
+      8.73
+      0
+      0
+      0
+      1.5707963267948966
+    </pose>
+    <uri>model://office_table</uri>
+  </include>
+
+
+
+
+
+
+
+
+<xacro:make_one_chair_collision_model id="37" pX="-23.0" pY="12.5"
+	oZ="_0.29669023928754823" bAltAmbient="True" />
+
+<xacro:make_one_chair_collision_model id="38" pX="-23.0" pY="11.75"
+	oZ="_-0.4154143006411952" />
+
+<xacro:make_one_chair_collision_model id="39" pX="-23.0" pY="9.15"
+	oZ="_0.2384515301478235" />
+
+<xacro:make_one_chair_collision_model id="40" pX="-23.0" pY="8.34"
+	oZ="_0.3273418964648832" bAltAmbient="True" />
+
+<xacro:make_one_chair_collision_model id="41" pX="-25.0" pY="12.5"
+	oZ="_3.4679682641129013" bAltAmbient="True" />
+
+<xacro:make_one_chair_collision_model id="42" pX="-25.0" pY="11.75"
+	oZ="_3.118810642346465" />
+
+<xacro:make_one_chair_collision_model id="43" pX="-25.0" pY="9.15"
+	oZ="_3.163370047187191" />
+
+<xacro:make_one_chair_collision_model id="44" pX="-25.0" pY="8.34"
+	oZ="_2.774991163048097" />
+
+
+
+
+
+<include>
+  <pose>
+    -26.52
+    6.06
+    0
+    0
+    0
+    1.5707963267948966
+  </pose>
+  <uri>model://office_couch</uri>
+</include>
+
+<include>
+  <pose>
+    -27.0
+    8.18
+    0
+    0
+    0
+    0
+  </pose>
+  <uri>model://wastebasket</uri>
+</include>
+
+</model>
+</robot>

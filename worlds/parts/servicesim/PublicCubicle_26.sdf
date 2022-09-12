@@ -1,0 +1,88 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <model name="PublicCubicle_26">
+    <static>true</static>
+    <pose>
+      9.0
+      13.5
+      0
+      0
+      0
+      0
+    </pose>
+    <link name="link">
+
+      <collision name="collision_y">
+        <pose>0 0 0.38 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>
+              1.5
+              3.7
+              0.76
+            </size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_x">
+        <pose>0 0 0.38 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>
+              3.7
+              1.5
+              0.76
+            </size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_island/meshes/cubicle_island.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+
+
+
+<!--
+	<xacro:include_one_computer_db_model id="-1_-1" pX="" pY="" oZ="0.0" />
+	<xacro:include_one_computer_db_model id="-1_-1" pX="" pY="" oZ="PI" />
+	<xacro:include_one_computer_db_model id="-1_-1" pX="" pY=""
+		oZ="PI_HALF" />
+	<xacro:include_one_chair_db_model id="-1_-1"
+		pX="_"
+		pY="_"
+		oZ="_" />
+-->
+	<xacro:include_one_computer_db_model id="-1_-1" pX="-1.22" pY="-0.45"
+		oZ="0.0" />
+	<xacro:include_one_chair_db_model id="-1_-1"
+		pX="_-1.1905810270450394"
+		pY="_-1.2596872452055237"
+		oZ="_2.402131526377253" />
+
+	<xacro:include_one_computer_db_model id="-1_1" pX="-0.45" pY="1.22" />
+	<xacro:include_one_chair_db_model id="-1_1"
+		pX="_-1.2919040656159435"
+		pY="_1.26779753924158"
+		oZ="_0.4974607869254787" />
+
+	<xacro:include_one_computer_db_model id="1_-1" pX="1.22" pY="-0.45"
+		oZ="0.0" />
+	<xacro:include_one_chair_db_model id="1_-1"
+		pX="_1.1662062053250382"
+		pY="_-1.2489301870741667"
+		oZ="_-1.7625175400032338" />
+
+	<xacro:include_one_computer_db_model id="1_1" pX="1.22" pY="0.45" oZ="PI" />
+	<xacro:include_one_chair_db_model id="1_1"
+		pX="_1.2241836024588795"
+		pY="_1.2137873062677542"
+		oZ="_-1.0384195242534415" />
+
+</model>
+</robot>

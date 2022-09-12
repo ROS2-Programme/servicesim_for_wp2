@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <model name="PublicCubicle_25">
+    <static>true</static>
+    <pose>
+      9.0
+      7.5
+      0
+      0
+      0
+      0
+    </pose>
+    <link name="link">
+
+      <collision name="collision_y">
+        <pose>0 0 0.38 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>
+              1.5
+              3.7
+              0.76
+            </size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_x">
+        <pose>0 0 0.38 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>
+              3.7
+              1.5
+              0.76
+            </size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://cubicle_island/meshes/cubicle_island.obj</uri>
+            <scale>0.01 0.01 0.01</scale>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+
+
+
+	<xacro:include_one_computer_db_model id="-1_-1" pX="-0.45" pY="-1.22" />
+	<xacro:include_one_chair_db_model id="-1_-1"
+		pX="_-1.228528411610907"
+		pY="_-1.292499716351835"
+		oZ="_2.4884105789289115" />
+
+	<xacro:include_one_computer_db_model id="-1_1" pX="-1.22" pY="0.45"
+		oZ="PI" />
+	<xacro:include_one_chair_db_model id="-1_1"
+		pX="_-1.2669738635287413"
+		pY="_1.173006685179566"
+		oZ="_0.1968009799703364" />
+
+	<xacro:include_one_computer_db_model id="1_-1" pX="1.22" pY="-0.45"
+		oZ="0.0" />
+	<xacro:include_one_chair_db_model id="1_-1"
+		pX="_1.227429499300997"
+		pY="_-1.1530290583595975"
+		oZ="_-2.530315750442635" />
+
+	<xacro:include_one_computer_db_model id="1_1" pX="0.45" pY="1.22"
+		oZ="PI_HALF" />
+	<xacro:include_one_chair_db_model id="1_1"
+		pX="_1.2374726511917833"
+		pY="_1.2546091537232638"
+		oZ="_-0.22202485487291912" />
+
+</model>
+</robot>
