@@ -286,7 +286,7 @@
 
 
 
-
+<!--
 	<xacro:make_one_model_wrapper mname="velodyne_1" pX="-0.75" pY="-2.3"
 		pZ="0.95" oZ="0.0">
 		<xacro:make_one_Y_mesh_link X="velodyne_hdl32" lname="velodyne" id="1"
@@ -294,7 +294,7 @@
 		<xacro:plugin_sensor_velodyne ref_link="velodyne_1"
 			topic_lidar="velodyne1" frame_lidar="velodyne_1_optical_frame" />
 	</xacro:make_one_model_wrapper>
-
+-->
 
 
 
