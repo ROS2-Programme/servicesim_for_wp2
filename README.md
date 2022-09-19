@@ -23,7 +23,7 @@ cd __INSTALL_PATH_OF_THIS_PACKAGE__
 > upper row of three tables) at maximum walking speed (`c`):
 ```bash
 xacro robot_name:=husky_ur5e custom_cfg:=1.c service.world.xacro |\
-   grep -v -P "^<\/?robot>$" > /tmp/temp.world
+   grep -v -P "^<\/?robot>$" > /tmp/temp_single_red.world
 ```
 
 > __Example 2__  
@@ -31,7 +31,7 @@ xacro robot_name:=husky_ur5e custom_cfg:=1.c service.world.xacro |\
 > around middle column of two tables) at medium walking speed (`b`):
 ```bash
 xacro robot_name:=husky_ur5e custom_cfg:=2.b service.world.xacro |\
-   grep -v -P "^<\/?robot>$" > /tmp/temp.world
+   grep -v -P "^<\/?robot>$" > /tmp/temp_single_blue.world
 ```
 
 > __Example 3__  
@@ -40,14 +40,14 @@ xacro robot_name:=husky_ur5e custom_cfg:=2.b service.world.xacro |\
 > (`a`):
 ```bash
 xacro robot_name:=husky_ur5e custom_cfg:=3.a service.world.xacro |\
-   grep -v -P "^<\/?robot>$" > /tmp/temp.world
+   grep -v -P "^<\/?robot>$" > /tmp/temp_single_green.world
 ```
 
 > __Example 4__  
 > To generate test world combining all three scenarios above:
 ```bash
 xacro robot_name:=husky_ur5e custom_cfg:=1.c,2.b,3.a service.world.xacro |\
-   grep -v -P "^<\/?robot>$" > /tmp/temp.world
+   grep -v -P "^<\/?robot>$" > /tmp/temp_all.world
 ```
 
 <!-- ======================================== -->
@@ -55,12 +55,12 @@ xacro robot_name:=husky_ur5e custom_cfg:=1.c,2.b,3.a service.world.xacro |\
 ### 1.2. Launching manually generated Gazebo simulation world without robot
 
 Assuming Gazebo simulation that was manually generated in
-[Section 1.1](#+S1.1) is `/tmp/temp.world`, then run `roslaunch` as:
+[Section 1.1](#+S1.1) is `/tmp/temp_all.world`, then run `roslaunch` as:
 
 ```bash
 roslaunch servicesim_for_wp2 competition.launch \
   custom:=true \
-  custom_prefix:=/tmp/temp
+  custom_prefix:=/tmp/temp_all
 ```
 
 <!-- ======================================== -->
@@ -72,12 +72,12 @@ This section will require [ros2_programme_simulator](
 have been set up and built, using `cjl-devel` branch.
 
 Assuming Gazebo simulation that was manually generated in
-[Section 1.1](#+S1.1) is `/tmp/temp.world`, then run `roslaunch` as:
+[Section 1.1](#+S1.1) is `/tmp/temp_all.world`, then run `roslaunch` as:
 
 ```bash
 roslaunch servicesim_for_wp2 demo_world.launch \
   custom:=true \
-  custom_prefix:=/tmp/temp
+  custom_prefix:=/tmp/temp_all
 ```
 
 <!-- ######################################## -->
