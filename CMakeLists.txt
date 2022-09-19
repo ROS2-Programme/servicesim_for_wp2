@@ -10,7 +10,11 @@ project(servicesim_for_wp2)
 find_package(catkin REQUIRED COMPONENTS
   gazebo_plugins
   xacro
+  roscpp
+  std_msgs
 )
+
+find_package( gazebo REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -117,12 +121,19 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${roscpp_INCLUDE_DIRS}
+  ${std_msgs_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/servicesim_for_wp2.cpp
 # )
+
+add_library(velodyne_plugin SHARED
+  src/velodyne_plugin.cc
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -148,6 +159,11 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+target_link_libraries(velodyne_plugin
+  ${GAZEBO_LIBRARIES}
+  ${roscpp_LIBRARIES}
+)
 
 #############
 ## Install ##
