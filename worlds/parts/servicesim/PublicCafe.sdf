@@ -308,7 +308,7 @@
 		<xacro:make_one_Y_mesh_link X="velodyne_hdl32" lname="velodyne" id="1"
 				pX="0.0" pY="0.0" M1="velodyne_base" M2="velodyne_top">
 			<xacro:plugin_sensor_velodyne ref_link="velodyne_1"
-				bVisualise="True" frame_lidar="velodyne_1_top" gpu="${use_gpu}"
+				bVisualise="False" frame_lidar="velodyne_1_top" gpu="${use_gpu}"
 				x_rot="${xrot_when_rev_joint}"
 			/>
 		</xacro:make_one_Y_mesh_link>
