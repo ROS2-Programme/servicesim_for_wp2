@@ -3,13 +3,11 @@
 
 
 <!-- ######################################## -->
-<xacro:macro name="plugin_sensor_velodyne" params="hz:=10
-		ref_link:='velodyne_link' topic_lidar:='velodyne_points'
-		frame_lidar:='velodyne' topic_prefix:=''
-		gpu:=False num_line:=16 pname:='gazebo_ros_laser_controller'
-		ray_range:='${dict( min=0.3, res=0.001)}'
-		p_param:='${dict( min=0.9, max=130.0, noise=0.008, org_cloud=False)}'
-		M_PI:='3.141592653589793'
+<xacro:macro name="plugin_sensor_velodyne" params="hz:=10 bVisualise:=False
+		ref_link:='velodyne_link' topic_lidar:='velodyne_points' gpu:=False
+		frame_lidar:='velodyne' topic_prefix:='' num_line:=16 x_rot:='PI_HALF'
+		pname:='gazebo_ros_block_laser_controller' ray_range:=None
+		p_param:=None M_PI:='3.141592653589793' _bDebug:=False
 ">
 	<xacro:property name="_type" value="ray" />
 	<xacro:property name="_lib" value="libgazebo_ros_velodyne_laser.so" />
@@ -19,57 +17,92 @@
 			/>
 	</xacro:if>
 
-	<xacro:property name="_param_map" value="${dict(
-		16=dict( name_suffix='-VLP16', v_angle_min=-15.0, v_angle_max=15.0,
-			h_sample=1875, v_sample=16
-		),
-		32=dict( name_suffix='-HDL32E', v_angle_min=-30.67, v_angle_max=10.67,
-			h_sample=2187, v_sample=32
-		),
-	)}" />
+	<xacro:if value="${num_line == 16}">
+	<xacro:property name="_param" value="${dict( name_suffix='-VLP16',
+		v_angle_min=-15.0, v_angle_max=15.0, h_sample=1875, v_sample=16)}" />
+	</xacro:if>
+	<xacro:if value="${num_line == 32}">
+	<xacro:property name="_param" value="${dict( name_suffix='-HDL32E',
+		v_angle_min=-30.67, v_angle_max=10.67, h_sample=2187, v_sample=32)}" />
+	</xacro:if>
+
+	<xacro:if value="${str(ray_range) == 'None'}">
+		<xacro:if value="${_bDebug}">
+		<WTF>ray_range is None</WTF>
+		</xacro:if>
+		<xacro:property name="ray_range"
+			value="${dict( min=0.3, res=0.001)}" />
+	</xacro:if>
+
+	<xacro:if value="${str(p_param) == 'None'}">
+		<xacro:if value="${_bDebug}">
+		<WTF>p_param is None</WTF>
+		</xacro:if>
+		<xacro:property name="p_param" value="${dict(
+			min=0.9, max=130.0, noise=0.008, org_cloud=False)}" />
+	</xacro:if>
 
 	<xacro:property name="h_angle_max" value="${M_PI}" />
-	<xacro:property name="h_angle_min" value="${-1 * M_PI}" />
-
-	<xacro:property name="_param" value="${_param_map.get( num_line)}" />
+	<xacro:property name="h_angle_min" value="${'-' + M_PI}" />
 
 <!-- Gazebo requires the velodyne_gazebo_plugins package -->
 <gazebo reference="${ref_link}">
+<!-- Add a ray sensor, and give it a name -->
 <sensor type="${_type}" name="${ref_link}${_param['name_suffix']">
-	<pose>0 0 0 0 0 0</pose>
-	<visualize>false</visualize>
+	<!--
+	Position the ray sensor based on the specification. Also rotate it by 90
+	degrees around the X-axis so that the <horizontal> rays become vertical
+	-->
+	<xacro:make_one_pose pX="_0" pY="_0" pZ="0.004645" oX="${x_rot}" />
+	<!-- Enable visualization to see the rays in the GUI -->
+	<visualize>${bVisualise}</visualize>
+	<!-- Set the update rate of the sensor -->
 	<update_rate>${hz}</update_rate>
 	<ray>
 		<scan>
+			<!-- The horizontal beams -->
 			<horizontal>
+				<!-- The velodyne has ${num_line} horizontal beams (samples) -->
 				<samples>${_param['h_sample']}</samples>
+				<!--
+				Resolution is multiplied by samples to determine number of
+				simulated beams vs interpolated beams. See:
+				http://sdformat.org/spec?ver=1.6&elem=sensor#horizontal_resolution
+				-->
 				<resolution>1</resolution>
+				<!-- Minimum angle in radians -->
 				<min_angle>${h_angle_min}</min_angle>
+				<!-- Maximum angle in radians -->
 				<max_angle>${h_angle_max}</max_angle>
 			</horizontal>
 			<vertical>
 				<samples>${_param['v_sample']}</samples>
 				<resolution>1</resolution>
-				<min_angle>${_param['v_angle_min'] * M_PI / 180.0}</min_angle>
-				<max_angle>${_param['v_angle_max'] * M_PI / 180.0}</max_angle>
+				<min_angle>${_param['v_angle_min'] * pi / 180.0}</min_angle>
+				<max_angle>${_param['v_angle_max'] * pi / 180.0}</max_angle>
 			</vertical>
 		</scan>
+		<!-- Range defines characteristics of an individual beam -->
 		<range>
+			<!-- Minimum distance of the beam -->
 			<min>${ray_range.get('min')}</min>
+			<!-- Maximum distance of the beam -->
 			<max>${ray_range.get('max', p_param.get('max') + 1)}</max>
+			<!-- Linear resolution of the beam -->
 			<resolution>${ray_range.get('res')}</resolution>
 		</range>
 		<noise>
+			<!-- Use gaussian noise -->
 			<type>gaussian</type>
 			<mean>0.0</mean>
-			<stddev>0.0</stddev>
+			<stddev>0.02</stddev>
 		</noise>
 	</ray>
 
 	<plugin name="${pname}" filename="${_lib}">
 		<topicName>${topic_prefix}${topic_lidar}</topicName>
 		<frameName>${frame_lidar}</frameName>
-		<organize_cloud>${p_param.get('org_cloud')}}</organize_cloud>
+		<organize_cloud>${p_param.get('org_cloud')}</organize_cloud>
 		<min_range>${p_param.get('min')}</min_range>
 		<max_range>${p_param.get('max')}</max_range>
 		<gaussianNoise>${p_param.get('noise')}</gaussianNoise>
