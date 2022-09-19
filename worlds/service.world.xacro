@@ -10,13 +10,52 @@
 <xacro:include filename="kinect_macro.urdf.xacro" />
 <xacro:include filename="../plugins/camera.xacro" />
 <xacro:include filename="../plugins/kinect.xacro" />
+<xacro:include filename="../plugins/hokuyo.xacro" />
+<xacro:include filename="../plugins/velodyne.xacro" />
 
+<!-- ######################################## -->
+<xacro:macro name="eval_to_bool" params="val pRet:=^ _bDebug:=False">
+
+	<xacro:property name="RET" value="" />
+	<xacro:property name="_bRet" value="${False}" />
+	<xacro:property name="_val" value="${str( val).strip().lower()}" />
+
+	<xacro:if value="${(_val != '') and (
+			(_val == 'true') or (_val == 'yes') or (_val == 'on') or
+			(str(_val).isdigit() and (int(_val) != 0)) )}">
+
+		<xacro:property name="_bRet" value="${True}" />
+	</xacro:if>
+
+	<xacro:property name="RET" value="${pRet.append( _bRet)}" />
+	<xacro:induce_eval />
+
+	<xacro:if value="${_bDebug}">
+		<eval_2_bool>val=${val} => ${_bRet}</eval_2_bool>
+	</xacro:if>
+
+</xacro:macro>
+
+<!-- ######################################## -->
 <xacro:arg name="robot_name" default="servicebot" />
 <xacro:arg name="custom_cfg" default="1.a" />
+<xacro:arg name="have_gpu" default="True" />
+<xacro:arg name="rev_joint_velodyne" default="False" />
 
 <xacro:property name="_custom_cfg" value="$(arg custom_cfg)" />
 <xacro:property name="no_custom" value="${str(_custom_cfg).strip() == '0'}"
 	/>
+
+<xacro:property name="_gpu_arg" value="$(arg have_gpu)" />
+<xacro:property name="_have_gpu" value="${str( _gpu_arg).strip().lower()}" />
+<xacro:property name="use_gpu" value="${(_have_gpu != '') and (
+		(_have_gpu == 'true') or (_have_gpu == 'yes') or (_have_gpu == 'on') or
+		(str(_have_gpu).isdigit() and (int(_have_gpu) != 0)) )}"
+	/>
+
+<xacro:eval_to_bool val="$(arg rev_joint_velodyne)" _bDebug="True" />
+<xacro:property name="revolute_joint_velo" value="${pRet.pop()}" />
+<xacro:induce_eval RET="${revolute_joint_velo}" />
 
 <xacro:property name="do_public_cafe_default_fixture" value="${no_custom}"
 	/>
