@@ -276,8 +276,9 @@
 </xacro:macro>
 
 <!-- ######################################## -->
-<xacro:macro name="make_one_X_mesh_link" params="X lname id pX pY pZ
-		scale:=1.0 oY:='_0' oZ:='_0' M:='' C:='' m_extn:='dae'">
+<xacro:macro name="make_one_X_mesh_link" params="X lname id pX pY pZ:=0.0
+		scale:=1.0 oY:='_0' oZ:='_0' M:='' C:='' m_extn:='dae'
+		bNoOptical:=False">
 
 	<xacro:property name="_mesh" value="${X}" />
 	<xacro:if value="${M != ''}">
@@ -314,6 +315,7 @@
 	</collision>
 	</xacro:unless>
 
+	<xacro:unless value="${bNoOptical}">
 	<link name="${lname}_${id}_optical_frame">
 <!--
 		<xacro:make_one_pose pX="0.18" pZ="-0.05" oX="PI_HALF_NEG"
@@ -321,12 +323,13 @@
 -->
 		<xacro:make_one_pose pX="0.18" pZ="-0.05" oY="0.0" oZ="0.0" />
 	</link>
+	</xacro:unless>
 </link>
 
 </xacro:macro>
 
 <!-- ######################################## -->
-<xacro:macro name="make_one_model_wrapper" params="mname pX pY pZ oZ=0.0
+<xacro:macro name="make_one_model_wrapper" params="mname pX pY pZ oZ:=0.0
 		*visual_block **X">
 
 <model name="${mname}">
@@ -336,6 +339,175 @@
 	<link name="link">
 		<xacro:insert_block name="X" />
 	</link>
+</model>
+
+</xacro:macro>
+
+<!-- ############################################################ -->
+<xacro:macro name="make_one_inertial" params="mass ixx:=1e-6 iyy:=1e-6
+		izz:=1e-6 ixy:=0.0 ixz:=0.0 iyz:=0.0">
+
+	<inertial>
+		<mass>${mass}</mass>
+		<inertia>
+			<ixx>${ixx}</ixx>
+			<ixy>${ixy}</ixy>
+			<ixz>${ixz}</ixz>
+			<iyy>${iyy}</iyy>
+			<iyz>${iyz}</iyz>
+			<izz>${izz}</izz>
+		</inertia>
+	</inertial>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_Y_mesh_link" params="X lname id pX pY pZ:=0.0
+		scale:=1.0 oY:='_0' oZ:='_0' M1:='' M2:='' m_extn:='dae'
+		**sensor_blk">
+
+	<xacro:property name="base_l" value="0.05867" />
+	<xacro:property name="base_r" value="0.04267" />
+	<xacro:property name="base_m" value="1.2" />
+	<xacro:property name="base_i_sym_xy" value="0.001087473" />
+
+<!-- Give the base link a unique name -->
+<link name="${lname}_${id}_base">
+	<!-- Offset the base by half the length of the cylinder -->
+	<xacro:make_one_pose pZ="${base_l / 2.0}" />
+	<xacro:make_one_inertial mass="${base_m}" ixx="${base_i_sym_xy}"
+		iyy="${base_i_sym_xy}" izz="0.001092437" />
+	<collision name="base_collision">
+		<geometry>
+			<cylinder>
+				<!-- Radius and length provided by Velodyne -->
+				<radius>${base_r}</radius>
+				<length>${base_l}</length>
+			</cylinder>
+		</geometry>
+	</collision>
+
+	<!-- The visual is mostly a copy of the collision -->
+	<visual name="base_visual">
+		<geometry>
+			<xacro:unless value="${M1 == ''}">
+			<!--
+			Offset the visual by have the base's height. We are not rotating
+			mesh since symmetrical
+			-->
+			<xacro:make_one_pose pZ="${base_l / 2.0}" />
+			<!--
+			The mesh tag indicates that we will use a 3D mesh as a visual
+			-->
+			<mesh>
+				<!--
+				The URI should refer to the 3D mesh. The "model:" URI scheme
+				indicates that the we are referencing a Gazebo model.
+				-->
+				<uri>model://${X}/meshes/${M1}.${m_extn}</uri>
+				<scale>${scale} ${scale} ${scale}</scale>
+			</mesh>
+			</xacro:unless>
+			<xacro:if value="${M1 == ''}">
+			<cylinder>
+				<radius>${base_r}</radius>
+				<length>${base_l}</length>
+			</cylinder>
+			</xacro:if>
+		</geometry>
+	</visual>
+</link>
+
+	<xacro:property name="top_l" value="0.08371" />
+	<xacro:property name="top_r" value="${base_r}" />
+	<xacro:property name="top_m" value="0.1" />
+	<xacro:property name="top_i_sym_xy" value="0.000090623" />
+
+<!-- Give the top link a unique name -->
+<link name="${lname}_${id}_top">
+	<!--
+	Vertically offset the top cylinder by the length of the bottom
+	cylinder and half the length of this cylinder.
+	-->
+	<xacro:make_one_pose pZ="${base_l + (top_l / 2.0)}" />
+	<xacro:make_one_inertial mass="${top_m}" ixx="${top_i_sym_xy}"
+		iyy="${top_i_sym_xy}" izz="0.000091036" />
+	<collision name="top_collision">
+		<geometry>
+			<cylinder>
+				<!-- Radius and length provided by Velodyne -->
+				<radius>${top_r}</radius>
+				<length>${top_l}</length>
+			</cylinder>
+		</geometry>
+	</collision>
+
+	<!-- The visual is mostly a copy of the collision -->
+	<visual name="top_visual">
+		<!-- Lower the mesh by half the height, and rotate by 90 degrees -->
+		<geometry>
+			<xacro:unless value="${M2 == ''}">
+			<xacro:make_one_pose pZ="${top_l / 2.0}" oZ="sPI_HALF" />
+			<mesh>
+				<uri>model://${X}/meshes/${M2}.${m_extn}</uri>
+				<scale>${scale} ${scale} ${scale}</scale>
+			</mesh>
+			</xacro:unless>
+			<xacro:if value="${M2 == ''}">
+			<cylinder>
+				<radius>${top_r}</radius>
+				<length>${top_l}</length>
+			</cylinder>
+			</xacro:if>
+		</geometry>
+	</visual>
+
+	<xacro:insert_block name="sensor_blk" />
+</link>
+
+<!-- Each joint must have a unique name -->
+<joint type="revolute" name="joint">
+	<!-- Position the joint at the bottom of the top link -->
+	<xacro:make_one_pose pZ="${top_l / 2.0}" />
+
+	<!-- Use the base link as the parent of the joint -->
+	<parent>${lname}_${id}_base</parent>
+
+	<!-- Use the top link as the child of the joint -->
+	<child>${lname}_${id}_top</child>
+
+	<!-- The axis defines the joint's degree of freedom -->
+	<axis>
+		<!-- Revolve around the z-axis -->
+		<xyz>0 0 1</xyz>
+		<!-- Limit refers to the range of motion of the joint -->
+		<limit>
+			<!-- Use a very large number to indicate a continuous revolution -->
+			<lower>-10000000000000000</lower>
+			<upper>10000000000000000</upper>
+		</limit>
+	</axis>
+</joint>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="make_one_jointed_model_wrapper" params="mname pX pY pZ
+		oZ:=0.0 vJoint:=25 joint_plugin:='' *link1_blk *link2_blk *joint1_2_blk
+	">
+
+<model name="${mname}">
+	<xacro:make_one_pose />
+	<static>True</static>
+	<xacro:insert_block name="link1_blk" />
+	<xacro:insert_block name="link2_blk" />
+	<xacro:insert_block name="joint1_2_blk" />
+	<xacro:unless value="${joint_plugin == ''}">
+	<!-- Attach the plugin to this model -->
+	<plugin name="${mname}_control" filename="${joint_plugin}">
+		<velocity>${vJoint}</velocity>
+	</plugin>
+	</xacro:unless>
 </model>
 
 </xacro:macro>
