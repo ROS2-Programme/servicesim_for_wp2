@@ -286,15 +286,34 @@
 
 
 
-<!--
-	<xacro:make_one_model_wrapper mname="velodyne_1" pX="-0.75" pY="-2.3"
-		pZ="0.95" oZ="0.0">
-		<xacro:make_one_Y_mesh_link X="velodyne_hdl32" lname="velodyne" id="1"
-			pX="0.0" pY="0.0" pZ="0.02" oZ="0.0" />
-		<xacro:plugin_sensor_velodyne ref_link="velodyne_1"
-			topic_lidar="velodyne1" frame_lidar="velodyne_1_optical_frame" />
+
+	<xacro:make_one_model_wrapper mname="hokuyo_1" pX="2.7" pY="-6.05"
+		pZ="0.81" oZ="${sPI_Q3}">
+		<xacro:make_one_X_mesh_link X="hokuyo" lname="hokuyo" id="1"
+			pX="0.0" pY="0.0" bNoOptical="True" />
+		<xacro:plugin_sensor_hokuyo ref_link="hokuyo_1" gpu="${use_gpu}"
+			topic_lidar="hokuyo1" bVisualise="True" />
 	</xacro:make_one_model_wrapper>
--->
+
+
+	<xacro:property name="so_for_rev_joint" value="libvelodyne_plugin.so" />
+	<xacro:property name="xrot_when_rev_joint" value="PI_HALF" />
+	<xacro:unless value="${revolute_joint_velo}">
+		<xacro:property name="so_for_rev_joint" value="" />
+		<xacro:property name="xrot_when_rev_joint" value="0" />
+	</xacro:unless>
+
+	<xacro:make_one_jointed_model_wrapper mname="velodyne_1" pX="-0.5"
+		pY="-3.65" pZ="0.775" oZ="0.0" joint_plugin="libvelodyne_plugin.so">
+		<xacro:make_one_Y_mesh_link X="velodyne_hdl32" lname="velodyne" id="1"
+				pX="0.0" pY="0.0" M1="velodyne_base" M2="velodyne_top">
+			<xacro:plugin_sensor_velodyne ref_link="velodyne_1"
+				bVisualise="True" frame_lidar="velodyne_1_top" gpu="${use_gpu}"
+				x_rot="${xrot_when_rev_joint}"
+			/>
+		</xacro:make_one_Y_mesh_link>
+	</xacro:make_one_jointed_model_wrapper>
+
 
 
 
