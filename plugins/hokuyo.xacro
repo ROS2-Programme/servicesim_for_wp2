@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+<!-- ######################################## -->
+<xacro:macro name="plugin_sensor_hokuyo" params="hz:=10 bVisualise:=False
+		ref_link:='hokuyo_link' topic_lidar:='hokuyo_points'
+		frame_lidar:='hokuyo' topic_prefix:='' gpu:=False
+		pname:='gazebo_ros_laser_controller' h_param:=None ray_range:=None
+		M_PI_HALF:='1.5707963267948966' _bDebug:=False
+">
+	<xacro:property name="_type" value="ray" />
+	<xacro:property name="_lib" value="libgazebo_ros_laser.so" />
+	<xacro:if value="${gpu}">
+		<xacro:property name="_type" value="gpu_ray" />
+		<xacro:property name="_lib" value="libgazebo_ros_gpu_laser.so"
+			/>
+	</xacro:if>
+
+	<xacro:if value="${str(h_param) == 'None'}">
+	<xacro:property name="h_param" value="${dict(
+		h_angle_min=('-' + M_PI_HALF),
+		h_angle_max=M_PI_HALF, h_sample=720, h_res=1)}" />
+	</xacro:if>
+
+	<xacro:if value="${str(ray_range) == 'None'}">
+		<xacro:if value="${_bDebug}">
+		<WTF>ray_range is None</WTF>
+		</xacro:if>
+		<xacro:property name="ray_range"
+			value="${dict( min=0.1, max=30.0, res=0.01)}" />
+	</xacro:if>
+
+	<xacro:property name="h_angle_max" value="${M_PI_HALF}" />
+	<xacro:property name="h_angle_min" value="${'-' + M_PI_HALF}" />
+
+<!-- Gazebo requires the hokuyo_gazebo_plugins package -->
+<gazebo reference="${ref_link}">
+<sensor type="${_type}" name="${ref_link}">
+	<pose>0 0 0 0 0 0</pose>
+	<visualize>${bVisualise}</visualize>
+	<update_rate>${hz}</update_rate>
+	<ray>
+		<scan>
+			<horizontal>
+				<samples>${h_param['h_sample']}</samples>
+				<resolution>1</resolution>
+				<min_angle>${h_angle_min}</min_angle>
+				<max_angle>${h_angle_max}</max_angle>
+			</horizontal>
+		</scan>
+		<range>
+			<min>${ray_range.get('min')}</min>
+			<max>${ray_range.get('max')}</max>
+			<resolution>${ray_range.get('res')}</resolution>
+		</range>
+		<noise>
+			<type>gaussian</type>
+			<mean>0.0</mean>
+			<stddev>0.01</stddev>
+		</noise>
+	</ray>
+
+	<plugin name="${pname}" filename="${_lib}">
+		<topicName>${topic_prefix}${topic_lidar}</topicName>
+		<frameName>${frame_lidar}</frameName>
+	</plugin>
+</sensor>
+</gazebo>
+</xacro:macro>
+
+</robot>
