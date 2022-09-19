@@ -6,14 +6,17 @@
 <xacro:property name="PI_HALF" value="${pi / 2}" />
 -->
 <xacro:property name="sPI_LOW_PREC"      value="_3.141593" />
+<xacro:property name="sPI_Q3_LOW_PREC"  value="_2.356194" />
 <xacro:property name="sPI_HALF_LOW_PREC" value="_1.570796" />
 <xacro:property name="sPI_QTR_LOW_PREC"  value="_0.785398" />
 
 <xacro:property name="sPI_MED_PREC"      value="_3.14159265359" />
+<xacro:property name="sPI_Q3_MED_PREC"  value="_2.35619449019" />
 <xacro:property name="sPI_HALF_MED_PREC" value="_1.57079632679" />
 <xacro:property name="sPI_QTR_MED_PREC"  value="_0.78539816340" />
 
 <xacro:property name="sPI"      value="_3.141592653589793" />
+<xacro:property name="sPI_Q3"  value="_2.356194490192345" />
 <xacro:property name="sPI_HALF" value="_1.5707963267948966" />
 <xacro:property name="sPI_QTR"  value="_0.7853981633974483" />
 
