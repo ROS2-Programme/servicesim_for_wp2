@@ -5,6 +5,8 @@
 
 	<arg name="_pkg_loc" default="$(find servicesim_for_wp2)" />
 	<arg name="_pkg_base" default="$(find servicesim_competition)" />
+<!--
+-->
 
 	<arg if="$(arg custom)" name="world_name"
 		default="$(arg custom_prefix).world" />
@@ -12,9 +14,16 @@
 		default="$(arg _pkg_loc)/worlds/service.world"/>
 
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<!--
+			# Will try and download all model:// resources from
+			# http://models.gazebosim.org/ if local resources not specified.
+		-->
 		<env name="GAZEBO_RESOURCE_PATH" value="$(arg _pkg_base)"/>
 		<env name="GAZEBO_MODEL_PATH"
 			value="$(arg _pkg_loc)/models:$(arg _pkg_base)/models"/>
+<!--
+		<env name="GAZEBO_MODEL_PATH" value="$(arg _pkg_loc)/models"/>
+-->
 		<env name="GAZEBO_PLUGIN_PATH" value="$(arg _pkg_loc)/plugins"/>
 
 		<arg name="world_name" value="$(arg world_name)" />
