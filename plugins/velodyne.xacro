@@ -48,7 +48,7 @@
 <!-- Gazebo requires the velodyne_gazebo_plugins package -->
 <gazebo reference="${ref_link}">
 <!-- Add a ray sensor, and give it a name -->
-<sensor type="${_type}" name="${ref_link}${_param['name_suffix']">
+<sensor type="${_type}" name="${ref_link}${_param['name_suffix']}">
 	<!--
 	Position the ray sensor based on the specification. Also rotate it by 90
 	degrees around the X-axis so that the <horizontal> rays become vertical
