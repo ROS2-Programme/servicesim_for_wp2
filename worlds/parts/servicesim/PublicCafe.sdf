@@ -292,7 +292,7 @@
 		<xacro:make_one_X_mesh_link X="hokuyo" lname="hokuyo" id="1"
 			pX="0.0" pY="0.0" bNoOptical="True" />
 		<xacro:plugin_sensor_hokuyo ref_link="hokuyo_1" gpu="${use_gpu}"
-			topic_lidar="hokuyo1" bVisualise="True" />
+			topic_prefix="hokuyo1" bVisualise="${visible_lidar_2d}" />
 	</xacro:make_one_model_wrapper>
 
 
@@ -308,7 +308,8 @@
 		<xacro:make_one_Y_mesh_link X="velodyne_hdl32" lname="velodyne" id="1"
 				pX="0.0" pY="0.0" M1="velodyne_base" M2="velodyne_top">
 			<xacro:plugin_sensor_velodyne ref_link="velodyne_1"
-				bVisualise="False" frame_lidar="velodyne_1_top" gpu="${use_gpu}"
+				bVisualise="${visible_lidar_3d}" frame_lidar="velodyne_1_top"
+				topic_prefix="velodyne1" gpu="${use_gpu}"
 				x_rot="${xrot_when_rev_joint}"
 			/>
 		</xacro:make_one_Y_mesh_link>
