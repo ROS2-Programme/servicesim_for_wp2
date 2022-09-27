@@ -1,6 +1,29 @@
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<xacro:property name="actor_bone_scaling_map" value="${[
+	[ 'LHipJoint_LeftUpLeg',    [ 0.01, 0.001, 0.001 ] ],
+	[ 'LeftUpLeg_LeftLeg',      [ 8.0, 8.0, 1.0 ] ],
+	[ 'LeftLeg_LeftFoot',       [ 8.0, 8.0, 1.0 ] ],
+	[ 'LeftFoot_LeftToeBase',   [ 4.0, 4.0, 1.5 ] ],
+	[ 'RHipJoint_RightUpLeg',   [ 0.01, 0.001, 0.001 ] ],
+	[ 'RightUpLeg_RightLeg',    [ 8.0, 8.0, 1.0 ] ],
+	[ 'RightLeg_RightFoot',     [ 8.0, 8.0, 1.0 ] ],
+	[ 'RightFoot_RightToeBase', [ 4.0, 4.0, 1.5 ] ],
+	[ 'LowerBack_Spine', [ 12.0, 20.0, 5.0 ], '0.05 0 0 0 -0.2 0' ],
+	[ 'Spine_Spine1',           [ 0.01, 0.001, 0.001 ] ],
+	[ 'Neck_Neck1',             [ 0.01, 0.001, 0.001 ] ],
+	[ 'Neck1_Head',             [ 5.0, 5.0, 3.0 ] ],
+	[ 'LeftShoulder_LeftArm',   [ 0.01, 0.001, 0.001 ] ],
+	[ 'LeftArm_LeftForeArm',    [ 5.0, 5.0, 1.0 ] ],
+	[ 'LeftForeArm_LeftHand',   [ 5.0, 5.0, 1.0 ] ],
+	[ 'LeftFingerBase_LeftHandIndex1',   [ 4.0, 4.0, 3.0 ] ],
+	[ 'RightShoulder_RightArm', [ 0.01, 0.001, 0.001 ] ],
+	[ 'RightArm_RightForeArm',  [ 5.0, 5.0, 1.0 ] ],
+	[ 'RightForeArm_RightHand', [ 5.0, 5.0, 1.0 ] ],
+	[ 'RightFingerBase_RightHandIndex1', [ 4.0, 4.0, 3.0 ] ],
+]}" />
+
 <!-- ######################################## -->
 <xacro:macro name="make_one_human_collision_model" params="id sW:=^|0.44
 		sH:=^|1.62 sD:=^|_0.60">
@@ -49,10 +72,54 @@
 
 </xacro:macro>
 
+<!-- ############################################################ -->
+<xacro:macro name="make_one_scaling" params="bone sX sY sZ suffix:='_collision'
+		szPoseAttr:=''">
+
+	<xacro:property name="_bNoPose" value="${szPoseAttr == ''}" />
+
+	<xacro:unless value="${_bNoPose}">
+	<scaling collision="${bone}${suffix}" scale="${sX} ${sY} ${sZ}"
+		pose="${szPoseAttr}" />
+	</xacro:unless>
+	<xacro:if value="${_bNoPose}">
+	<scaling collision="${bone}${suffix}" scale="${sX} ${sY} ${sZ}" />
+	</xacro:if>
+
+</xacro:macro>
+
 <!-- ######################################## -->
+<xacro:macro name="loop_through_scaling" params="scaling_list:=^">
+
+	<xacro:if value="${scaling_list}">
+		<xacro:property name="_cfg_scale" value="${list( scaling_list.pop(0))}"
+			/>
+		<xacro:property name="RET" value="${_cfg_scale.append( '')}" />
+		<xacro:induce_eval />
+
+		<xacro:make_one_scaling bone="${_cfg_scale[0]}"
+			sX="${_cfg_scale[1][0]}"
+			sY="${_cfg_scale[1][1]}"
+			sZ="${_cfg_scale[1][2]}"
+			szPoseAttr="${_cfg_scale[2]}" />
+
+		<xacro:loop_through_scaling />
+
+	</xacro:if>
+
+</xacro:macro>
+
+<!-- ############################################################ -->
 <xacro:macro name="make_one_actor_traj_model" params="id pX pY vel colour
 		pTrajXY anim:='walking' pZ:=1.0 oX:='__PI_HALF' oY:=-0.0 oZ:='__PI'
-		obs_margin:=0.2 rname:='servicebot'">
+		obs_margin:=0.2 rname:='servicebot' bScaleSkel4Collision:=False">
+
+	<xacro:property name="_trajActorPluginFile"
+		value="libTrajectoryActorPlugin.so" />
+	<xacro:if value="${bScaleSkel4Collision}">
+		<xacro:property name="_trajActorPluginFile"
+			value="libTrajectoryActorExtendedPlugin.so" />
+	</xacro:if>
 
 <actor name="human_${id}">
 	<!-- Starting pose, nice for when the world is reset -->
@@ -72,14 +139,20 @@
 	<xacro:property name="_vel" value="${pRet.pop()}" />
 	<xacro:induce_eval RET="${_vel}" />
 
-	<plugin name="trajectory" filename="libTrajectoryActorPlugin.so">
+	<plugin name="trajectory" filename="${_trajActorPluginFile}">
 		<xacro:make_pose_seq pPoseXY="${list( pTrajXY)}" />
 
 		<velocity>${_vel[1:]}</velocity>
 		<obstacle_margin>${obs_margin}</obstacle_margin>
 		<obstacle>${rname}</obstacle>
+		<debug on_load="False" on_update="False" />
+		<xacro:if value="${bScaleSkel4Collision}">
+		<xacro:loop_through_scaling
+			scaling_list="${list( actor_bone_scaling_map)}" />
+		</xacro:if>
 	</plugin>
 
+	<xacro:unless value="${bScaleSkel4Collision}">
 	<!-- Enable collisions -->
 	<plugin name="attach_model" filename="libAttachModelPlugin.so">
 		<link>
@@ -89,6 +162,7 @@
 			</model>
 		</link>
 	</plugin>
+	</xacro:unless>
 
 </actor>
 
