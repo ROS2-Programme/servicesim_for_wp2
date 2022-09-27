@@ -12,9 +12,12 @@ find_package(catkin REQUIRED COMPONENTS
   xacro
   roscpp
   std_msgs
+  geometry_msgs
+  message_generation
 )
 
 find_package( gazebo REQUIRED)
+# find_package( ignition-math5 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -99,6 +102,8 @@ find_package( gazebo REQUIRED)
 ###################################
 ## catkin specific configuration ##
 ###################################
+set(trajectory_actor_plugin_name TrajectoryActorExtendedPlugin)
+
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
 ## INCLUDE_DIRS: uncomment this if your package contains header files
@@ -108,7 +113,15 @@ find_package( gazebo REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES servicesim_for_wp2
-#  CATKIN_DEPENDS gazebo_plugins xacro
+  LIBRARIES
+    ${trajectory_actor_plugin_name}
+  CATKIN_DEPENDS
+    gazebo_plugins
+    xacro
+    geometry_msgs
+    message_runtime
+    roscpp
+    std_msgs
 #  DEPENDS system_lib
 )
 
@@ -119,12 +132,15 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+#  include
   ${catkin_INCLUDE_DIRS}
   ${roscpp_INCLUDE_DIRS}
   ${std_msgs_INCLUDE_DIRS}
+#  ${IGNITION-MATH_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
 )
+
+
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -164,6 +180,27 @@ target_link_libraries(velodyne_plugin
   ${GAZEBO_LIBRARIES}
   ${roscpp_LIBRARIES}
 )
+
+
+#############################
+## Trajectory Actor plugin ##
+#############################
+
+# Create the lib${trajectory_actor_plugin_name}.so library.
+add_library(${trajectory_actor_plugin_name} SHARED
+  src/TrajectoryActorPlugin.cc
+)
+target_link_libraries(${trajectory_actor_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${roscpp_LIBRARIES}
+)
+install(TARGETS ${trajectory_actor_plugin_name}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
+
 
 #############
 ## Install ##
