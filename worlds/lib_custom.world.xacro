@@ -3,7 +3,7 @@
 
 <!-- ######################################## -->
 <xacro:macro name="loop_through_custom_cfg" params="rname:=^ custom_list:=^
-		_bDebug:=^|False">
+		bUseSkelCollision:=^|False _bDebug:=^|False">
 
 	<xacro:if value="${custom_list}">
 		<xacro:property name="_cfg_opt" value="${custom_list.pop(0)}" />
@@ -101,7 +101,8 @@
 
 		<xacro:make_one_actor_traj_model id="${_human}" pX="${_traj[0][0]}"
 			pY="${_traj[0][1]}" vel="${_vel}" colour="${_shirt}"
-			rname="${rname}" pTrajXY="${_traj}" />
+			rname="${rname}" pTrajXY="${_traj}"
+			bScaleSkel4Collision="${bUseSkelCollision}" />
 
 		<xacro:if value="${_bDebug}">
 		<_human>${_human}</_human>
