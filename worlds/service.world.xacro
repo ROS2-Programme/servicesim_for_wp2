@@ -37,11 +37,33 @@
 </xacro:macro>
 
 <!-- ######################################## -->
+<xacro:macro name="ensure_path_suffix" params="val pRet:=^ _bDebug:=False">
+
+	<xacro:property name="RET" value="" />
+	<xacro:property name="_ret" value="${val}" />
+	<xacro:property name="_val" value="${str( val).strip().lower()}" />
+
+	<xacro:if value="${(_val != '') and (_val[-1] != '/')}">
+		<xacro:property name="_ret" value="${_val}/" />
+	</xacro:if>
+
+	<xacro:property name="RET" value="${pRet.append( _ret)}" />
+	<xacro:induce_eval />
+
+	<xacro:if value="${_bDebug}">
+		<ensure_path_suffix>val=${val} => ${_val}</ensure_path_suffix>
+	</xacro:if>
+
+</xacro:macro>
+
+<!-- ######################################## -->
 <xacro:arg name="robot_name" default="servicebot" />
 <xacro:arg name="custom_cfg" default="1.a" />
 <xacro:arg name="use_skel_collision" default="False" />
 <xacro:arg name="have_gpu" default="True" />
 <xacro:arg name="rev_joint_velodyne" default="False" />
+<xacro:arg name="vis_lidar_2d" default="False" />
+<xacro:arg name="vis_lidar_3d" default="False" />
 
 <xacro:property name="_custom_cfg" value="$(arg custom_cfg)" />
 <xacro:property name="no_custom" value="${str(_custom_cfg).strip() == '0'}"
@@ -61,6 +83,14 @@
 <xacro:eval_to_bool val="$(arg rev_joint_velodyne)" _bDebug="False" />
 <xacro:property name="revolute_joint_velo" value="${pRet.pop()}" />
 <xacro:induce_eval RET="${revolute_joint_velo}" />
+
+<xacro:eval_to_bool val="$(arg vis_lidar_2d)" _bDebug="False" />
+<xacro:property name="visible_lidar_2d" value="${pRet.pop()}" />
+<xacro:induce_eval RET="${visible_lidar_2d}" />
+
+<xacro:eval_to_bool val="$(arg vis_lidar_3d)" _bDebug="False" />
+<xacro:property name="visible_lidar_3d" value="${pRet.pop()}" />
+<xacro:induce_eval RET="${visible_lidar_3d}" />
 
 <xacro:property name="do_public_cafe_default_fixture" value="${no_custom}"
 	/>
