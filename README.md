@@ -15,11 +15,16 @@ part of `roslaunch` command.
 ### 1.1. Manually generating custom `.world` file
 
 **NOTE**:
-for all the example `xacro` commands shown below, you may set the value of
-the `have_gpu` argument to `0` (i.e. `False`) to disable use of Velodyne or
-Hokuyo lidar plugins that run with GPUs support. The default value of
-`have_gpu` is `1` (i.e. `True`), meaning that the GPU-enabled versions of the
-lidar plugins will be used by default.
+- for all the example `xacro` commands shown below, you may set the value of
+  the `have_gpu` argument to `0` (i.e. `False`) to disable use of Velodyne or
+  Hokuyo lidar plugins that run with GPUs support. The default value of
+  `have_gpu` is `1` (i.e. `True`), meaning that the GPU-enabled versions of
+  the lidar plugins will be used by default.
+- you also set the value of another optional argument `vis_lidar_2d` to `1`
+  that will enable visualisation of the Hokuyo sensor's 2D lidar rays within
+  Gazebo. There is also a corresponding optional argument `vis_lidar_3d` than
+  can be similarly set to visualise the Velodyne sensor's 3D lidar rays within
+  Gazebo (though the usefulness of this is debatable&hellip;).
 
 ```bash
 cd __INSTALL_PATH_OF_THIS_PACKAGE__
