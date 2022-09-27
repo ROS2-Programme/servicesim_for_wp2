@@ -9,6 +9,10 @@
 		pname:='gazebo_ros_laser_controller' h_param:=None ray_range:=None
 		M_PI_HALF:='1.5707963267948966' _bDebug:=False
 ">
+	<xacro:ensure_path_suffix val="${topic_prefix}" _bDebug="False" />
+	<xacro:property name="topic_prefix" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${topic_prefix}" />
+
 	<xacro:property name="_type" value="ray" />
 	<xacro:property name="_lib" value="libgazebo_ros_laser.so" />
 	<xacro:if value="${gpu}">
