@@ -5,6 +5,16 @@
 
 	<arg name="_pkg_loc" default="$(find servicesim_for_wp2)" />
 	<arg name="_pkg_base" default="$(find servicesim_competition)" />
+	<!--
+		# Assume LD_LIBRARY_PATH will include catkin workspace's devel/lib/
+		# path, to support using newer Gazebo plugins even when building with
+		# older Gazebo development package, by building these new plugsin from
+		# source.
+		# But Gazebo still seems to be able to locate the plugin even if
+		# LD_LIBRARY_PATH is not explicitly added to GAZEBO_PLUGIN_PATH, so
+		# this is apparently redundant.
+	-->
+	<arg name="_pkg_from_src" default="$(env LD_LIBRARY_PATH)" />
 <!--
 -->
 
@@ -23,6 +33,8 @@
 			value="$(arg _pkg_loc)/models:$(arg _pkg_base)/models"/>
 <!--
 		<env name="GAZEBO_MODEL_PATH" value="$(arg _pkg_loc)/models"/>
+		<env name="GAZEBO_PLUGIN_PATH"
+			value="$(arg _pkg_from_src):$(arg _pkg_loc)/plugins"/>
 -->
 		<env name="GAZEBO_PLUGIN_PATH" value="$(arg _pkg_loc)/plugins"/>
 
