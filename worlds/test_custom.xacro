@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="lib_wall.world.xacro" />
+<xacro:include filename="lib_custom.world.xacro" />
+
+<xacro:arg name="custom_cfg" default="1.a" />
+
+<xacro:property name="_custom_cfg" value="$(arg custom_cfg)" />
+<xacro:property name="no_custom" value="${str(_custom_cfg).strip() == '0'}"
+	/>
+
+	<debug>
+		<custom_cfg>$(arg custom_cfg)</custom_cfg>
+		<_custom_cfg>${_custom_cfg}</_custom_cfg>
+
+		<no_custom>${no_custom}</no_custom>
+	</debug>
+
+<xacro:unless value="${no_custom}">
+
+	<xacro:property name="_custom_list" value="${str(_custom_cfg).split(',')}"
+		/>
+	<xacro:property name="_pCfg" value="${dict()}" />
+
+	<xacro:loop_through_custom_cfg_to_map pRetMap="${_pCfg}"
+		custom_list="${_custom_list}" _bDebug="True" />
+
+	<cfg_map>${str(_pCfg)}</cfg_map>
+	<_custom_list>${str(_custom_list)}</_custom_list>
+
+</xacro:unless>
+
+</robot>
+
