@@ -66,8 +66,12 @@
 <xacro:arg name="vis_lidar_3d" default="False" />
 
 <xacro:property name="_custom_cfg" value="$(arg custom_cfg)" />
-<xacro:property name="no_custom" value="${str(_custom_cfg).strip() == '0'}"
-	/>
+<xacro:property name="no_custom" value="${str(_custom_cfg).strip() == '0'}" />
+<xacro:property name="_custom_list" value="${str(_custom_cfg).split(',')}" />
+
+<xacro:property name="_pCfgMap" value="${dict()}" />
+<xacro:loop_through_custom_cfg_to_map pRetMap="${_pCfgMap}"
+	custom_list="${list(_custom_list)}" _bDebug="False" />
 
 <xacro:property name="_gpu_arg" value="$(arg have_gpu)" />
 <xacro:property name="_have_gpu" value="${str( _gpu_arg).strip().lower()}" />
@@ -108,12 +112,31 @@
 
 <sdf version="1.6">
 <world name="default">
+	<xacro:if value="${(4 in _pCfgMap) or ('x' in _pCfgMap)}">
+	<plugin name='gazebo_occupancy_map' filename='libgazebo_2Dmap_plugin.so'>
+		<!--
+			# map_resolution: in meters, optional, default 0.1
+			# map_z: in meters, optional, default 0.3
+			# map_size_x: in meters, optional, default 10
+			# map_size_y: in meters, optional, default 10
+			# init_robot_x: x coordinate in meters, optional, default 0
+			# init_robot_y: y coordinate in meters, optional, default 0
+		-->
+		<map_resolution>0.1</map_resolution>
+		<map_z>0.76</map_z>
+		<map_size_x>58</map_size_x>
+		<map_size_y>58</map_size_y>
+		<init_robot_x>20.15</init_robot_x>
+		<init_robot_y>1.45</init_robot_y>
+	</plugin>
+	</xacro:if>
 
 	<debug>
 		<custom_cfg>$(arg custom_cfg)</custom_cfg>
 		<_custom_cfg>${_custom_cfg}</_custom_cfg>
 
 		<no_custom>${no_custom}</no_custom>
+		<_cfg_map>${str(_pCfgMap)}</_cfg_map>
 
 		<do_public_cafe_default_fixture>
 			${do_public_cafe_default_fixture}
@@ -739,7 +762,6 @@
 <xacro:unless value="${do_actor_default_dynamic}">
 <xacro:unless value="${no_custom}">
 
-	<xacro:property name="_custom_list" value="${_custom_cfg.split(',')}" />
 	<xacro:loop_through_custom_cfg rname="$(arg robot_name)"
 		bUseSkelCollision="${use_skeleton_4_collision}"
 		custom_list="${_custom_list}" />
