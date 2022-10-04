@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+<!--
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="husky">
+-->
+  <xacro:arg name="parent_link_for_arm" default="top_plate_front_link" />
+  <xacro:property name="_parent_link_for_arm"
+      value="$(arg parent_link_for_arm)" />
+
+  <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
+
+  <xacro:property name="_robot_arm_link_prefix" value="ur_arm_" />
+
+  <joint name="arm_mount_joint" type="fixed">
+    <parent link="${_parent_link_for_arm}" />
+    <child link="${_robot_arm_link_prefix}base_link" />
+    <origin xyz="$(optenv HUSKY_UR_XYZ -0.18 0.0 ${ctrl_box_height/2.0})"
+        rpy="$(optenv HUSKY_UR_RPY 0 0 0)" />
+  </joint>
+
+  <xacro:ur5e_robot prefix="ur_arm_" joint_limited="true" />
+</robot>
