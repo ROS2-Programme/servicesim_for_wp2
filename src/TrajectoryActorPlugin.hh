@@ -104,13 +104,13 @@ namespace servicesim
 			const gazebo::physics::ModelPtr &_model,
 			const gazebo::physics::WorldPtr &_world,
 			const BBOX_TYPE &_bbReal,
-			const bool &_bLastCollideActor,  const bool &_bDebug) const;
+			bool &_bLastCollideActor,  const bool &_bDebug) const;
 
 		int testModelForCollision( const std::string &_szMe,
 			const unsigned int &_i, const gazebo::physics::ModelPtr &_model,
 			const gazebo::physics::WorldPtr &_world,
 			const BBOX_TYPE &_bbReal,
-			bool &_bLastCollideNonActor, const bool &_bLastCollideActor,
+			bool &_bLastCollideNonActor, bool &_bLastCollideActor,
 			const bool &_bDebug) const;
 
   };
