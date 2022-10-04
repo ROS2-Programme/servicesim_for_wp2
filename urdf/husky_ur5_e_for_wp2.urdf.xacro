@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+<!--
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="husky">
+-->
+  <xacro:arg name="parent_link_for_custom" default="top_plate_front_link" />
+  <xacro:arg name="parent_link_for_arm" default="control_box" />
+
+  <xacro:property name="_M_PI" value="${pi}"/>
+
+  <xacro:include filename="custom.urdf.xacro" />
+  <xacro:include filename="husky_ur5_e_description.urdf.xacro" />
+
+</robot>
