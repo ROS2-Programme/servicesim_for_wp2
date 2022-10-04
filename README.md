@@ -37,11 +37,11 @@ upper row of three tables) at maximum walking speed (`c`):
 xacro \
     use_skel_collision:=1 \
     have_gpu:=0 \
-    robot_name:=husky_ur5e \
+    robot_name:=husky \
     custom_cfg:=1.c \
     service.world.xacro \
   |\
-  grep -v -P "^<\/?robot>$" > /tmp/temp_single_red.world
+  grep -v -P "^<\/?robot\b.*>$" > /tmp/temp_single_red.world
 ```
 
 - __Example 2__  
@@ -49,13 +49,13 @@ To generate test scenario 2 (i.e. blue shirt actor walking breadth-wise
 around middle column of two tables) at medium walking speed (`b`):
 ```bash
 xacro \
-  use_skel_collision:=1 \
-  have_gpu:=0 \
-  robot_name:=husky_ur5e \
-  custom_cfg:=2.b \
-  service.world.xacro \
+    use_skel_collision:=1 \
+    have_gpu:=0 \
+    robot_name:=husky \
+    custom_cfg:=2.b \
+    service.world.xacro \
   |\
-  grep -v -P "^<\/?robot>$" > /tmp/temp_single_blue.world
+  grep -v -P "^<\/?robot\b.*>$" > /tmp/temp_single_blue.world
 ```
 
 - __Example 3__  
@@ -64,26 +64,26 @@ back and forth in main open space of PublicCafe) at minimum walking speed
 (`a`):
 ```bash
 xacro \
-  use_skel_collision:=1 \
-  have_gpu:=0 \
-  robot_name:=husky_ur5e \
-  custom_cfg:=3.a \
-  service.world.xacro \
+    use_skel_collision:=1 \
+    have_gpu:=0 \
+    robot_name:=husky \
+    custom_cfg:=3.a \
+    service.world.xacro \
   |\
-  grep -v -P "^<\/?robot>$" > /tmp/temp_single_green.world
+  grep -v -P "^<\/?robot\b.*>$" > /tmp/temp_single_green.world
 ```
 
 - __Example 4__  
 To generate test world combining all three scenarios above:
 ```bash
 xacro \
-  use_skel_collision:=1 \
-  have_gpu:=0 \
-  robot_name:=husky_ur5e \
-  custom_cfg:=1.c,2.b,3.a \
-  service.world.xacro \
+    use_skel_collision:=1 \
+    have_gpu:=0 \
+    robot_name:=husky \
+    custom_cfg:=1.c,2.b,3.a \
+    service.world.xacro \
   |\
-  grep -v -P "^<\/?robot>$" > /tmp/temp_all.world
+  grep -v -P "^<\/?robot\b.*>$" > /tmp/temp_all.world
 ```
 
 <!-- ======================================== -->
