@@ -112,7 +112,7 @@
 <!-- ############################################################ -->
 <xacro:macro name="make_one_actor_traj_model" params="id pX pY vel colour
 		pTrajXY anim:='walking' pZ:=1.0 oX:='__PI_HALF' oY:=-0.0 oZ:='__PI'
-		obs_margin:=0.2 rname:='servicebot' bScaleSkel4Collision:=False">
+		obs_margin:=1.2 rname:='servicebot' bScaleSkel4Collision:=False">
 
 	<xacro:property name="_trajActorPluginFile"
 		value="libTrajectoryActorPlugin.so" />
@@ -145,7 +145,7 @@
 		<velocity>${_vel[1:]}</velocity>
 		<obstacle_margin>${obs_margin}</obstacle_margin>
 		<obstacle>${rname}</obstacle>
-		<debug on_load="False" on_update="False" />
+		<debug on_load="False" on_update="False" on_adhoc="False" />
 		<xacro:if value="${bScaleSkel4Collision}">
 		<xacro:loop_through_scaling
 			scaling_list="${list( actor_bone_scaling_map)}" />
