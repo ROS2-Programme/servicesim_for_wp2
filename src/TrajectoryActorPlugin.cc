@@ -78,6 +78,7 @@ class servicesim::TrajectoryActorExtendedPlugin_Private
   public:
     bool bDebugOnLoad{ false};
     bool bDebugOnUpdate{ false};
+    bool bDebugOnAdHoc{ false};
 
     bool bUseSkeleton4Collision{ false};
 
@@ -155,6 +156,7 @@ TrajectoryActorExtendedPlugin::loadDebugFlag( const sdf::ElementPtr &_sdf) {
 
 	this->dataPtr->bDebugOnLoad = _el->Get<bool>( "on_load");
 	this->dataPtr->bDebugOnUpdate = _el->Get<bool>( "on_update");
+	this->dataPtr->bDebugOnAdHoc = _el->Get<bool>( "on_adhoc");
 	return true;
 }
 
@@ -352,7 +354,8 @@ void TrajectoryActorExtendedPlugin::Load(physics::ModelPtr _model, sdf::ElementP
   gzmsg << "WTF-1a \"" << _szMe << "\"" << std::endl;
   this->loadDebugFlag( _sdf);
   gzmsg << "WTF-1b \"" << _szMe << "\" on_load=" << this->dataPtr->bDebugOnLoad
-    << ", on_update=" << this->dataPtr->bDebugOnUpdate << std::endl;
+    << ", on_update=" << this->dataPtr->bDebugOnUpdate << ", on_adhoc="
+	<< this->dataPtr->bDebugOnAdHoc << std::endl;
 
   // Read in the obstacles
   if (_sdf->HasElement("obstacle"))
@@ -448,15 +451,18 @@ TrajectoryActorExtendedPlugin::testForCollisionNonActor(
 	}
 
 	if( _cLink->BoundingBox().Intersects( _bbReal)) {
-		if( _bDebug || !_bLastCollideNonActor) {
+		if( !_bLastCollideNonActor) {
 			_bLastCollideNonActor = true;
 
-//			gzmsg << "# t4CNonA(): " << _szMe << ": INTERSECTS !!!"
-//				<< std::endl;
-			gzwarn << std::endl << "# t4CNonA(): Collision (A-X): \"" << _szMe
-				<< "\" v.s. \"" << _model->GetName() << "\"" << std::endl;
-			gzwarn << "# t4CNonA(): bbox (A v.s X) = " << _bbReal << " / "
-				<< _cLink->BoundingBox() << std::endl;
+			if( _bDebug || this->dataPtr->bDebugOnAdHoc) {
+//				gzmsg << "# t4CNonA(): " << _szMe << ": INTERSECTS !!!"
+//					<< std::endl;
+				gzwarn << std::endl << "# t4CNonA(): Collision (A-X): \""
+					<< _szMe << "\" v.s. \"" << _model->GetName() << "\""
+					<< std::endl;
+				gzwarn << "# t4CNonA(): bbox (A v.s X) = " << _bbReal << " / "
+					<< _cLink->BoundingBox() << std::endl;
+			}
 		}
 		return true;
 	}
@@ -474,7 +480,7 @@ int
 TrajectoryActorExtendedPlugin::testForCollisionActor( const std::string &_szMe,
 	const physics::ModelPtr &_model, const physics::WorldPtr &_world,
 	const BBOX_TYPE &_bbReal,
-	const bool &_bLastCollideActor,  const bool &_bDebug) const
+	bool &_bLastCollideActor,  const bool &_bDebug) const
 {
 	auto _cActor = _world->ModelByName( _model->GetName() + "_collision_model");
 
@@ -507,7 +513,7 @@ TrajectoryActorExtendedPlugin::testModelForCollision( const std::string &_szMe,
 	const unsigned int &_i, const physics::ModelPtr &_model,
 	const physics::WorldPtr &_world,
 	const BBOX_TYPE &_bbReal,
-	bool &_bLastCollideNonActor, const bool &_bLastCollideActor,
+	bool &_bLastCollideNonActor, bool &_bLastCollideActor,
 	const bool &_bDebug) const
 {
 	int _nRet = -1;
@@ -532,7 +538,13 @@ TrajectoryActorExtendedPlugin::testModelForCollision( const std::string &_szMe,
 
 	if( !_bIsActor) {
 		_nRet = this->testForCollisionNonActor( _szMe, _model, "PublicCafe",
-			"door", _bbReal, _bLastCollideNonActor, _bDebug) ? 0 : 2;
+			"door", _bbReal, _bLastCollideNonActor, _bDebug) ? 2 : 0;
+
+		if( _bDebug) {
+			gzmsg << "# tM4C(): [" << _i << "]: \"" << _szMe << "\" v.s. \""
+				<< _model->GetName() << "\" _nRet = " << _nRet
+				<< " (non-actor)" << std::endl;
+		}
 	}
 	else {
 		_nRet = this->testForCollisionActor( _szMe, _model, _world, _bbReal,
@@ -625,10 +637,10 @@ bool TrajectoryActorExtendedPlugin::ObstacleOnTheWay() const
     }
 
     if( (_nRet = this->testModelForCollision( szMe, i, model, world, bbReal,
-          _bLastCollideStatic, _bLastCollideActor, _bFirstDebug)) >= 0)
-	{
-		break;
-	}
+          _bLastCollideStatic, _bLastCollideActor, _bFirstDebug)) > 0)
+    {
+        break;
+    }
 
     auto modelWorld = ignition::math::Matrix4d(model->WorldPose());
 
@@ -640,15 +652,46 @@ bool TrajectoryActorExtendedPlugin::ObstacleOnTheWay() const
         modelActor(1, 3),
         modelActor(2, 3));
 
+    const double _fScaledMargin = this->dataPtr->obstacleMargin *
+        std::max( this->dataPtr->velocity, 1.0);
+
+    if( this->dataPtr->bDebugOnAdHoc
+        // && (szMe == "human_80283")
+        && (model->GetName() == "husky"))
+	{
+    if( modelPos.Length() < _fScaledMargin) {
+      if( this->dataPtr->bDebugOnAdHoc && !_bLastCollideActor) {
+        gzmsg << "# OOtW(): v.s. husky modelPos.Length() v.s. _fScaledMargin: "
+            << modelPos.Length() << " / " << _fScaledMargin << std::endl;
+        gzmsg << "# OOtW(): v.s. husky abs(modelActor(0, 3) v.s. "
+            << "obstacleMargin * 0.5 = " << std::abs( modelActor(0, 3))
+            << " / " << (this->dataPtr->obstacleMargin * 0.67) << std::endl;
+        gzmsg << "# OOtW(): v.s. husky modelActor(2, 3) = "
+            << modelActor(2, 3) << std::endl;
+      }
+    }
+    else {
+      if( _bLastCollideActor) {
+        gzmsg << "# OOtW(): XXXX husky modelPos.Length() v.s. _fScaledMargin: "
+            << modelPos.Length() << " / " << _fScaledMargin << std::endl;
+        gzmsg << "# OOtW(): XXXX husky abs(modelActor(0, 3) v.s. "
+            << "obstacleMargin * 0.5 = " << std::abs( modelActor(0, 3))
+            << " / " << (this->dataPtr->obstacleMargin * 0.67) << std::endl;
+        gzmsg << "# OOtW(): XXXX husky modelActor(2, 3) = "
+            << modelActor(2, 3) << std::endl;
+      }
+    }
+    }
+
     // Check not only if near, but also if in front of the actor
-    if (modelPos.Length() < this->dataPtr->obstacleMargin &&
-        std::abs(modelActor(0, 3)) < this->dataPtr->obstacleMargin * 0.4 &&
-        modelActor(2, 3) > 0)
+    if( (modelPos.Length() < _fScaledMargin) &&
+        (std::abs(modelActor(0, 3)) < this->dataPtr->obstacleMargin * 0.67) &&
+        (modelActor(2, 3) > 0))
     {
       if( !_bLastCollideActor) {
         _bLastCollideActor = true;
 
-        if( _bFirstDebug) {
+        if( _bFirstDebug || this->dataPtr->bDebugOnAdHoc) {
           gzwarn << std::endl << "# OOtW(): Collision (A-A): \"" << szMe
             << "\" v.s. \"" << model->GetName()
             << "\", modelPos.Length() v.s. obstacleMargin = "
@@ -671,11 +714,15 @@ bool TrajectoryActorExtendedPlugin::ObstacleOnTheWay() const
     // for URDF and actors (our 2 use cases :))
   }
 
-  if( _nRet == 2) {
+  if( (_nRet == 2)) {
     this->dataPtr->pbLastCollideStatic[ szMe] = true;
   }
-  if( (_nRet == 1) || (_nRet == 3)) {
+  else if( (_nRet == 1) || (_nRet == 3)) {
     this->dataPtr->pbLastCollideActor[ szMe] = true;
+  }
+  else {
+    this->dataPtr->pbLastCollideStatic[ szMe] = false;
+    this->dataPtr->pbLastCollideActor[ szMe] = false;
   }
 
   return (_nRet > 0);
