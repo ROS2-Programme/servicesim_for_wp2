@@ -2,6 +2,49 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <!-- ######################################## -->
+<xacro:macro name="loop_through_custom_cfg_to_map" params="pRetMap:=^
+		custom_list:=^ _bDebug:=^|False">
+
+	<xacro:if value="${custom_list}">
+		<xacro:property name="_cfg_opt" value="${custom_list.pop(0)}" />
+
+		<xacro:property name="_val" value="None" />
+		<xacro:property name="_sepIdx" value="${str(_cfg_opt).find( '.')}" />
+		<xacro:property name="_key" value="${str(_cfg_opt)[:_sepIdx]}" />
+
+		<xacro:if value="${_sepIdx != -1}">
+			<xacro:property name="_val" value="${str(_cfg_opt)[_sepIdx+1:]}" />
+		</xacro:if>
+		<xacro:unless value="${_sepIdx != -1}">
+			<xacro:property name="_key" value="${str(_cfg_opt)}" />
+		</xacro:unless>
+
+		<xacro:property name="_bRepeated" value="${ _key in pRetMap}" />
+
+		<xacro:if value="${_bRepeated}">
+			<error>key [${_key}] already exists with value (${pRetMap.get(
+				_key)})</error>
+		</xacro:if>
+
+		<xacro:if value="${_bDebug}">
+		<_cfg_opt>${_cfg_opt}</_cfg_opt>
+		<_cfg_key>${_key}</_cfg_key>
+		<_cfg_val>${_val}</_cfg_val>
+		</xacro:if>
+
+		<xacro:unless value="${_bRepeated}">
+			<xacro:property name="_tmp"
+				value="${pRetMap.setdefault( _key, _val)}" />
+			<xacro:induce_eval RET="${_tmp}" />
+		</xacro:unless>
+
+		<xacro:loop_through_custom_cfg_to_map />
+
+	</xacro:if>
+
+</xacro:macro>
+
+<!-- ######################################## -->
 <xacro:macro name="loop_through_custom_cfg" params="rname:=^ custom_list:=^
 		bUseSkelCollision:=^|False _bDebug:=^|False">
 
@@ -14,13 +57,13 @@
 		<xacro:property name="_shirt" value="" />
 		<xacro:property name="_traj" value="${[]}" />
 
-		<xacro:if value="${_cfg_opt.endswith( '.a')}">
+		<xacro:if value="${str(_cfg_opt).endswith( '.a')}">
 			<xacro:property name="_vel" value="0.9" />
 		</xacro:if>
-		<xacro:if value="${_cfg_opt.endswith( '.b')}">
+		<xacro:if value="${str(_cfg_opt).endswith( '.b')}">
 			<xacro:property name="_vel" value="1.05" />
 		</xacro:if>
-		<xacro:if value="${_cfg_opt.endswith( '.c')}">
+		<xacro:if value="${str(_cfg_opt).endswith( '.c')}">
 			<xacro:property name="_vel" value="1.2" />
 		</xacro:if>
 
@@ -97,6 +140,7 @@
 		</xacro:if>
 
 
+		<xacro:if value="${_traj}">
 		<xacro:make_one_human_collision_model id="${_human}" />
 
 		<xacro:make_one_actor_traj_model id="${_human}" pX="${_traj[0][0]}"
@@ -108,6 +152,7 @@
 		<_human>${_human}</_human>
 		<_shirt>${_shirt}</_shirt>
 		<_traj>${_traj}</_traj>
+		</xacro:if>
 		</xacro:if>
 
 
