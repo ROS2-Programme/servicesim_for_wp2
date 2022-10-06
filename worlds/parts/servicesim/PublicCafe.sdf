@@ -349,7 +349,8 @@
 	<xacro:include_one_X_db_model X="table" id="1" M="office_cafe_table"
 		pX="_-3.064101859517016"
 		pY="_-5.987063816009494"
-		pZ="_0" oZ="PI_QTR" />
+		pZ="_0" oZ="PI_QTR"
+		bAddCollideBox="${expand_table_leg}" bVisHack="${hack_collide_vis}" />
 
 <xacro:if value="${do_public_cafe_default_fixture}">
 	<xacro:make_one_chair_collision_model id="1"
@@ -377,7 +378,8 @@
 	<xacro:include_one_X_db_model X="table" id="2" M="office_cafe_table"
 		pX="_-2.863643220699783"
 		pY="_-3.573028620559729"
-		pZ="_0" oZ="PI_QTR" />
+		pZ="_0" oZ="PI_QTR"
+		bAddCollideBox="${expand_table_leg}" bVisHack="${hack_collide_vis}" />
 
 <xacro:if value="${do_public_cafe_default_fixture}">
 	<xacro:make_one_chair_collision_model id="5"
@@ -403,7 +405,8 @@
 	<xacro:include_one_X_db_model X="table" id="3" M="office_cafe_table"
 		pX="_-0.2701379308628278"
 		pY="_-5.910458418344506"
-		pZ="_0" oZ="PI_QTR" />
+		pZ="_0" oZ="PI_QTR"
+		bAddCollideBox="${expand_table_leg}" bVisHack="${hack_collide_vis}" />
 
 <xacro:if value="${do_public_cafe_default_fixture}">
 	<xacro:make_one_chair_collision_model id="9"
@@ -429,7 +432,8 @@
 	<xacro:include_one_X_db_model X="table" id="4" M="office_cafe_table"
 		pX="_-0.4604197995651922"
 		pY="_-3.598533845249485"
-		pZ="_0" oZ="PI_QTR" />
+		pZ="_0" oZ="PI_QTR"
+		bAddCollideBox="${expand_table_leg}" bVisHack="${hack_collide_vis}" />
 
 <xacro:if value="${do_public_cafe_default_fixture}">
 	<xacro:make_one_chair_collision_model id="13"
@@ -455,7 +459,8 @@
 	<xacro:include_one_X_db_model X="table" id="5" M="office_cafe_table"
 		pX="_2.676073950013953"
 		pY="_-6.0631614455981815"
-		pZ="_0" oZ="PI_QTR" />
+		pZ="_0" oZ="PI_QTR"
+		bAddCollideBox="${expand_table_leg}" bVisHack="${hack_collide_vis}" />
 
 <xacro:if value="${do_public_cafe_default_fixture}">
 	<xacro:make_one_chair_collision_model id="17"
@@ -487,7 +492,8 @@
 	<xacro:include_one_X_db_model X="table" id="6" M="office_cafe_table"
 		pX="_2.80956293573886"
 		pY="_-3.8243140372418294"
-		pZ="_0" oZ="PI_QTR" />
+		pZ="_0" oZ="PI_QTR"
+		bAddCollideBox="${expand_table_leg}" bVisHack="${hack_collide_vis}" />
 
 <xacro:if value="${do_public_cafe_default_fixture}">
 <!--
