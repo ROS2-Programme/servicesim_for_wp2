@@ -64,6 +64,8 @@
 <xacro:arg name="rev_joint_velodyne" default="False" />
 <xacro:arg name="vis_lidar_2d" default="False" />
 <xacro:arg name="vis_lidar_3d" default="False" />
+<xacro:arg name="hack_table" default="True" />
+<xacro:arg name="show_hack" default="False" />
 
 <xacro:property name="_custom_cfg" value="$(arg custom_cfg)" />
 <xacro:property name="no_custom" value="${str(_custom_cfg).strip() == '0'}" />
@@ -95,6 +97,14 @@
 <xacro:eval_to_bool val="$(arg vis_lidar_3d)" _bDebug="False" />
 <xacro:property name="visible_lidar_3d" value="${pRet.pop()}" />
 <xacro:induce_eval RET="${visible_lidar_3d}" />
+
+<xacro:eval_to_bool val="$(arg hack_table)" _bDebug="False" />
+<xacro:property name="expand_table_leg" value="${pRet.pop()}" />
+<xacro:induce_eval RET="${expand_table_leg}" />
+
+<xacro:eval_to_bool val="$(arg show_hack)" _bDebug="False" />
+<xacro:property name="hack_collide_vis" value="${pRet.pop()}" />
+<xacro:induce_eval RET="${hack_collide_vis}" />
 
 <xacro:property name="do_public_cafe_default_fixture" value="${no_custom}"
 	/>
