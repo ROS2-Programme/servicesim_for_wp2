@@ -72,6 +72,35 @@
 </xacro:macro>
 
 <!-- ######################################## -->
+<xacro:macro name="make_one_link_collision_box" params="pX:=0.0 pY:=0.0
+	pZ:=None sX sY:=None sZ bVisible:=True">
+
+	<xacro:if value="${str(pZ) == 'None'}">
+		<xacro:property name="pZ" value="${sZ / 2.0}" />
+	</xacro:if>
+	<xacro:if value="${str(sY) == 'None'}">
+		<xacro:property name="sY" value="${sX}" />
+	</xacro:if>
+
+	<link name='collision'>
+		<pose>0 0 ${pZ} 0 0 0</pose>
+		<collision name="collision">
+			<geometry>
+				<box><size>${sX} ${sY} ${sZ}</size></box>
+			</geometry>
+		</collision>
+		<xacro:if value="${bVisible}">
+		<visual name="visual">
+			<geometry>
+				<box><size>${sX} ${sY} ${sZ}</size></box>
+			</geometry>
+		</visual>
+		</xacro:if>
+	</link>
+
+</xacro:macro>
+
+<!-- ######################################## -->
 <xacro:macro name="make_one_link_visual_cylinder" params="lname pX pY pZ
 		sR:=0.0139887 sL:=0.624683 oZ:=0.0 bAltAmbient:=^|False">
 
@@ -204,7 +233,7 @@
 
 <!-- ######################################## -->
 <xacro:macro name="include_one_X_db_model" params="X id:=^ pX:=^ pY:=^ pZ:=^
-		oZ:=^ M:=''">
+		oZ:=^ M:='' bAddCollideBox:=False sXY:=0.913 sZ:=0.50 bVisHack:=False">
 
 	<xacro:property name="_model" value="${X}" />
 	<xacro:if value="${M != ''}">
@@ -218,6 +247,14 @@
 	<xacro:make_one_pose oX="_0" oY="_0" _bPedanticPZ="True" />
 	<uri>model://${_model}</uri>
 </include>
+<xacro:if value="${bAddCollideBox}">
+	<model name="${X}_${id}_wtf">
+		<static>true</static>
+		<xacro:make_one_pose oX="_0" oY="_0" _bPedanticPZ="True" />
+		<xacro:make_one_link_collision_box pX="${pX}" pY="${pY}"
+			sX="${sXY}" sZ="${sZ}" bVisible="${bVisHack}" />
+	</model>
+</xacro:if>
 
 </xacro:macro>
 
