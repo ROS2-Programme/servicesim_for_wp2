@@ -3,68 +3,8 @@
 <!--
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="husky">
 -->
-  <xacro:arg name="parent_link_for_custom" default="top_plate_front_link" />
-  <xacro:property name="_parent_link_for_custom"
-      value="$(arg parent_link_for_custom)" />
-
-  <!-- Control Box Properties -->
-  <xacro:property name="ctrl_box_width" value="0.52" />
-  <xacro:property name="ctrl_box_length" value="0.59" />
-  <xacro:property name="ctrl_box_height" value="0.68" />
-
-  <link name="control_box" >
-    <visual>
-      <geometry>
-        <box size="${ctrl_box_width} ${ctrl_box_length} ${ctrl_box_height}" />
-      </geometry>
-      <material name="white"/>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="${ctrl_box_width} ${ctrl_box_length} ${ctrl_box_height}" />
-      </geometry>
-    </collision>
-  </link>
-
-  <joint name="control_box_mount_joint" type="fixed">
-    <parent link="${_parent_link_for_custom}" />
-    <child link="control_box" />
-<!--
-    <axis xyz="0 0 1"/>
--->
-    <origin xyz="-${ctrl_box_width} 0 ${ctrl_box_height/2.0}" rpy="0 0 0" />
-  </joint>
-
-  <!-- End-effector attachment -->
-
-  <xacro:property name="_robot_arm_link_prefix" value="ur_arm_" />
-  <xacro:property name="_extra_mesh_pkg_path"
-      value="package://mobile_manipulator_moveit_config/meshes/ur5e/" />
-
-  <link name="EEF" >
-    <visual>
-      <origin rpy="0 ${_M_PI} ${_M_PI}" xyz="0.26 0.0 0.0"/>
-      <geometry>
-        <mesh filename="${_extra_mesh_pkg_path}visual/circle_tray.STL" />
-      </geometry>
-      <material name="LightGrey">
-        <color rgba="0.7 0.7 0.7 1.0"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 3.14159 3.14159" xyz="0.26 0.0 0.0"/>
-      <geometry>
-        <mesh filename="${_extra_mesh_pkg_path}visual/circle_tray.STL" />
-      </geometry>
-    </collision>
-  </link>
-
-  <joint name="EEF_mount_joint" type="fixed">
-    <parent link="${_robot_arm_link_prefix}ee_link"/>
-    <child link="EEF"/>
-    <axis xyz="0 0 1"/>
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-  </joint>
+  <xacro:include filename="custom_part_control_box.urdf.xacro" />
+  <xacro:include filename="custom_part_ee_attachment.urdf.xacro" />
 
 
 </robot>
