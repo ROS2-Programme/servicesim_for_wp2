@@ -248,7 +248,7 @@
 	<uri>model://${_model}</uri>
 </include>
 <xacro:if value="${bAddCollideBox}">
-	<model name="${X}_${id}_wtf">
+	<model name="${X}_${id}_hack_for_lidar">
 		<static>true</static>
 		<xacro:make_one_pose oX="_0" oY="_0" _bPedanticPZ="True" />
 		<xacro:make_one_link_collision_box pX="${pX}" pY="${pY}"
