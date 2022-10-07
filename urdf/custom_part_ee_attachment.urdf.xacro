@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="_M_PI" value="${pi}"/>
+
+  <!-- End-effector attachment -->
+  <xacro:property name="_robot_arm_link_prefix"
+      value="$(arg robot_arm_link_prefix)" />
+
+  <xacro:property name="_extra_mesh_pkg_path"
+      value="package://mobile_manipulator_moveit_config/meshes/ur5e/" />
+
+  <link name="EEF" >
+    <visual>
+      <origin rpy="0 ${_M_PI} ${_M_PI}" xyz="0.26 0.0 0.0"/>
+      <geometry>
+        <mesh filename="${_extra_mesh_pkg_path}visual/circle_tray.STL" />
+      </geometry>
+      <material name="LightGrey">
+        <color rgba="0.7 0.7 0.7 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 3.14159 3.14159" xyz="0.26 0.0 0.0"/>
+      <geometry>
+        <mesh filename="${_extra_mesh_pkg_path}visual/circle_tray.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="EEF_mount_joint" type="fixed">
+    <parent link="${_robot_arm_link_prefix}ee_link"/>
+    <child link="EEF"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+</robot>
