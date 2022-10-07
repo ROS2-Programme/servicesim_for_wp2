@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="world" default="test_single_green" />
+	<arg name="urdf_xacro" default="husky_ur5_e_for_wp2" />
+	<arg name="rviz_cfg" default="test3" />
+
+	<arg name="gz_x" default="20.15" />
+	<arg name="gz_y" default="1.45" />
+	<arg name="gz_z" default="0.03" />
+	<arg name="gz_yaw" default="3.141593" />
+
+	<arg name="_this_pkg_loc" default="$(find servicesim_for_wp2)" />
+	<arg name="_this_pkg_urdf_dir" default="$(arg _this_pkg_loc)/urdf/" />
+	<arg name="_this_pkg_rviz_dir" default="$(arg _this_pkg_loc)/test/" />
+	<arg name="_this_pkg_yaml_dir" default="$(arg _this_pkg_loc)/test/" />
+
+	<arg name="_pkg_gaz_loc" default="$(find husky_gazebo)" />
+
+	<arg name="world_dir" default="$(arg _this_pkg_loc)/test/" />
+	<arg name="_world_path_no_extn" default="$(arg world_dir)$(arg world)" />
+
+	<arg name="_urdf_xacro_path"
+		default="$(arg _this_pkg_urdf_dir)$(arg urdf_xacro).urdf.xacro" />
+
+	<arg name="_rviz_cfg_path"
+		default="$(arg _this_pkg_rviz_dir)$(arg rviz_cfg).rviz" />
+
+	<include file="$(arg _this_pkg_loc)/launch/competition.launch">
+		<arg name="custom" value="true" />
+		<arg name="custom_prefix" value="$(arg _world_path_no_extn)" />
+	</include>
+
+	<include file="$(arg _pkg_gaz_loc)/launch/spawn_husky.launch">
+		<env name="HUSKY_LMS1XX_ENABLED" value="1" />
+		<env name="HUSKY_LMS1XX_TOPIC" value="scan" />
+		<env name="HUSKY_URDF_EXTRAS" value="$(arg _urdf_xacro_path)" />
+
+		<arg name="x" value="$(arg gz_x)" />
+		<arg name="y" value="$(arg gz_y)" />
+		<arg name="z" value="$(arg gz_z)" />
+		<arg name="yaw" value="$(arg gz_yaw)" />
+	</include>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(arg _rviz_cfg_path)"
+		required="true" />
+
+	<include file="$(arg _this_pkg_loc)/launch/amcl_demo.launch">
+		<arg name="map_file"
+			value="$(arg _this_pkg_yaml_dir)test_empty_180.yaml" />
+	</include>
+
+</launch>
