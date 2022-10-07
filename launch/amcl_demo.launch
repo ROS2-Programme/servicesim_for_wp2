@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="map_yaml" default="test_empty_180.yaml" />
+
+	<arg name="_this_pkg_loc" default="$(find servicesim_for_wp2)" />
+
+	<arg name="_cfg_dir" default="$(arg _this_pkg_loc)/config/" />
+	<arg name="_cfg_custom_yaml" default="global_planner.yaml" />
+	<arg name="_cfg_custom_yaml_path"
+		default="$(arg _cfg_dir)$(arg _cfg_custom_yaml)" />
+
+	<arg name="_pkg_nav_base_loc" default="$(find husky_navigation)" />
+
+	<!-- Run the map server -->
+	<arg name="map_file" default="$(arg _this_pkg_loc)/test/$(arg map_yaml)"/>
+
+	<node name="map_server" pkg="map_server" type="map_server"
+		args="$(arg map_file)" />
+
+	<!--- Run AMCL -->
+	<include file="$(arg _pkg_nav_base_loc)/launch/amcl.launch" />
+
+	<!--- Run Move Base -->
+	<rosparam ns="move_base/NavfnROS" command="load"
+		file="$(arg _cfg_custom_yaml_path)" />
+
+	<include file="$(arg _pkg_nav_base_loc)/launch/move_base.launch" />
+
+</launch>
+
