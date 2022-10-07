@@ -9037,6 +9037,34 @@
 	</pose>
           <uri>model://office_cafe_table</uri>
         </include>
+        <model name="table_1_hack_for_lidar">
+          <static>true</static>
+          <pose>
+		-3.064101859517016
+		-5.987063816009494
+		0
+		0
+		0
+		0.7853981633974483
+	</pose>
+          <link name="collision">
+            <pose>0 0 0.25 0 0 0</pose>
+            <collision name="collision">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </collision>
+            <visual name="visual">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </visual>
+          </link>
+        </model>
         <include>
           <name>table_2</name>
           <pose>
@@ -9049,6 +9077,34 @@
 	</pose>
           <uri>model://office_cafe_table</uri>
         </include>
+        <model name="table_2_hack_for_lidar">
+          <static>true</static>
+          <pose>
+		-2.863643220699783
+		-3.573028620559729
+		0
+		0
+		0
+		0.7853981633974483
+	</pose>
+          <link name="collision">
+            <pose>0 0 0.25 0 0 0</pose>
+            <collision name="collision">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </collision>
+            <visual name="visual">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </visual>
+          </link>
+        </model>
         <include>
           <name>table_3</name>
           <pose>
@@ -9061,6 +9117,34 @@
 	</pose>
           <uri>model://office_cafe_table</uri>
         </include>
+        <model name="table_3_hack_for_lidar">
+          <static>true</static>
+          <pose>
+		-0.2701379308628278
+		-5.910458418344506
+		0
+		0
+		0
+		0.7853981633974483
+	</pose>
+          <link name="collision">
+            <pose>0 0 0.25 0 0 0</pose>
+            <collision name="collision">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </collision>
+            <visual name="visual">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </visual>
+          </link>
+        </model>
         <include>
           <name>table_4</name>
           <pose>
@@ -9073,6 +9157,34 @@
 	</pose>
           <uri>model://office_cafe_table</uri>
         </include>
+        <model name="table_4_hack_for_lidar">
+          <static>true</static>
+          <pose>
+		-0.4604197995651922
+		-3.598533845249485
+		0
+		0
+		0
+		0.7853981633974483
+	</pose>
+          <link name="collision">
+            <pose>0 0 0.25 0 0 0</pose>
+            <collision name="collision">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </collision>
+            <visual name="visual">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </visual>
+          </link>
+        </model>
         <include>
           <name>table_5</name>
           <pose>
@@ -9085,6 +9197,34 @@
 	</pose>
           <uri>model://office_cafe_table</uri>
         </include>
+        <model name="table_5_hack_for_lidar">
+          <static>true</static>
+          <pose>
+		2.676073950013953
+		-6.0631614455981815
+		0
+		0
+		0
+		0.7853981633974483
+	</pose>
+          <link name="collision">
+            <pose>0 0 0.25 0 0 0</pose>
+            <collision name="collision">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </collision>
+            <visual name="visual">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </visual>
+          </link>
+        </model>
         <include>
           <name>table_6</name>
           <pose>
@@ -9097,6 +9237,34 @@
 	</pose>
           <uri>model://office_cafe_table</uri>
         </include>
+        <model name="table_6_hack_for_lidar">
+          <static>true</static>
+          <pose>
+		2.80956293573886
+		-3.8243140372418294
+		0
+		0
+		0
+		0.7853981633974483
+	</pose>
+          <link name="collision">
+            <pose>0 0 0.25 0 0 0</pose>
+            <collision name="collision">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </collision>
+            <visual name="visual">
+              <geometry>
+                <box>
+                  <size>0.913 0.913 0.5</size>
+                </box>
+              </geometry>
+            </visual>
+          </link>
+        </model>
       </model>
       <model name="PublicMeetingRoomA">
         <static>true</static>
@@ -24023,7 +24191,7 @@
           <velocity>1.05</velocity>
           <obstacle_margin>1.2</obstacle_margin>
           <obstacle>husky</obstacle>
-          <debug on_load="False" on_update="False" on_adhoc="True"/>
+          <debug on_adhoc="False" on_load="False" on_update="False"/>
           <scaling collision="LHipJoint_LeftUpLeg_collision" scale="0.01 0.001 0.001"/>
           <scaling collision="LeftUpLeg_LeftLeg_collision" scale="8.0 8.0 1.0"/>
           <scaling collision="LeftLeg_LeftFoot_collision" scale="8.0 8.0 1.0"/>
