@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:arg name="parent_link_for_custom" default="top_plate_front_link" />
+  <xacro:property name="_parent_link_for_custom"
+      value="$(arg parent_link_for_custom)" />
+
+  <!-- Control Box Properties -->
+  <xacro:property name="ctrl_box_width" value="0.52" />
+  <xacro:property name="ctrl_box_length" value="0.59" />
+  <xacro:property name="ctrl_box_height" value="0.68" />
+
+  <link name="control_box" >
+    <visual>
+      <geometry>
+        <box size="${ctrl_box_width} ${ctrl_box_length} ${ctrl_box_height}" />
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${ctrl_box_width} ${ctrl_box_length} ${ctrl_box_height}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="control_box_mount_joint" type="fixed">
+    <parent link="${_parent_link_for_custom}" />
+    <child link="control_box" />
+<!--
+    <axis xyz="0 0 1"/>
+-->
+    <origin xyz="-${ctrl_box_width} 0 ${ctrl_box_height/2.0}" rpy="0 0 0" />
+  </joint>
+
+</robot>
