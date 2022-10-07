@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<launch>
+	<!--
+		# By default we do not overwrite the URDF.
+		# Change the following to true to change the default behavior
+	-->
+	<arg name="load_robot_description" default="false"/>
+	<arg name="limited" default="false"/>
+
+	<!-- The name of the parameter under which the URDF is loaded -->
+	<arg name="robot_description" default="robot_description"/>
+
+	<arg name="urdf_dir" default="$(find ur_e_description)/urdf/" />
+	<arg name="urdf_xacro_base" default="ur5e_robot"
+		unless="$(arg limited)" />
+	<arg name="urdf_xacro_base" default="ur5e_joint_limited_robot"
+		if="$(arg limited)" />
+
+	<rosparam ns="debug" param="wtf1">$(arg urdf_dir)</rosparam>
+	<rosparam ns="debug" param="wtf2">$(arg urdf_dir)</rosparam>
+
+	<arg name="_xacro_file_path"
+		default="$(arg urdf_dir)$(arg urdf_xacro_base).urdf.xacro" />
+
+	<rosparam ns="debug" param="wtf3">$(arg _xacro_file_path)</rosparam>
+
+	<arg name="_xacro_cmd_abs" default="$(find xacro)/xacro --inorder" />
+
+	<!-- Load universal robot description format (URDF) -->
+	<group if="$(arg load_robot_description)">
+		<param name="$(arg robot_description)"
+			command="$(arg _xacro_cmd_abs) '$(arg _xacro_file_path)'" />
+	</group>
+
+	<!-- The semantic description that corresponds to the URDF -->
+	<param name="$(arg robot_description)_semantic"
+		textfile="$(find ur5_e_moveit_config)/config/ur5e.srdf" />
+
+	<!-- Load updated joint limits (override information from URDF) -->
+	<group ns="$(arg robot_description)_planning">
+		<rosparam command="load"
+			file="$(find ur5_e_moveit_config)/config/joint_limits.yaml"/>
+	</group>
+
+	<!--
+		# Load default settings for kinematics; these settings are
+		# overridden by settings in a node's namespace
+	-->
+	<group ns="$(arg robot_description)_kinematics">
+		<rosparam command="load"
+			file="$(find ur5_e_moveit_config)/config/kinematics.yaml"/>
+	</group>
+
+</launch>
