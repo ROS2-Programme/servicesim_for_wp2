@@ -1,0 +1,10 @@
+path_constraint:
+  name: level_tray
+  constraints:
+  - type: orientation
+    frame_id: base_link
+    link_name: EEF
+    orientation: [0, 0, -3.1415269] #RPY
+    tolerances: [0.0, 0.0, 6.28318531]
+    weight: 1.0
+
