@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="ur5e">
+
+  <xacro:arg name="robot_arm_link_prefix" default="" />
+
+  <xacro:include filename="custom_part_ee_attachment.urdf.xacro" />
+  <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
+
+  <xacro:ur5e_robot prefix="$(arg robot_arm_link_prefix)" joint_limited="true"
+    />
+
+</robot>
