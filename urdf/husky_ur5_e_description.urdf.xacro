@@ -9,7 +9,8 @@
 
   <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
 
-  <xacro:property name="_robot_arm_link_prefix" value="ur_arm_" />
+  <xacro:property name="_robot_arm_link_prefix"
+      value="$(arg robot_arm_link_prefix)" />
 
   <joint name="arm_mount_joint" type="fixed">
     <parent link="${_parent_link_for_arm}" />
@@ -18,5 +19,5 @@
         rpy="$(optenv HUSKY_UR_RPY 0 0 0)" />
   </joint>
 
-  <xacro:ur5e_robot prefix="ur_arm_" joint_limited="true" />
+  <xacro:ur5e_robot prefix="${_robot_arm_link_prefix}" joint_limited="true" />
 </robot>
