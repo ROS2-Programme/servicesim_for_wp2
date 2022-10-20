@@ -26,6 +26,9 @@
 #include <gazebo/common/KeyFrame.hh>
 #include <gazebo/physics/physics.hh>
 
+#include <std_msgs/Header.h>
+#include <ros/ros.h>
+
 #include "TrajectoryActorPlugin.hh"
 
 using namespace gazebo;
@@ -76,6 +79,16 @@ class servicesim::TrajectoryActorExtendedPlugin_Private
   /// \brief Frequency in Hz to update
   public: double updateFreq{60};
 
+
+  /// \brief Ignition communication node.
+  public: ros::NodeHandle *rosnode_;
+
+  /// \brief Publisher used to publish the messages.
+  public: ros::Publisher pub_;
+
+  public: std_msgs::Header hdrMsg;
+
+
   public:
     bool bDebugOnLoad{ false};
     bool bDebugOnUpdate{ false};
@@ -100,6 +113,15 @@ std::map< std::string, bool>
 TrajectoryActorExtendedPlugin::TrajectoryActorExtendedPlugin()
     : dataPtr(new TrajectoryActorExtendedPlugin_Private)
 {
+}
+
+// ########################################
+TrajectoryActorExtendedPlugin::~TrajectoryActorExtendedPlugin()
+{
+	this->dataPtr->pub_.shutdown();
+	this->dataPtr->rosnode_->shutdown();
+	delete( this->dataPtr->rosnode_);
+	this->dataPtr->rosnode_ = NULL;
 }
 
 // ########################################
@@ -424,6 +446,21 @@ void TrajectoryActorExtendedPlugin::Load(physics::ModelPtr _model, sdf::ElementP
     gzmsg << "WTF-2c \"" << _szMe << "\"" << std::endl;
     this->rescaleActorSkeleton( scaling, offsets, this->dataPtr->bDebugOnLoad);
     gzmsg << "WTF-2d \"" << _szMe << "\"" << std::endl;
+  }
+
+
+  std::string _szTopic = _sdf->Get<std::string>( "topic",
+    "/gazebo/actor/way_pt").first;
+
+  this->dataPtr->hdrMsg.seq = 0;
+  this->dataPtr->hdrMsg.frame_id = _szMe;
+
+  if( !( _szTopic.empty())) {
+    this->dataPtr->rosnode_ = new ros::NodeHandle();
+
+    // Create the publisher of header messages
+    this->dataPtr->pub_ =
+      this->dataPtr->rosnode_->advertise< std_msgs::Header>( _szTopic, 1);
   }
 }
 
@@ -767,6 +804,11 @@ void TrajectoryActorExtendedPlugin::UpdateTarget()
   this->dataPtr->currentTarget++;
   if (this->dataPtr->currentTarget > this->dataPtr->targets.size() - 1)
     this->dataPtr->currentTarget = 0;
+
+  if( this->dataPtr->pub_) {
+    this->dataPtr->hdrMsg.seq = this->dataPtr->currentTarget;
+    this->dataPtr->pub_.publish( this->dataPtr->hdrMsg);
+  }
 }
 
 /////////////////////////////////////////////////
