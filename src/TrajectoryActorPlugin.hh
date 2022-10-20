@@ -45,6 +45,9 @@ namespace servicesim
     /// \brief Constructor
     public: TrajectoryActorExtendedPlugin();
 
+    /// \brief Destructor
+    public: ~TrajectoryActorExtendedPlugin();
+
     /// \brief Load the actor plugin.
     /// \param[in] _model Pointer to the parent model.
     /// \param[in] _sdf Pointer to the plugin's SDF elements.
