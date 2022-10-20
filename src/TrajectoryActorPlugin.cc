@@ -16,6 +16,7 @@
 */
 
 #include <functional>
+#include <math.h>
 
 #include <ignition/math/Pose3.hh>
 #include <ignition/math/Vector3.hh>
@@ -357,6 +358,20 @@ void TrajectoryActorExtendedPlugin::Load(physics::ModelPtr _model, sdf::ElementP
     << ", on_update=" << this->dataPtr->bDebugOnUpdate << ", on_adhoc="
 	<< this->dataPtr->bDebugOnAdHoc << std::endl;
 
+  gzmsg << "WTF-1c \"" << _szMe << "\" HasType( LINK) = "
+    << (this->dataPtr->actor->HasType( physics::Model::EntityType::LINK)
+      ? "Y" : "N") << " HasType( MODEL) ? "
+    << (this->dataPtr->actor->HasType( physics::Model::EntityType::MODEL)
+      ? "Y" : "N") << std::endl;
+
+  gzmsg << "WTF-1d \"" << _szMe << "\" GetChildCount() = "
+    << this->dataPtr->actor->GetChildCount() << std::endl;
+
+  for( unsigned int j = 0; j < this->dataPtr->actor->GetChildCount(); ++j) {
+    gzmsg << "[" << j << "]: \""
+      << this->dataPtr->actor->GetChild( j)->GetName() << "\"" << std::endl;
+  }
+
   // Read in the obstacles
   if (_sdf->HasElement("obstacle"))
   {
@@ -658,7 +673,7 @@ bool TrajectoryActorExtendedPlugin::ObstacleOnTheWay() const
     if( this->dataPtr->bDebugOnAdHoc
         // && (szMe == "human_80283")
         && (model->GetName() == "husky"))
-	{
+    {
     if( modelPos.Length() < _fScaledMargin) {
       if( this->dataPtr->bDebugOnAdHoc && !_bLastCollideActor) {
         gzmsg << "# OOtW(): v.s. husky modelPos.Length() v.s. _fScaledMargin: "
@@ -890,6 +905,22 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
   // Update actor
   this->dataPtr->actor->SetWorldPose(actorPose,
       this->dataPtr->bUseSkeleton4Collision, false);
+
+  const double lx( cos( actorPose.Rot().Yaw()) * this->dataPtr->velocity);
+  const double ly( sin( actorPose.Rot().Yaw()) * this->dataPtr->velocity);
+  const double az( yawDiff.Radian() / dt);
+
+  if( _bDebug) {
+    gzmsg << "# Yaw() v.s. linear.x/y = " << actorPose.Rot().Yaw() << " / "
+      << "[ " << lx << ", " << ly << " ] yawDiff.Radian() / dt = "
+      << yawDiff.Radian() << " / " << dt << " = " << az << std::endl;
+  }
+
+//  this->dataPtr->actor->SetWorldTwist(
+//      ignition::math::Vector3d( lx, ly, 0.0),
+//      ignition::math::Vector3d( 0.0, 0.0, az));
+  this->dataPtr->actor->SetLinearVel( ignition::math::Vector3d( lx, ly, 0.0));
+  this->dataPtr->actor->SetAngularVel( ignition::math::Vector3d( 0.0, 0.0, az));
 
   this->dataPtr->actor->SetScriptTime(this->dataPtr->actor->ScriptTime() +
     (distanceTraveled * this->dataPtr->animationFactor));
