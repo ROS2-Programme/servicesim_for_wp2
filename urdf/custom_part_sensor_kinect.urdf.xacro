@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find husky_description)/urdf/accessories/intel_realsense.urdf.xacro"/>
+
+  <xacro:arg name="parent_link_for_sensor" default="control_box" />
+  <xacro:property name="_parent_link_for_sensor"
+      value="$(arg parent_link_for_sensor)" />
+
+  <!-- Control Box Properties -->
+  <xacro:property name="ctrl_box_width" value="0.52" />
+  <xacro:property name="ctrl_box_length" value="0.59" />
+  <xacro:property name="ctrl_box_height" value="0.68" />
+
+  <xacro:if value="${True}">
+    <link name="realsense_mount_front"/>
+    <joint name="realsense_mount_front_joint" type="fixed">
+      <origin xyz="${ctrl_box_width / 2.0} 0 ${ctrl_box_height / 2.0}"
+        rpy="0 0 0" />
+      <parent link="${_parent_link_for_sensor}"/>
+      <child link="realsense_mount_front" />
+    </joint>
+    <xacro:intel_realsense_mount prefix="camera1" topic="realsense_front"
+      parent_link="realsense_mount_front"/>
+  </xacro:if>
+
+  <xacro:if value="${True}">
+    <link name="realsense_mount_right"/>
+    <joint name="realsense_mount_right_joint" type="fixed">
+      <origin xyz="0 -${ctrl_box_length / 2.0} ${ctrl_box_height / 2.0}"
+        rpy="0 0 -1.570796" />
+      <parent link="${_parent_link_for_sensor}"/>
+      <child link="realsense_mount_right" />
+    </joint>
+    <xacro:intel_realsense_mount prefix="camera2" topic="realsense_right"
+      parent_link="realsense_mount_right"/>
+  </xacro:if>
+
+</robot>
