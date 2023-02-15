@@ -3,8 +3,26 @@
 <!--
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="husky">
 -->
-  <xacro:include filename="custom_part_control_box.urdf.xacro" />
-  <xacro:include filename="custom_part_ee_attachment.urdf.xacro" />
+  <xacro:include filename="lib_util.urdf.xacro" />
 
+  <xacro:include filename="custom_part_control_box.urdf.xacro" />
+  <xacro:include filename="custom_part_sensor_kinect.urdf.xacro" />
+
+  <xacro:property name="_ee_type" value="$(arg ee_type)" />
+
+  <xacro:if value="${_ee_type == 'tray'}"> 
+    <xacro:include filename="custom_part_ee_attachment.urdf.xacro" />
+  </xacro:if>
+  <xacro:if value="${_ee_type == 'hand'}"> 
+    <xacro:include filename="custom_part_ee_gripper.urdf.xacro" />
+  </xacro:if>
+
+  <xacro:eval_to_bool val="$(arg add_world_link)" _bDebug="False" />
+  <xacro:property name="_bAddWorldLink" value="${pRet.pop()}" />
+  <xacro:induce_eval RET="${_bAddWorldLink}" />
+
+  <xacro:if value="${_bAddWorldLink}">
+    <xacro:include filename="custom_part_world_frame.urdf.xacro" />
+  </xacro:if>
 
 </robot>
