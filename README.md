@@ -1,18 +1,60 @@
-# servicesim_for_wp2
-Extension of servicesim_competiition for customised simulation world for
+# servicesim\_for\_wp2
+Extension of servicesim\_competiition for customised simulation world for
 testing, built using xacro files
 
 
 <!-- ######################################## -->
 <a name="+S1"></a>
-## 1. How to Run
+## 1. Setup
+
+<!-- ======================================== -->
+<a name="+S1.1"></a>
+### 1.1. 3rd-party package dependencies
+
+<!-- ==================== -->
+<a name="+S1.1.1"></a>
+#### 1.1.1. `husky` repository
+
+
+<!-- ==================== -->
+<a name="+S1.1.2"></a>
+#### 1.1.2. `husky_manipulation` repository
+
+
+<!-- ==================== -->
+<a name="+S1.1.3"></a>
+#### 1.1.3. `velodyne-simulator` repository
+
+
+<!-- ==================== -->
+<a name="+S1.1.4"></a>
+#### 1.1.4. `gazebo-tutorials-velodyne` repository
+
+
+<!-- ++++++++++++++++++++ -->
+<!--
+<a name="+S1.1.0a"></a>
+##### 1.1.0a. `xxx` command
+-->
+
+<!-- ======================================== -->
+<a name="+S1.2"></a>
+### 1.2. Build
+
+<!-- ==================== -->
+
+
+
+<!-- ######################################## -->
+<a name="+S2"></a>
+## 2. How to Run
 
 Current version doesn't yet support dynamic generation of `.world` file as
 part of `roslaunch` command.
 
 <!-- ======================================== -->
-<a name="+S1.1"></a>
-### 1.1. Manually generating custom `.world` file
+<a name="+S2.1"></a>
+### 2.1. Manually generating custom `.world` file
 
 **NOTE**:
 - for all the example `xacro` commands shown below, you may set the value of
@@ -87,11 +129,11 @@ xacro \
 ```
 
 <!-- ======================================== -->
-<a name="+S1.2"></a>
-### 1.2. Launching manually generated Gazebo simulation world without robot
+<a name="+S2.2"></a>
+### 2.2. Launching manually generated Gazebo simulation world without robot
 
 Assuming Gazebo simulation that was manually generated in
-[Section 1.1](#+S1.1) is `/tmp/temp_all.world`, then run `roslaunch` as:
+[Section 2.1](#+S2.1) is `/tmp/temp_all.world`, then run `roslaunch` as:
 
 ```bash
 roslaunch servicesim_for_wp2 competition.launch \
@@ -100,15 +142,15 @@ roslaunch servicesim_for_wp2 competition.launch \
 ```
 
 <!-- ======================================== -->
-<a name="+S1.3"></a>
-### 1.3. Launching manually generated Gazebo simulation world with robot
+<a name="+S2.3"></a>
+### 2.3. Launching manually generated Gazebo simulation world with robot
 
 This section will require [ros2_programme_simulator](
 #+git@github.com:ROS2-Programme/ros2_programme_simulator.git) repository to
 have been set up and built, using `cjl-devel` branch.
 
 Assuming Gazebo simulation that was manually generated in
-[Section 1.1](#+S1.1) is `/tmp/temp_all.world`, then run `roslaunch` as:
+[Section 2.1](#+S2.1) is `/tmp/temp_all.world`, then run `roslaunch` as:
 
 ```bash
 roslaunch servicesim_for_wp2 demo_world.launch \
@@ -117,15 +159,15 @@ roslaunch servicesim_for_wp2 demo_world.launch \
 ```
 
 <!-- ######################################## -->
-<a name="+S2"></a>
-## 2. Available plugin sensor ROS topics
+<a name="+S3"></a>
+## 3. Available plugin sensor ROS topics
 
 <!-- ======================================== -->
-<a name="+S2.1"></a>
-### 2.1. Sensor output ROS topics for using for perception, prediction
+<a name="+S3.1"></a>
+### 3.1. Sensor output ROS topics for using for perception, prediction
 
-Upon running either of the `roslaunch` commands in [Section 1.2](#+S1.2) or
-[Section 1.3](#+S1.3), the following simulated sensor output topics should be
+Upon running either of the `roslaunch` commands in [Section 2.2](#+S2.2) or
+[Section 2.3](#+S2.3), the following simulated sensor output topics should be
 available for each of the 5 cameras added to the simulation world:
 
 - RGB-D camera (`libgazebo_ros_openni_kinect.so`)  
@@ -162,8 +204,8 @@ available for each of the 5 cameras added to the simulation world:
 
 
 <!-- ======================================== -->
-<a name="+S2.2"></a>
-### 2.2. Quick command to view simulated RBG-D camera plugin output images
+<a name="+S3.2"></a>
+### 3.2. Quick command to view simulated RBG-D camera plugin output images
 
 Use standard `image_view` ROS package to view the simulated camera images from
 the command prompt.
