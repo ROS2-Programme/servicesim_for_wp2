@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="local_pgm_offset_x" default="20.15" />
+	<arg name="local_pgm_offset_y" default="1.60" />
+	<arg name="local_pgm_offset_z" default="0.135" />
+
+	<arg name="temp_ns" default="new_map" />
+	<arg name="yaml_file_template" default="test_empty_180_template.yaml" />
+	<arg name="yaml_file_output" default="test_empty_180_custom.yaml" />
+
+	<arg name="param_filepath" default="../test/$(arg yaml_file_template)" />
+	<arg name="param_filepath_new" default="/tmp/$(arg yaml_file_output)" />
+	<arg name="param_filepath_bak" default="/tmp/$(arg temp_ns)_bak.yaml" />
+
+	<arg name="_eval_lb" default="&#x24;(eval" />
+	<arg name="_rb" default=")" />
+
+	<rosparam command="dump" file="$(arg param_filepath_bak)"
+		param="$(arg temp_ns)" />
+
+<!--
+	<rosparam command="delete" param="$(arg temp_ns)" />
+-->
+
+<!--
+	<rosparam command="load" file="$(arg param_filepath)" subst_value="true"
+		ns="$(arg temp_ns)" />
+-->
+	<rosparam command="load" file="$(arg param_filepath)"
+		ns="$(arg temp_ns)" />
+
+<!--
+	<param name="$(arg temp_ns)/origin" command="rosparam get $(eval arg('temp_ns')/origin)" />
+-->
+
+	<rosparam command="dump" file="/tmp/wtf1.yaml" subst_value="true"
+		ns="$(arg temp_ns)" />
+<!--
+	<rosparam command="dump" file="/tmp/wtf1.yaml" ns="$(arg temp_ns)" />
+	<rosparam command="dump" file="/tmp/wtf1.yaml"
+		ns="$(arg temp_ns)" param="origin" />
+-->
+
+</launch>
