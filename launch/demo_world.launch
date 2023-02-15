@@ -15,21 +15,31 @@
 	<arg name="custom" default="false" />
 	<arg name="custom_prefix" default="" />
 
+<!--
+	<arg name="arm_prefix" default="ur_arm_" />
+-->
+	<arg name="arm_prefix" default="" />
+
 	<arg name="initial_joint_positions"
 		doc="Initial joint configuration of the robot" default="
-			-J elbow_joint 0
-			-J robot_rz 0
-			-J robot_tx 0
-			-J robot_ty 0
-			-J shoulder_lift_joint 0
-			-J shoulder_pan_joint 0
-			-J wrist_1_joint 0
-			-J wrist_2_joint 0
-			-J wrist_3_joint 0" />
+			-J $(arg arm_prefix)elbow_joint 0
+			-J $(arg arm_prefix)robot_rz 0
+			-J $(arg arm_prefix)robot_tx 0
+			-J $(arg arm_prefix)robot_ty 0
+			-J $(arg arm_prefix)shoulder_lift_joint 0
+			-J $(arg arm_prefix)shoulder_pan_joint 0
+			-J $(arg arm_prefix)wrist_1_joint 0
+			-J $(arg arm_prefix)wrist_2_joint 0
+			-J $(arg arm_prefix)wrist_3_joint 0" />
 
 	<arg name="_pkg_loc" default="$(find servicesim_for_wp2)" />
 	<arg name="_pkg_mob_manip"
 		default="$(find mobile_manipulator_moveit_config)" />
+<!--
+	<arg name="_pkg_mob_manip"
+		default="$(find mobile_manipulator_for_wp2_moveit_config)" />
+-->
+
 	<arg name="_urdf" default="husky_ur5e_robot.urdf.xacro" />
 
 	<include file="$(arg _pkg_loc)/launch/competition.launch">
