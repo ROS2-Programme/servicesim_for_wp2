@@ -2,6 +2,7 @@
 <launch>
 
 	<arg name="map_yaml" default="test_empty_180.yaml" />
+	<arg name="scan_topic" default="scan" />
 
 	<arg name="_this_pkg_loc" default="$(find servicesim_for_wp2)" />
 
@@ -19,13 +20,15 @@
 		args="$(arg map_file)" />
 
 	<!--- Run AMCL -->
-	<include file="$(arg _pkg_nav_base_loc)/launch/amcl.launch" />
+	<include file="$(arg _pkg_nav_base_loc)/launch/amcl.launch">
+		<arg name="scan_topic" value="$(arg scan_topic)" />
+	</include>
 
 	<!--- Run Move Base -->
 	<rosparam ns="move_base/NavfnROS" command="load"
 		file="$(arg _cfg_custom_yaml_path)" />
 
-	<include file="$(arg _pkg_nav_base_loc)/launch/move_base.launch" />
+	<include file="$(arg _this_pkg_loc)/launch/move_base.launch" />
 
 </launch>
 
