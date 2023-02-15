@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<!-- Duplicated from ../worlds/lib_wall.world.xacro -->
+<xacro:property name="pRet" value="${[]}" />
+
+<!-- ######################################## -->
+<!-- Duplicated from ../worlds/lib_wall.world.xacro -->
+<xacro:macro name="induce_eval" params="RET:=^">
+	<xacro:if value="False">
+		<RET>${RET}</RET>
+	</xacro:if>
+</xacro:macro>
+
+<!-- ######################################## -->
+<!-- Duplicated from ../worlds/service.world.xacro -->
+<xacro:macro name="eval_to_bool" params="val pRet:=^ _bDebug:=False">
+
+	<xacro:property name="RET" value="" />
+	<xacro:property name="_bRet" value="${False}" />
+	<xacro:property name="_val" value="${str( val).strip().lower()}" />
+
+	<xacro:if value="${(_val != '') and (
+			(_val == 'true') or (_val == 'yes') or (_val == 'on') or
+			(str(_val).isdigit() and (int(_val) != 0)) )}">
+
+		<xacro:property name="_bRet" value="${True}" />
+	</xacro:if>
+
+	<xacro:property name="RET" value="${pRet.append( _bRet)}" />
+	<xacro:induce_eval />
+
+	<xacro:if value="${_bDebug}">
+		<eval_2_bool>val=${val} => ${_bRet}</eval_2_bool>
+	</xacro:if>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<!-- ######################################## -->
+<xacro:macro name="contains" params="val szSep pRet:=^ _bDebug:=False">
+
+	<xacro:property name="RET" value="" />
+	<xacro:property name="_val" value="${str( val).strip()}" />
+	<xacro:property name="_ret" value="${(_val.find( szSep) != -1)}" />
+
+	<xacro:property name="RET" value="${pRet.append( _ret)}" />
+	<xacro:induce_eval />
+
+	<xacro:if value="${_bDebug}">
+		<contains>val=${val} szSep=${szSep} => ${_ret}</contains>
+	</xacro:if>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="ensure_ns" params="val szNS pRet:=^ _bDebug:=False">
+
+	<xacro:property name="_val" value="${val}" />
+
+	<xacro:contains val="${_val}" szSep="/" _bDebug="${_bDebug}" />
+	<xacro:property name="_bHaveNS" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_bHaveNS}" />
+
+	<xacro:unless value="${_bHaveNS}">
+		<xacro:property name="_val" value="${szNS + val}" />
+	</xacro:unless>
+
+	<xacro:property name="RET" value="${pRet.append( _val)}" />
+	<xacro:induce_eval />
+
+	<xacro:if value="${_bDebug}">
+		<ensure_ns>val=${val} szNS=${szNS} => ${_val}</ensure_ns>
+	</xacro:if>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+
+</robot>
