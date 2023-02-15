@@ -1,0 +1,10 @@
+image: test_empty_180.pgm
+resolution: 0.100000
+origin:
+  - $(eval -8.850000 + $(arg local_pgm_offset_x))
+  - $(eval -27.550000 + $(arg local_pgm_offset_y))
+  - $(eval 0.000000 + $(arg local_pgm_offset_z))
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+
