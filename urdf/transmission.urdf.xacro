@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:include filename="lib_util.urdf.xacro" />
+
+<!-- ######################################## -->
+<xacro:property name="_trans_type_ns" value="transmission_interface/" />
+<xacro:property name="_trans_hw_iface_ns" value="hardware_interface/" />
+
+<xacro:property name="_trans_type_default" value="SimpleTransmission" />
+<!--
+<xacro:property name="_trans_type_default" value="DifferentialTransmission" />
+-->
+<xacro:property name="_trans_hw_iface_default" value="PositionJointInterface" />
+
+<!-- ######################################## -->
+<xacro:macro name="add_transmission" params="szJ szJointPrefix szTrans:=''
+		szActuator:=''
+		szType:=${_trans_type_default} szHwIface:=${_trans_hw_iface_default}
+		szTransPrefix:='trans_for_' szActuatorPrefix:='motor_for_'
+		_bDebug:=False">
+
+	<xacro:property name="_szAct" value="${str( szActuator).strip()}" />
+	<xacro:if value="${_szAct == ''}">
+		<xacro:property name="_szAct" value="${szActuatorPrefix + szJ}" />
+	</xacro:if>
+
+	<xacro:property name="_szTrans" value="${str( szTrans).strip()}" />
+	<xacro:if value="${_szTrans == ''}">
+		<xacro:property name="_szTrans" value="${szTransPrefix + szJ}" />
+	</xacro:if>
+
+	<xacro:ensure_ns val="${szType}" szNS="${_trans_type_ns}"
+		_bDebug="${_bDebug}" />
+	<xacro:property name="_szType" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_szType}" />
+
+	<xacro:ensure_ns val="${szHwIface}" szNS="${_trans_hw_iface_ns}"
+		_bDebug="${_bDebug}" />
+	<xacro:property name="_szHwIface" value="${pRet.pop()}" />
+	<xacro:induce_eval RET="${_szHwIface}" />
+
+	<transmission name="${_szTrans}">
+		<type>${_szType}</type>
+		<joint name="${szJointPrefix + szJ}">
+			<hardwareInterface>${_szHwIface}</hardwareInterface>
+		</joint>
+		<actuator name="${_szAct}">
+			<hardwareInterface>${_szHwIface}</hardwareInterface>
+			<mechanicalReduction>1</mechanicalReduction>
+		</actuator>
+	</transmission>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<!-- ######################################## -->
+<xacro:macro name="default_inertial" params="mass:=1.0">
+
+	<inertial>
+		<mass value="${mass}" />
+		<origin xyz="0 0 0" rpy="0 0 0" />
+		<inertia
+			ixx="1.0" ixy="0.0" ixz="0.0"
+			iyy="1.0" iyz="0.0"
+			izz="1.0" />
+	</inertial>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="add_virtual_link" params="name radius:=0.005 length:=0.005">
+
+	<link name="${name}">
+		<visual>
+			<geometry>
+				<cylinder length="${length}" radius="${radius}" />
+			</geometry>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+		</visual>
+		<xacro:default_inertial />
+	</link>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="add_virtual_joint" params="name type parent child axis
+		base_link_z_offset:=0.0 effort_limit:=1000.0 vel_limit:=0.5">
+
+	<xacro:property name="_x" value="${(0,1)[ axis == 'x']}" />
+	<xacro:property name="_y" value="${(0,1)[ axis == 'y']}" />
+	<xacro:property name="_z" value="${(0,1)[ axis == 'z']}" />
+
+	<joint name="${name}" type="${type}">
+		<parent link="${parent}" />
+		<child link="${child}" />
+		<limit effort="${effort_limit}" lower="-5" upper="5"
+			velocity="${vel_limit}" />
+
+		<axis xyz="${_x} ${_y} ${_z}" />
+		<origin xyz="0 0 ${base_link_z_offset}" />
+	</joint>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="add_virtual_joint_with_link" params="axis szL szJ:=''
+		pRet:=^ szParent:='world' szJointType:='prismatic' _bLinkExists:=False
+		szJointVirtualPrefix:='robot_' szLinkVirtualPrefix='virtual_link_'
+		base_link_z_offset:=0.0 effort_limit:=1000.0 vel_limit:=0.5
+		_bDebug:=False">
+
+	<xacro:property name="_szAxisPrefix" value="" />
+	<xacro:if value="${szJointType == 'prismatic'}">
+		<xacro:property name="_szAxisPrefix" value="t" />
+	</xacro:if>
+	<xacro:if value="${szJointType == 'revolute'}">
+		<xacro:property name="_szAxisPrefix" value="r" />
+	</xacro:if>
+
+	<xacro:property name="_szJ" value="${szJ.strip()}" />
+	<xacro:if value="${_szJ == ''}">
+		<xacro:property name="_szJ" value="${_szAxisPrefix + axis}" />
+	</xacro:if>
+
+	<xacro:property name="_szL" value="${szL.strip()}" />
+	<xacro:if value="${_szL == ''}">
+		<xacro:property name="_szL" value="${szLinkVirtualPrefix + axis}" />
+	</xacro:if>
+
+	<!-- ==================== -->
+	<xacro:unless value="${_bLinkExists}">
+		<xacro:add_virtual_link name="${_szL}" />
+	</xacro:unless>
+
+	<xacro:add_virtual_joint name="${szJointVirtualPrefix + _szJ}"
+		type="${szJointType}" parent="${szParent}" child="${_szL}"
+		axis="${axis}" base_link_z_offset="${base_link_z_offset}"
+		effort_limit="${effort_limit}" vel_limit="${vel_limit}" />
+
+	<xacro:add_transmission szJ="${_szJ}"
+		szJointPrefix="${szJointVirtualPrefix}" _bDebug="${_bDebug}" />
+<!--
+	<xacro:add_transmission szJ="${_szJ}"
+		szJointPrefix="${szJointVirtualPrefix}" _bDebug="True" />
+-->
+
+	<!-- ==================== -->
+	<xacro:property name="RET" value="${pRet.append( _szL)}" />
+	<xacro:induce_eval />
+
+</xacro:macro>
+
+</robot>
