@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:include filename="transmission.urdf.xacro" />
+
+<!--
+  # "wheel_vertical_offset" & "wheel_radius" properties replicated here from
+  # husky.urdf.xacro (in husky_description package).
+-->
+<xacro:property name="wheel_vertical_offset" value="0.03282" />
+<xacro:property name="wheel_radius" value="0.1651" />
+
+<!--
+  <xacro:property name="link_list" value="${list()}" />
+-->
+
+  <link name="world" />
+
+  <xacro:add_virtual_joint_with_link axis="x" szL="" szParent="world"
+		base_link_z_offset="${wheel_radius - wheel_vertical_offset}"
+		_bDebug="False" />
+
+<!--
+  <xacro:property name="link_list" value="${link_list + pRet[-1:]}" />
+-->
+  <xacro:property name="l1" value="${pRet.pop()}" />
+  <xacro:induce_eval RET="${l1}" />
+
+  <xacro:add_virtual_joint_with_link axis="y" szL="" szParent="${l1}"
+		effort_limit="5000.0" _bDebug="False" />
+
+  <xacro:property name="l2" value="${pRet.pop()}" />
+  <xacro:induce_eval RET="${l2}" />
+
+  <xacro:add_virtual_joint_with_link axis="z" szL="base_link" szParent="${l2}"
+		_bLinkExists="True" szJointType="revolute" vel_limit="0.2"
+		_bDebug="False" />
+
+</robot>
