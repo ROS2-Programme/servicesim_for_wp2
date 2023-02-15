@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="_M_PI" value="${pi}"/>
+
+  <xacro:property name="_robot_arm_link_prefix"
+      value="$(arg robot_arm_link_prefix)" />
+
+  <!-- End-effector attachment - Robotiq gripper -->
+  <xacro:property name="_gripper_link_prefix"
+      value="$(arg gripper_link_prefix)" />
+
+  <xacro:property name="_gripper_pkg_loc"
+    value="$(find robotiq_3f_gripper_visualization)" />
+  <xacro:property name="_gripper_urdf"
+    value="robotiq-3f-gripper_articulated_macro.xacro" />
+
+  <!-- # NOTE:
+       # "_gripper_base_link" value will need to match hard-coded value in
+       # robotiq-3f-gripper_articulated macro.
+       # -->
+  <xacro:property name="_gripper_base_link" value="palm" />
+
+  <xacro:include filename="${_gripper_pkg_loc}/cfg/${_gripper_urdf}" />
+
+  <xacro:robotiq-3f-gripper_articulated prefix="${_gripper_link_prefix}" />
+<!--
+  <xacro:robotiq-3f-gripper_articulated prefix="${_gripper_link_prefix}"
+    mass_scaling="0.2" />
+-->
+
+  <joint name="EEF_mount_joint_hand" type="fixed">
+    <parent link="${_robot_arm_link_prefix}ee_link"/>
+    <child link="${_gripper_link_prefix}${_gripper_base_link}"/>
+    <axis xyz="1 0 0"/>
+    <origin rpy="0 0 ${-_M_PI/2}" xyz="0.04 0 0"/>
+  </joint>
+
+</robot>
