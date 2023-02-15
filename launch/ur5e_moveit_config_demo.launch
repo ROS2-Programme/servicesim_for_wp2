@@ -7,9 +7,10 @@
 	<!-- By default, we are not in debug mode -->
 	<arg name="debug" default="false" />
 
-	<arg name="limited" default="false"/>
+	<arg name="limited" default="false" />
 
 	<arg name="_this_pkg_loc" default="$(find servicesim_for_wp2)" />
+	<arg name="_pkg_moveit_cfg_ur5" default="$(find ur5_e_moveit_config)" />
 	<arg name="_plan_ctxt" default="ur5e_moveit_config_planning_context"
 		/>
 
@@ -18,8 +19,8 @@
 		# param server
 	-->
 	<include file="$(arg _this_pkg_loc)/launch/$(arg _plan_ctxt).launch">
-		<arg name="load_robot_description" value="true"/>
-		<arg name="limited" value="$(arg limited)"/>
+		<arg name="load_robot_description" value="true" />
+		<arg name="limited" value="$(arg limited)" />
 		<arg name="urdf_xacro_base" value="ur5_e_for_wp2" />
 		<arg name="urdf_dir" value="$(arg _this_pkg_loc)/urdf/" />
 	</include>
@@ -30,7 +31,7 @@
 	<node name="joint_state_publisher" pkg="joint_state_publisher"
 			type="joint_state_publisher">
 
-		<param name="/use_gui" value="false"/>
+		<param name="/use_gui" value="false" />
 		<rosparam param="/source_list"
 			>[/move_group/fake_controller_joint_states]</rosparam>
 	</node>
@@ -43,11 +44,12 @@
 		# Run the main MoveIt executable without trajectory execution
 		# (we do not have controllers configured by default)
 	-->
-	<include file="$(find ur5_e_moveit_config)/launch/move_group.launch">
-		<arg name="allow_trajectory_execution" value="true"/>
-		<arg name="fake_execution" value="true"/>
-		<arg name="info" value="true"/>
-		<arg name="debug" value="$(arg debug)"/>
+	<include file="$(arg _this_pkg_loc)/launch/move_group.launch">
+		<arg name="allow_trajectory_execution" value="true" />
+		<arg name="fake_execution" value="true" />
+		<arg name="info" value="true" />
+		<arg name="debug" value="$(arg debug)" />
+		<arg name="tf_alt" value="/tf_wtf" />
 	</include>
 
 	<!--
@@ -55,8 +57,8 @@
 		# move_group node
 	-->
 	<include file="$(find ur5_e_moveit_config)/launch/moveit_rviz.launch">
-		<arg name="config" value="true"/>
-		<arg name="debug" value="$(arg debug)"/>
+		<arg name="config" value="true" />
+		<arg name="debug" value="$(arg debug)" />
 	</include>
 
 	<!-- If database loading was enabled, start mongodb as well -->
