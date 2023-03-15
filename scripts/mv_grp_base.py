@@ -228,32 +228,46 @@ class MyMoveGroup( object):
 
 
 	## ----------------------------------------
+	def updateJointArrayFromMap( self, _pfRet, _pszAllJoint, _pfNamedJointVal,
+			_bDebug=False):
+
+		assert( len( _pfRet) == len( _pszAllJoint))
+
+		for _i, _szJ in enumerate( _pszAllJoint):
+			_bToSet = (_szJ in _pfNamedJointVal)
+
+			if _bDebug:
+				print( '# [{}]: "{}"{}'.format( _i, _szJ,
+					('',' - skip')[_bToSet]))
+
+			if not _bToSet:
+				continue
+
+			_pfRet[ _i] = _pfNamedJointVal.get( _szJ)
+
+	## ----------------------------------------
+	def updateRobotStateToNamedPose( self, _sRet, _szPose):
+		_pfNamedJointVal = self.group._g.get_named_target_values( _szPose)
+
+		_pfNew = [0.0] * len( _sRet.joint_state.name)
+
+		print( '# WTF: type( .joint_state.position) = {} [{}]'.format(
+			type( _sRet.joint_state.position),
+			len( _sRet.joint_state.position)))
+
+		self.updateJointArrayFromMap( _pfNew, _sRet.joint_state.name,
+			_pfNamedJointVal)
+
+		_sRet.joint_state.position = _pfNew
+
+	## ----------------------------------------
 	def genPlanToNamedTarget( self, _szTarget, _szSource='',
 			_bRetTrajOnly=False):
 
 		_sTmp = self.robot.get_current_state()
 
 		if _szSource:
-			_pfNamedJointVal = self.group._g.get_named_target_values(
-				_szSource)
-
-			_pfNew = [0.0] * len( _sTmp.joint_state.name)
-			print( '# WTF: type( .joint_state.position) = {} [{}]'.format(
-				type( _sTmp.joint_state.position),
-				len( _sTmp.joint_state.position)))
-
-			for _i, _szJ in enumerate( _sTmp.joint_state.name):
-				_bToSet = (_szJ in _pfNamedJointVal)
-
-				print( '# [{}]: "{}"{}'.format( _i, _szJ,
-					('',' - skip')[_bToSet]))
-
-				if not _bToSet:
-					continue
-
-				_pfNew[ _i] = _pfNamedJointVal.get( _szJ)
-
-			_sTmp.joint_state.position = _pfNew
+			self.updateRobotStateToNamedPose( _sTmp, _szSource)
 
 		self.group.set_start_state( _sTmp)
 
@@ -314,25 +328,42 @@ class MyMoveGroup( object):
 
 		mvGrpObj = MyMoveGroup( argv, 'MobileManipulator')
 
+		_pszPoseSeq = ['Upright', 'ForwardGrabbing', 'ZeroPose']
+		_szPoseLast = _pszPoseSeq[ -1]
+
 #		return 0
 		if _nOpt == 0:
-			mvGrpObj.displayTrajectory( 'ZeroPose')
+			mvGrpObj.displayTrajectory( _szPoseLast)
+
+#		mvGrpObj.goToNamedTarget()
 
 		if _nOpt == 1:
-#			mvGrpObj.goToNamedTarget()
-			mvGrpObj.goToNamedTarget( 'Upright')
-			mvGrpObj.goToNamedTarget( 'ForwardGrabbing')
-			mvGrpObj.goToNamedTarget( 'ZeroPose')
+			for _szPoseNext in _pszPoseSeq:
+				mvGrpObj.goToNamedTarget( _szPoseNext)
+				_szPoseLast = _szPoseNext
 
-			mvGrpObj.displayTrajectory( 'ZeroPose')
+			mvGrpObj.displayTrajectory( _szPoseLast)
 
 #		mvGrpObj.goToNamedTargetJointState( 'ready')
 #		mvGrpObj.goToNamedTargetJointState( 'low_full_left_level')
 
 		if _nOpt == 2:
-			mvGrpObj.goToNamedTargetJointState( 'Upright')
-			mvGrpObj.goToNamedTargetJointState( 'ForwardGrabbing')
-			mvGrpObj.goToNamedTargetJointState( 'ZeroPose')
+			for _szPoseNext in _pszPoseSeq:
+				mvGrpObj.goToNamedTargetJointState( _szPoseNext)
+				_szPoseLast = _szPoseNext
+
+
+		if _nOpt == 3:
+			_szPoseLast = None
+			for _szPoseNext in _pszPoseSeq:
+				_stateFrom, _path = mvGrpObj.genPlanToNamedTarget(
+					_szPoseNext, _szPoseLast, True)
+
+				mvGrpObj.displayTrajectory( _szPoseNext, _stateFrom)
+				rospy.sleep( 4.0)
+				_szPoseLast = _szPoseNext
+
+			mvGrpObj.displayTrajectory( _szPoseLast)
 
 		return 0
 
