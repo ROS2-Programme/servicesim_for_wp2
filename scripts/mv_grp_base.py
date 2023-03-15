@@ -317,6 +317,35 @@ class MyMoveGroup( object):
 
 
 	## ----------------------------------------
+	def demoApi( self, _bVerbose=False):
+
+		# Can get the name of the reference frame for this robot:
+		planning_frame = self.group.get_planning_frame()
+		print( '# Reference frame: "{}"'.format( planning_frame))
+
+		# Can also print the name of the end-effector link for this group:
+		eef_link = self.group.get_end_effector_link()
+		print( '# End effector: "{}"'.format( eef_link))
+
+		# Can get a list of all the groups in the robot:
+		print( '# Robot Groups: {}'.format( self.robot.get_group_names()))
+
+		_sRet = None
+
+		if not _bVerbose:
+			return _sRet
+
+		# Sometimes for debugging it is useful to print the entire state of the
+		# robot:
+		_sRet = self.robot.get_current_state()
+		print( '# Robot state (isA {}):'.format( type( _sRet)))
+		print( _sRet)
+		print()
+
+		return _sRet
+
+
+	## ----------------------------------------
 	@classmethod
 	def main( cls, argv):
 		print( '# argv[ {}] = {}'.format( len( argv), str( argv)))
@@ -333,6 +362,7 @@ class MyMoveGroup( object):
 
 #		return 0
 		if _nOpt == 0:
+			mvGrpObj.demoApi( True)
 			mvGrpObj.displayTrajectory( _szPoseLast)
 
 #		mvGrpObj.goToNamedTarget()
