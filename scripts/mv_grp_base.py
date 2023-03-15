@@ -21,7 +21,7 @@ class MyMoveGroup( object):
 	def __init__( self, argv, _szGroup='panda_arm',
 			_szNodeName='my_move_group', _bAnon=False,
 			_szTrajVisTopic='/move_group/display_planned_path',
-			_nTrajVisTopicQ=1, _bLatch=False):
+			_nTrajVisTopicQ=None, _bLatch=True):
 
 		super( MyMoveGroup, self).__init__()
 
@@ -46,17 +46,37 @@ class MyMoveGroup( object):
 
 		## Create a `DisplayTrajectory`_ publisher which is used later to
 		## publish trajectories for RViz to visualize:
+		_pOptArg = dict( [
+			['queue_size', _nTrajVisTopicQ],
+			['latch', _bLatch]
+		])
+		if _nTrajVisTopicQ is None:
+			# pass
+			del( _pOptArg[ 'queue_size'])
+
 		self.display_trajectory_publisher = rospy.Publisher(
-			_szTrajVisTopic, moveit_msgs.msg.DisplayTrajectory,
-			queue_size=_nTrajVisTopicQ, latch=_bLatch)
+			_szTrajVisTopic, moveit_msgs.msg.DisplayTrajectory, **_pOptArg)
 
 
 	## --------------------
 	def __del__( self):
 		print( '# __del__()')
 		moveit_commander.roscpp_shutdown()
+#		rospy.sleep( 1.0)
+		rospy.sleep( 2.0)
 #		while not rospy.is_shutdown():
 #			rospy.spin()
+
+#		print( dir( self.display_trajectory_publisher.impl))
+		assert( hasattr( self.display_trajectory_publisher.impl, 'queue_size'))
+
+		if (getattr( self.display_trajectory_publisher.impl, 'queue_size')
+				is None):
+			print( '# Synchronous publisher - should be safe to unregister()?')
+#			self.display_trajectory_publisher.unregister()
+		else:
+			print( '# Asynchronous publisher - skip unregister() just in case')
+
 
 	## ----------------------------------------
 	def displayTrajectory( self, plan, _stateLast=None):
@@ -69,19 +89,18 @@ class MyMoveGroup( object):
 		## Populate the trajectory_start with current robot state to copy over
 		## any AttachedCollisionObjects and add plan to the trajectory.
 		_display_traj = moveit_msgs.msg.DisplayTrajectory()
-		_display_traj.model_id = 'husky'
+#		_display_traj.model_id = 'husky'
 
 		if _stateLast is None:
-			_display_traj.trajectory_start = self.robot.get_current_state()
-		else:
-			_display_traj.trajectory_start = _stateLast
+			_stateLast = self.robot.get_current_state()
 
+		_bSpecial = (type( plan) == str)
 
-		if type( plan) == str:
+		if _bSpecial:
 			print( '# WTF special "{}"'.format( plan))
 			_jt = JointTrajectory()
 #			_jt.header.frame_id = '/world'
-			_jt.header.frame_id = _display_traj.trajectory_start.joint_state.header.frame_id
+			_jt.header.frame_id = _stateLast.joint_state.header.frame_id
 			_jt.points.append( JointTrajectoryPoint())
 			self.getNamedTargetJointState(
 				_jt.points[0].positions, plan, _jt.joint_names)
@@ -92,11 +111,20 @@ class MyMoveGroup( object):
 			_display_traj.trajectory.append( moveit_msgs.msg.RobotTrajectory())
 			_display_traj.trajectory[0].joint_trajectory = _jt
 
-			print( _display_traj)
+#			print( _display_traj)
 		else:
 			_display_traj.trajectory.append( plan)
 
+		_display_traj.trajectory_start = _stateLast
+
 		# Publish
+		self.display_trajectory_publisher.publish( _display_traj);
+
+		if not _bSpecial:
+			return
+
+		print( '# displayTrajectory() - publish twice')
+
 		self.display_trajectory_publisher.publish( _display_traj);
 
 	## ----------------------------------------
