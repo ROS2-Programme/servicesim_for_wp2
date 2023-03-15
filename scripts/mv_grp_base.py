@@ -359,8 +359,8 @@ class MyMoveGroup( object):
 				_stateFrom, _path = mvGrpObj.genPlanToNamedTarget(
 					_szPoseNext, _szPoseLast, True)
 
-				mvGrpObj.displayTrajectory( _szPoseNext, _stateFrom)
-				rospy.sleep( 4.0)
+				mvGrpObj.displayTrajectory( _path, _stateFrom)
+				rospy.sleep( 2.0)
 				_szPoseLast = _szPoseNext
 
 			mvGrpObj.displayTrajectory( _szPoseLast)
