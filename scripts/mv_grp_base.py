@@ -102,12 +102,16 @@ class MyMoveGroup( object):
 #			_jt.header.frame_id = '/world'
 			_jt.header.frame_id = _stateLast.joint_state.header.frame_id
 			_jt.points.append( JointTrajectoryPoint())
+
 			self.getNamedTargetJointState(
-				_jt.points[0].positions, plan, _jt.joint_names)
-			_pfZero = [ 0.0 ] * len( _jt.joint_names)
-			_jt.points[0].velocities = _pfZero
-			_jt.points[0].accelerations = _pfZero
-#			_jt.points[0].effort = _pfZero
+				_jt.points[0], plan, _jt.joint_names)
+#			self.getNamedTargetJointState(
+#				_jt.points[0].positions, plan, _jt.joint_names)
+#			_pfZero = [ 0.0 ] * len( _jt.joint_names)
+#			_jt.points[0].velocities = _pfZero
+#			_jt.points[0].accelerations = _pfZero
+##			_jt.points[0].effort = _pfZero
+
 			_display_traj.trajectory.append( moveit_msgs.msg.RobotTrajectory())
 			_display_traj.trajectory[0].joint_trajectory = _jt
 
@@ -179,16 +183,35 @@ class MyMoveGroup( object):
 		print( '# get_joints() = {}'.format( _pszJoint))
 
 	## ----------------------------------------
-	def getNamedTargetJointState( self, _pfRet, _szTarget, _pszRet=None):
+	def getNamedTargetJointState( self, _pRet, _szTarget, _pszRet=None):
 
 		_pszTargetNamed = self.group._g.get_named_targets()
 		print( '# get_named_targets() [{}] = {}'.format(
 			len( _pszTargetNamed), _pszTargetNamed))
 
-#		_pfRet.clear()
-		_pfRet[:] = []
+		_pszJoint = self.group.get_joints()
+		print( '# get_joints() = _pszJoint[{}] = {}'.format( len( _pszJoint),
+			_pszJoint))
 
 		_bRecJoint = (_pszRet is not None)
+
+		if type( _pRet) is JointState:
+			print( '# gNTJS() _pRet IsA JointState')
+			_pRet.name[:] = []
+			assert( not _bRecJoint)
+			_bRecJoint = True
+			_pszRet = []
+		elif type( _pRet) is JointTrajectoryPoint:
+			print( '# gNTJS() _pRet IsA JointTrajectoryPoint')
+			_pRet.velocities = [ 0.0 ] * len( _pszJoint)
+			_pRet.accelerations = _pRet.velocities
+		else:
+			assert( type( _pRet) is list)
+			print( '# gNTJS() _pfRet IsA list')
+
+#		_pfRet.clear()
+#		_pfRet[:] = []
+
 		if _bRecJoint:
 			_pszRet[:] = []
 
@@ -203,13 +226,9 @@ class MyMoveGroup( object):
 
 		print( '# }')
 
-		_pszJoint = self.group.get_joints()
-		print( '# get_joints() = _pszJoint[{}] = {}'.format( len( _pszJoint),
-			_pszJoint))
-
 		# We can get the joint values from the group and adjust some of the
 		# values:
-		_pfRet[:] = self.group.get_current_joint_values()
+		_pfRet = self.group.get_current_joint_values()[:]
 
 		print( '# _pfRet[ {}] = {}'.format( len( _pfRet), str( _pfRet)))
 
@@ -226,6 +245,13 @@ class MyMoveGroup( object):
 		if _bRecJoint:
 			print( '# _pszRet[ {}] = {}'.format( len( _pszRet), str( _pszRet)))
 
+		if type( _pRet) is JointState:
+			_pRet.position[:] = _pfRet[:]
+			_pRet.name[:] = _pszRet[:]
+		elif type( _pRet) is JointTrajectoryPoint:
+			_pRet.positions[:] = _pfRet[:]
+		else:
+			pass
 
 	## ----------------------------------------
 	def updateJointArrayFromMap( self, _pfRet, _pszAllJoint, _pfNamedJointVal,
@@ -296,11 +322,19 @@ class MyMoveGroup( object):
 
 #		self.group.set_start_state_to_current_state()
 
-		_pfJointGoal = []
+		## NOTE: cannot use raw list type for Python 3 - will get
+		## "unhashable type" exception thrown.
+#		_pfJointGoal = []
+		_pfJointGoal = JointState()
+
 		self.getNamedTargetJointState( _pfJointGoal, _szTarget)
 
-		print( '# _pfJointGoal[ {}] = [ {} ]'.format( len( _pfJointGoal),
-			str( _pfJointGoal)))
+#		print( '# _pfJointGoal[ {}] = [ {} ]'.format( len( _pfJointGoal),
+#			str( _pfJointGoal)))
+		print( '# _pfJointGoal.position[ {}] = {}'.format(
+			len( _pfJointGoal.position), str( _pfJointGoal.position)))
+		print( '# _pfJointGoal.name[ {}] = {}'.format(
+			len( _pfJointGoal.name), str( _pfJointGoal.name)))
 
 		# The go command can be called with joint values, poses, or without any
 		# parameters if you have already set the pose or joint target for the
