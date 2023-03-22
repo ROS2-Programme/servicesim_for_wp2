@@ -27,7 +27,8 @@ class MyMoveGroup( object):
 
 		## First initialize `moveit_commander`_ and a `rospy`_ node:
 		moveit_commander.roscpp_initialize( argv)
-		rospy.init_node( _szNodeName, anonymous=_bAnon)
+		if type( _bAnon) is bool:
+			rospy.init_node( _szNodeName, anonymous=_bAnon)
 
 		## Instantiate a `RobotCommander`_ object. This object is the
 		## outer-level interface to the robot:
@@ -60,7 +61,7 @@ class MyMoveGroup( object):
 
 	## --------------------
 	def __del__( self):
-		print( '# __del__()')
+		print( '# {}::__del__()'.format( type( self).__name__))
 		moveit_commander.roscpp_shutdown()
 #		rospy.sleep( 1.0)
 		rospy.sleep( 2.0)
@@ -77,6 +78,15 @@ class MyMoveGroup( object):
 		else:
 			print( '# Asynchronous publisher - skip unregister() just in case')
 
+		print( '# {}::__del__(): {} connection(s) to topic "{}".'.format(
+			type( self).__name__,
+			self.display_trajectory_publisher.get_num_connections(),
+			self.display_trajectory_publisher.resolved_name))
+
+		if self.display_trajectory_publisher.get_num_connections() == 0:
+			print( ('# {}::__del__(): no connections to topic - ' +
+				'safe to unregister()?').format( type( self).__name__))
+			self.display_trajectory_publisher.unregister()
 
 	## ----------------------------------------
 	def displayTrajectory( self, plan, _stateLast=None):
@@ -288,7 +298,7 @@ class MyMoveGroup( object):
 
 	## ----------------------------------------
 	def genPlanToNamedTarget( self, _szTarget, _szSource='',
-			_bRetTrajOnly=False):
+			_bRetTrajOnly=False, _jsTarget=None):
 
 		_sTmp = self.robot.get_current_state()
 
@@ -298,7 +308,8 @@ class MyMoveGroup( object):
 		self.group.set_start_state( _sTmp)
 
 		_pfTargetJointVal = self.group._g.get_named_target_values( _szTarget)
-		_jsTarget = JointState()
+		if _jsTarget is None:
+			_jsTarget = JointState()
 		_jsTarget.name = _pfTargetJointVal.keys()
 		_jsTarget.position = [ _pfTargetJointVal.get( _k)
 			for _k in _jsTarget.name ]
