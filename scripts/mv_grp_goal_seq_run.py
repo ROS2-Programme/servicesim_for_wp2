@@ -18,7 +18,7 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 	## ----------------------------------------
 	def __init__( self, argv, _szGroup='MobileManipulator',
 			_szNodeName='my_goal_seq_runner', _bAnon=False,
-			_szGoalTrajTopic='/wtf/whole_body', _fTolerance=0.01,
+			_szGoalTrajTopic='wtf/whole_body', _fTolerance=0.01,
 			_fToleranceOrient=None):
 
 		super( MyMoveGroupGoalTrajRunner, self).__init__( argv, _szGroup,
