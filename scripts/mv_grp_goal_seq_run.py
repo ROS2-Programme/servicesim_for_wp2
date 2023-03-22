@@ -70,7 +70,7 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 	## https://github.com/ros-planning/moveit_tutorials/blob/master/doc/move_group_python_interface/scripts/move_group_python_interface_tutorial.py
 	## ----------------------------------------
 	def all_close( self, _goal, _actual, _fTolerance=0.001,
-			_fToleranceCosPhiHalf=None, _pfErrRet=None):
+			_fToleranceCosPhiHalf=None, _pfErrRet=None, _bDebug=False):
 
 		pass
 
@@ -97,6 +97,8 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 		_fErr = 0.0
 
 		if type( _goal) is list:
+			if _bDebug:
+				print( '# ac(): 1a) list')
 			for index in range( len( _goal)):
 				_fErr = abs( _actual[ index] - _goal[ index])
 				if _fErr > _fTolerance:
@@ -106,13 +108,19 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 				if _bWithStat:
 					_pfErrRet.append( _fErr)
 
+			if _bDebug:
+				print( '# ac(): _bRet = {}'.format( _bRet))
 			return _bRet
 
 		elif type( _goal) is PoseStamped:
+			if _bDebug:
+				print( '# ac(): 1b) {}'.format( type( _goal).__name__))
 			return self.all_close( _goal.pose, _actual.pose, _fTolerance,
-				_fToleranceCosPhiHalf, _pfErrRet)
+				_fToleranceCosPhiHalf, _pfErrRet, _bDebug)
 
 		elif type( _goal) is Pose:
+			if _bDebug:
+				print( '# ac(): 1c) {}'.format( type( _goal).__name__))
 			_pfPxyzOxyzw0 = pose_to_list( _actual)
 			_pfPxyzOxyzw1 = pose_to_list( _goal)
 
@@ -131,15 +139,21 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 					return _bRet
 				_pfErrRet.append( _fErr)
 
+			if _bDebug:
+				print( '# ac(): _bRet = {}'.format( _bRet))
 			return _bRet
 
 		elif type( _goal) is JointState:
+			if _bDebug:
+				print( '# ac(): 1d) {}'.format( type( _goal).__name__))
 			return self.all_close( _goal.position, _actual.position,
-				_fTolerance, _fToleranceCosPhiHalf, _pfErrRet)
+				_fTolerance, _fToleranceCosPhiHalf, _pfErrRet, _bDebug)
 
 		else:
 			assert( False), 'No handling of ' + str( type( _goal))
 
+		if _bDebug:
+			print( '# ac(): _bRet = TRUE')
 		return True
 
 
@@ -150,14 +164,27 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 		_dMax = rospy.Duration.from_sec( _fMaxTime)
 		_dSleep = rospy.Duration.from_sec( _fInterval)
 
-		_tmStart = rospy.Time.now()
+		_tmLimit = rospy.Time.now() + _dMax
+		_tmNow = rospy.Time.now()
+
+		print( ('# wFGSM(): waiting for current state to match goal state ' +
+			'postion: {}').format( str( _jsTarget.position)))
+
+		_s = 0
 
 		while (not self.all_close( _jsTarget, getattr(
 					self.robot.get_current_state(), 'joint_state'),
-				self.fTolerance, self.fToleranceCosPhiHalf)) and (
-					rospy.Time.now() < _tmStart + _dMax):
+				self.fTolerance, self.fToleranceCosPhiHalf, None, True)) and (
+					_tmNow < _tmLimit):
 
 			rospy.sleep( _dSleep)
+			_s += 1
+			_tmNow = rospy.Time.now()
+
+		if _tmNow >= _tmLimit:
+			print( ('# wFGSM(): timed out after {} cycle(s) (@ {}/{} ' +
+				'sampling) ({}/{})').format( _s, _fInterval, _fMaxTime,
+					_tmNow, _tmLimit))
 
 		return self.all_close( _jsTarget, getattr(
 				self.robot.get_current_state(), 'joint_state'),
@@ -177,14 +204,18 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 		_pfErr = []
 		_bReachedLast = False
 
-		for _szPoseNext in _pszPoseSeq:
+		for _i, _szPoseNext in enumerate( _pszPoseSeq):
 			if not _szPoseLast is None:
 				_pfErr = []
 				_bReachedLast = mvGrpRun.waitForGoalStateMatch( _jsLast,
 					_pfErrRet=_pfErr)
 
 				if not _bReachedLast:
+					print( '# _pfErr = {}'.format( str( _pfErr)))
 					break
+
+			print( ('# Attempting to generate plan to named target [{}] "{}"'
+				).format( _i, _szPoseNext))
 
 			_stateFrom, _path = mvGrpRun.genPlanToNamedTarget( _szPoseNext,
 				_szPoseLast, True, _jsLast)
