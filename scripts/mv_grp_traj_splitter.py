@@ -158,6 +158,7 @@ class MyMoveGroupSplitter( MyMoveGroup):
 	def copyJointTrajPointSeqSubSet( self, _jtRet, _szSubGrp, _jtSrc, _szGrp,
 			_nDebug=0):
 
+		_jtRet.header.frame_id = _jtSrc.header.frame_id
 		_jtRet.joint_names = self.ppszJointSeqPerGroup.get( _szSubGrp)[:]
 
 		if _nDebug >= 1:
@@ -223,7 +224,8 @@ class MyMoveGroupSplitter( MyMoveGroup):
 
 		mvGrpSplit = MyMoveGroupSplitter( argv, 'MobileManipulator')
 
-#		rospy.spin()
+		rospy.spin()
+		return
 
 		while not rospy.is_shutdown():
 			mvGrpSplit.repeatMessage()
