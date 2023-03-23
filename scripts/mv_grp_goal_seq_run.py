@@ -46,6 +46,7 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 			print( ('# {}::__del__(): no connections to topic - ' +
 				'safe to unregister()?').format( type( self).__name__))
 			self.pub4RobotTraj.unregister()
+			self.pub4RobotTraj = None
 
 		super( MyMoveGroupGoalTrajRunner, self).__del__()
 
@@ -161,10 +162,17 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 	def waitForGoalStateMatch( self, _jsTarget, _fMaxTime=10.0,
 			_fInterval=1.0, _pfErrRet=None):
 
-		_dMax = rospy.Duration.from_sec( _fMaxTime)
+		_bInfinite = (_fMaxTime <= 0.0)
+		_fMaxDuration = (0.0, _fMaxTime)[ _bInfinite]
+
 		_dSleep = rospy.Duration.from_sec( _fInterval)
 
-		_tmLimit = rospy.Time.now() + _dMax
+		if _bInfinite:
+			_tmLimit = rospy.Time.now()
+		else:
+			_tmLimit = rospy.Time.now() + rospy.Duration.from_sec(
+				_fMaxDuration)
+
 		_tmNow = rospy.Time.now()
 
 		print( ('# wFGSM(): waiting for current state to match goal state ' +
@@ -173,9 +181,10 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 		_s = 0
 
 		while (not self.all_close( _jsTarget, getattr(
-					self.robot.get_current_state(), 'joint_state'),
-				self.fTolerance, self.fToleranceCosPhiHalf, None, True)) and (
-					_tmNow < _tmLimit):
+						self.robot.get_current_state(), 'joint_state'),
+					self.fTolerance, self.fToleranceCosPhiHalf, None,
+					not _bInfinite)) and (
+				_bInfinite or (_tmNow < _tmLimit)):
 
 			rospy.sleep( _dSleep)
 			_s += 1
@@ -196,6 +205,11 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 	def main( cls, argv):
 		print( '# argv[ {}] = {}'.format( len( argv), str( argv)))
 
+		_fMaxTrajTime = 10
+
+		if len( argv) > 1:
+			_fMaxTrajTime = float( argv[ 1])
+
 		mvGrpRun = MyMoveGroupGoalTrajRunner( argv, 'MobileManipulator')
 
 		_pszPoseSeq = ['Upright', 'ForwardGrabbing', 'ZeroPose']
@@ -208,7 +222,7 @@ class MyMoveGroupGoalTrajRunner( MyMoveGroup):
 			if not _szPoseLast is None:
 				_pfErr = []
 				_bReachedLast = mvGrpRun.waitForGoalStateMatch( _jsLast,
-					_pfErrRet=_pfErr)
+					_fMaxTrajTime, _pfErrRet=_pfErr)
 
 				if not _bReachedLast:
 					print( '# _pfErr = {}'.format( str( _pfErr)))
