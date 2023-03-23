@@ -15,7 +15,7 @@ class MyMoveGroupSplitter( MyMoveGroup):
 	def __init__( self, argv, _szGroup='MobileManipulator',
 			_szNodeName='my_traj_splitter', _bAnon=False,
 			_szGroupSplitBase='wtf', _szWholeBodyRobotTrajTopic='whole_body',
-			_szPartBodyRobotTrajBranch='', _pszSubGroupToTopic={
+			_szPartBodyRobotTrajBranch='partial', _pszSubGroupToTopic={
 				'HuskyBase': 'traj4base', 'Manipulator': 'traj4arm'}):
 
 		super( MyMoveGroupSplitter, self).__init__( argv, _szGroup,
