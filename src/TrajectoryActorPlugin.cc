@@ -974,7 +974,8 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
 
     if( _bDebug) {
       gzmsg << "# OU(): AAA " << cornerDt << " / " << actorPose.Pos() << " / "
-        << actorPose.Rot() << std::endl;
+        << actorPose.Rot() << " pose.Rotation().Yaw() = "
+        << pose.Rotation().Yaw() << std::endl;
     }
   }
   else
