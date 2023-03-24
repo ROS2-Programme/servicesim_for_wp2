@@ -894,7 +894,8 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
     gzmsg << "# OU(): Current -> target [" << this->dataPtr->currentTarget
       << "] = " << actorPose << " / " << targetPose << std::endl;
     gzmsg << "# OU(): yawDiff.Radian() = " << yawDiff.Radian() << " dirY/X = "
-      << dir.Y() << ", " << dir.X() << " v.s. " << currentYaw << std::endl;
+      << dir.Y() << ", " << dir.X() << " (" << atan2( dir.Y(), dir.X()) << ")"
+      << " v.s. " << currentYaw << std::endl;
   }
 
   // Rotate if needed
