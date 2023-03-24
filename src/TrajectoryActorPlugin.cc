@@ -888,6 +888,12 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
   // Difference to target
   ignition::math::Angle yawDiff =
       atan2( dir.Y(), dir.X()) + IGN_PI_2 - currentYaw;
+
+  if( _bDebug) {
+    gzmsg << "# OU(): before Normalize(): yawDiff / yawDiff.Radian() = "
+      << yawDiff << " / " << yawDiff.Radian() << std::endl;
+  }
+
   yawDiff.Normalize();
 
   if( _bDebug) {
