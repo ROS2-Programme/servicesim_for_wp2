@@ -996,6 +996,9 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
     gzmsg << "# OU(): actorPose.Pos() v.s. actor->WorldPose().Pos() = "
       << actorPose.Pos() << " / " << this->dataPtr->actor->WorldPose().Pos()
       << std::endl;
+    gzmsg << "# OU(): actorPose.Rot() v.s. actor->WorldPose().Rot() = "
+      << actorPose.Rot() << " / " << this->dataPtr->actor->WorldPose().Rot()
+      << std::endl;
     gzmsg << "# OU(): distanceTravelled = " << distanceTraveled << std::endl;
   }
 
