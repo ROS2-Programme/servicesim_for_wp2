@@ -374,24 +374,33 @@ void TrajectoryActorExtendedPlugin::Load(physics::ModelPtr _model, sdf::ElementP
     this->dataPtr->animationFactor = _sdf->Get<double>("animation_factor");
 
   const std::string _szMe( this->dataPtr->actor->GetName());
-  gzmsg << "WTF-1a \"" << _szMe << "\"" << std::endl;
   this->loadDebugFlag( _sdf);
-  gzmsg << "WTF-1b \"" << _szMe << "\" on_load=" << this->dataPtr->bDebugOnLoad
-    << ", on_update=" << this->dataPtr->bDebugOnUpdate << ", on_adhoc="
-	<< this->dataPtr->bDebugOnAdHoc << std::endl;
+  
+  const bool _bDebug( this->dataPtr->bDebugOnLoad);
 
-  gzmsg << "WTF-1c \"" << _szMe << "\" HasType( LINK) = "
-    << (this->dataPtr->actor->HasType( physics::Model::EntityType::LINK)
-      ? "Y" : "N") << " HasType( MODEL) ? "
-    << (this->dataPtr->actor->HasType( physics::Model::EntityType::MODEL)
-      ? "Y" : "N") << std::endl;
+  if( _bDebug) {
+    gzmsg << "# onL(): IGN_PI_2 = " << IGN_PI_2 << " IGN_DTOR(10) = "
+      << IGN_DTOR(10) << std::endl;
 
-  gzmsg << "WTF-1d \"" << _szMe << "\" GetChildCount() = "
-    << this->dataPtr->actor->GetChildCount() << std::endl;
+    gzmsg << "WTF-1a \"" << _szMe << "\"" << std::endl;
+    gzmsg << "WTF-1b \"" << _szMe << "\" on_load="
+      << this->dataPtr->bDebugOnLoad << ", on_update="
+      << this->dataPtr->bDebugOnUpdate << ", on_adhoc="
+	  << this->dataPtr->bDebugOnAdHoc << std::endl;
 
-  for( unsigned int j = 0; j < this->dataPtr->actor->GetChildCount(); ++j) {
-    gzmsg << "[" << j << "]: \""
-      << this->dataPtr->actor->GetChild( j)->GetName() << "\"" << std::endl;
+    gzmsg << "WTF-1c \"" << _szMe << "\" HasType( LINK) = "
+      << (this->dataPtr->actor->HasType( physics::Model::EntityType::LINK)
+        ? "Y" : "N") << " HasType( MODEL) ? "
+      << (this->dataPtr->actor->HasType( physics::Model::EntityType::MODEL)
+        ? "Y" : "N") << std::endl;
+
+    gzmsg << "WTF-1d \"" << _szMe << "\" GetChildCount() = "
+      << this->dataPtr->actor->GetChildCount() << std::endl;
+
+    for( unsigned int j = 0; j < this->dataPtr->actor->GetChildCount(); ++j) {
+      gzmsg << "[" << j << "]: \""
+        << this->dataPtr->actor->GetChild( j)->GetName() << "\"" << std::endl;
+    }
   }
 
   // Read in the obstacles
@@ -437,15 +446,23 @@ void TrajectoryActorExtendedPlugin::Load(physics::ModelPtr _model, sdf::ElementP
   std::map<std::string, ignition::math::Vector3d> scaling;
   std::map<std::string, ignition::math::Pose3d> offsets;
 
-  gzmsg << "WTF-2a \"" << _szMe << "\"" << std::endl;
+  if( _bDebug) {
+    gzmsg << "WTF-2a \"" << _szMe << "\"" << std::endl;
+  }
   if( this->loadOptionalScaling( scaling, offsets, _sdf,
         this->dataPtr->bDebugOnLoad) > 0)
   {
-    gzmsg << "WTF-2b \"" << _szMe << "\"" << std::endl;
+    if( _bDebug) {
+      gzmsg << "WTF-2b \"" << _szMe << "\"" << std::endl;
+    }
     this->dataPtr->bUseSkeleton4Collision = true;
-    gzmsg << "WTF-2c \"" << _szMe << "\"" << std::endl;
+    if( _bDebug) {
+      gzmsg << "WTF-2c \"" << _szMe << "\"" << std::endl;
+    }
     this->rescaleActorSkeleton( scaling, offsets, this->dataPtr->bDebugOnLoad);
-    gzmsg << "WTF-2d \"" << _szMe << "\"" << std::endl;
+    if( _bDebug) {
+      gzmsg << "WTF-2d \"" << _szMe << "\"" << std::endl;
+    }
   }
 
 
