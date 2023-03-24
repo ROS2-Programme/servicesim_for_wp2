@@ -97,6 +97,7 @@ class servicesim::TrajectoryActorExtendedPlugin_Private
     bool bUseSkeleton4Collision{ false};
 
     int nSameLastTarget{ 0};
+    int nSameTimeInt{ 0};
 
   public:
     static bool bFirstIter;
@@ -849,16 +850,30 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
   // Time delta
   double dt = (_info.simTime - this->dataPtr->lastUpdate).Double();
 
-  if (dt < 1/this->dataPtr->updateFreq)
-    return;
+  const bool _bDebug( this->dataPtr->bDebugOnUpdate);
 
+  if (dt < 1/this->dataPtr->updateFreq) {
+    if( _bDebug) {
+      gzmsg << "# onU(): same time interval [" << this->dataPtr->nSameTimeInt
+        << "] dt = " << dt << " < (1 / " << this->dataPtr->updateFreq << ")"
+        << std::endl;
+    }
+    this->dataPtr->nSameTimeInt++;
+    return;
+  }
+
+  if( _bDebug) {
+    gzmsg << "# onU(): skipped " << this->dataPtr->nSameTimeInt
+      << " same time interval(s)" << std::endl;
+  }
+
+  this->dataPtr->nSameTimeInt = 0;
   this->dataPtr->lastUpdate = _info.simTime;
 
   // Don't move if there's an obstacle on the way
-  if (this->ObstacleOnTheWay())
+  if (this->ObstacleOnTheWay()) {
     return;
-
-  const bool _bDebug( this->dataPtr->bDebugOnUpdate);
+  }
 
   // Target
   if( this->UpdateTarget()) {
