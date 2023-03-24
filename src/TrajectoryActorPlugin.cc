@@ -850,8 +850,8 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
   if( _bDebug) {
     gzmsg << "# OU(): Current -> target [" << this->dataPtr->currentTarget
       << "] = " << actorPose << " / " << targetPose << std::endl;
-    gzmsg << "# OU(): dirY/X = " << dir.Y() << ", " << dir.X() << " v.s. "
-      << currentYaw << std::endl;
+    gzmsg << "# OU(): yawDiff.Radian() = " << yawDiff.Radian() << " dirY/X = "
+      << dir.Y() << ", " << dir.X() << " v.s. " << currentYaw << std::endl;
   }
 
   // Rotate if needed
@@ -908,6 +908,10 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
     }
 
     // Get point in curve
+    if( _bDebug) {
+      gzmsg << "# OU(): EEE simTime v.s. firstCornerUpdate = " << _info.simTime
+        << " / " << this->dataPtr->firstCornerUpdate << std::endl;
+    }
     auto cornerDt = (_info.simTime - this->dataPtr->firstCornerUpdate).Double();
     common::PoseKeyFrame pose(cornerDt);
     this->dataPtr->cornerAnimation->SetTime(cornerDt);
@@ -931,16 +935,21 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
     actorPose.Rot() = ignition::math::Quaterniond(IGN_PI_2, 0, currentYaw + yawDiff.Radian());
 
     if( _bDebug) {
-      gzmsg << "# OU(): BBB" << std::endl;
+      gzmsg << "# OU(): BBB currentYaw v.s. yawDiff = " << currentYaw << " / "
+        << yawDiff.Radian() << std::endl;
     }
   }
 
   // Distance traveled is used to coordinate motion with the walking
   // animation
-  double distanceTraveled = (actorPose.Pos() -
-      this->dataPtr->actor->WorldPose().Pos()).Length();
+  double distanceTraveled =
+//      (actorPose.Pos() - this->dataPtr->actor->WorldPose().Pos()).Length();
+      actorPose.Pos().Distance( this->dataPtr->actor->WorldPose().Pos());
 
   if( _bDebug) {
+    gzmsg << "# OU(): actorPose.Pos() v.s. actor->WorldPose().Pos() = "
+      << actorPose.Pos() << " / " << this->dataPtr->actor->WorldPose().Pos()
+      << std::endl;
     gzmsg << "# OU(): distanceTravelled = " << distanceTraveled << std::endl;
   }
 
