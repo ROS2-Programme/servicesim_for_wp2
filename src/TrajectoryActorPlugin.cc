@@ -96,6 +96,8 @@ class servicesim::TrajectoryActorExtendedPlugin_Private
 
     bool bUseSkeleton4Collision{ false};
 
+    int nSameLastTarget{ 0};
+
   public:
     static bool bFirstIter;
 
@@ -386,7 +388,7 @@ void TrajectoryActorExtendedPlugin::Load(physics::ModelPtr _model, sdf::ElementP
     gzmsg << "WTF-1b \"" << _szMe << "\" on_load="
       << this->dataPtr->bDebugOnLoad << ", on_update="
       << this->dataPtr->bDebugOnUpdate << ", on_adhoc="
-	  << this->dataPtr->bDebugOnAdHoc << std::endl;
+      << this->dataPtr->bDebugOnAdHoc << std::endl;
 
     gzmsg << "WTF-1c \"" << _szMe << "\" HasType( LINK) = "
       << (this->dataPtr->actor->HasType( physics::Model::EntityType::LINK)
@@ -799,8 +801,9 @@ bool TrajectoryActorExtendedPlugin::ObstacleOnTheWay() const
 }
 
 /////////////////////////////////////////////////
-void TrajectoryActorExtendedPlugin::UpdateTarget()
+bool TrajectoryActorExtendedPlugin::UpdateTarget()
 {
+//  const bool _bDebug( true);
   // Current actor position
   auto actorPos = this->dataPtr->actor->WorldPose().Pos();
 
@@ -815,7 +818,17 @@ void TrajectoryActorExtendedPlugin::UpdateTarget()
 
   // Still far from target?
   if (distance > this->dataPtr->targetRadius)
-    return;
+//    if( _bDebug) {
+//      this->dataPtr->nSameLastTarget++;
+//    }
+    return false;
+
+//  if( _bDebug) {
+//    gzmsg << "# UT(): close to target [" << this->dataPtr->currentTarget
+//      << "] after " << this->dataPtr->nSameLastTarget << " cycle(s)"
+//      << std::endl;
+//    this->dataPtr->nSameLastTarget = 0;
+//  }
 
   // Move on to next target
   this->dataPtr->currentTarget++;
@@ -826,6 +839,8 @@ void TrajectoryActorExtendedPlugin::UpdateTarget()
     this->dataPtr->hdrMsg.seq = this->dataPtr->currentTarget;
     this->dataPtr->pub_.publish( this->dataPtr->hdrMsg);
   }
+
+  return true;
 }
 
 /////////////////////////////////////////////////
@@ -843,8 +858,20 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
   if (this->ObstacleOnTheWay())
     return;
 
+  const bool _bDebug( this->dataPtr->bDebugOnUpdate);
+
   // Target
-  this->UpdateTarget();
+  if( this->UpdateTarget()) {
+    if( _bDebug) {
+      gzmsg << "# UT(): close to target [" << this->dataPtr->currentTarget
+        << "] after " << this->dataPtr->nSameLastTarget << " cycle(s)"
+        << std::endl;
+    }
+    this->dataPtr->nSameLastTarget = 0;
+  }
+  else {
+    this->dataPtr->nSameLastTarget++;
+  }
 
   // Current pose - actor is oriented Y-up and Z-front
   auto actorPose = this->dataPtr->actor->WorldPose();
@@ -859,10 +886,9 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
   auto currentYaw = actorPose.Rot().Yaw();
 
   // Difference to target
-  ignition::math::Angle yawDiff = atan2(dir.Y(), dir.X()) + IGN_PI_2 - currentYaw;
+  ignition::math::Angle yawDiff =
+      atan2( dir.Y(), dir.X()) + IGN_PI_2 - currentYaw;
   yawDiff.Normalize();
-
-  const bool _bDebug = this->dataPtr->bDebugOnUpdate;
 
   if( _bDebug) {
     gzmsg << "# OU(): Current -> target [" << this->dataPtr->currentTarget
@@ -903,7 +929,8 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
       auto curveTime = curveDist / this->dataPtr->velocity;
 
       // Use pose animation for spline
-      this->dataPtr->cornerAnimation = new common::PoseAnimation("anim", curveTime, false);
+      this->dataPtr->cornerAnimation = new common::PoseAnimation(
+         "anim", curveTime, false);
 
       // Start from actor's current pose
       auto start = this->dataPtr->cornerAnimation->CreateKeyFrame(0.0);
@@ -930,12 +957,13 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
         << " / " << this->dataPtr->firstCornerUpdate << std::endl;
     }
     auto cornerDt = (_info.simTime - this->dataPtr->firstCornerUpdate).Double();
-    common::PoseKeyFrame pose(cornerDt);
+    common::PoseKeyFrame pose( cornerDt);
     this->dataPtr->cornerAnimation->SetTime(cornerDt);
     this->dataPtr->cornerAnimation->GetInterpolatedKeyFrame(pose);
 
     actorPose.Pos() = pose.Translation();
-    actorPose.Rot() = ignition::math::Quaterniond(IGN_PI_2, 0, pose.Rotation().Yaw());
+    actorPose.Rot() = ignition::math::Quaterniond(
+        IGN_PI_2, 0, pose.Rotation().Yaw());
 
     if( _bDebug) {
       gzmsg << "# OU(): AAA " << cornerDt << " / " << actorPose.Pos() << " / "
@@ -949,7 +977,8 @@ void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
     actorPose.Pos() += dir * this->dataPtr->velocity * dt;
 
     // TODO: remove hardcoded roll
-    actorPose.Rot() = ignition::math::Quaterniond(IGN_PI_2, 0, currentYaw + yawDiff.Radian());
+    actorPose.Rot() = ignition::math::Quaterniond(
+        IGN_PI_2, 0, currentYaw + yawDiff.Radian());
 
     if( _bDebug) {
       gzmsg << "# OU(): BBB currentYaw v.s. yawDiff = " << currentYaw << " / "

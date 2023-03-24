@@ -66,7 +66,7 @@ namespace servicesim
     private: bool ObstacleOnTheWay() const;
 
     /// \brief Update target
-    private: void UpdateTarget();
+    private: bool UpdateTarget();
 
     /// \internal
     private: TrajectoryActorExtendedPlugin_Private *dataPtr;
