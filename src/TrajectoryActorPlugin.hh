@@ -116,6 +116,11 @@ namespace servicesim
 			bool &_bLastCollideNonActor, bool &_bLastCollideActor,
 			const bool &_bDebug) const;
 
+	protected:
+		void genLookAheadStraightLine( const ignition::math::Pose3d &_tgt,
+			const ignition::math::Pose3d &_current,
+			const ignition::math::Vector3d &_dir, const double &_dWindow);
+
   };
 }
 #endif
