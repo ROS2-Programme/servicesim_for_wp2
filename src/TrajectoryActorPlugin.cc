@@ -1179,6 +1179,12 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 	if( _bDebug) {
 		gzmsg << "# onU(): actor::WorldLinearVel() = "
 			<< this->dataPtr->actor->WorldLinearVel() << std::endl;
+		gzmsg << "# onU(): SetScriptTime( "
+			<< this->dataPtr->actor->ScriptTime() << " + (" << distanceTraveled
+			<< " * " << this->dataPtr->animationFactor << ") = "
+			<< (this->dataPtr->actor->ScriptTime() +
+				(distanceTraveled * this->dataPtr->animationFactor))
+			<< std::endl;
 	}
 
 	this->dataPtr->actor->SetScriptTime( this->dataPtr->actor->ScriptTime() +
