@@ -8,6 +8,9 @@
   <xacro:arg name="robot_arm_link_prefix" default="ur_arm_" />
   <xacro:arg name="gripper_link_prefix" default="hand_" />
   <xacro:arg name="ee_type" default="tray" />
+<!--
+  <xacro:arg name="ee_type" default="hand" />
+-->
   <xacro:arg name="add_world_link" default="0" />
 <!--
   <xacro:property name="_M_PI" value="${pi}"/>
