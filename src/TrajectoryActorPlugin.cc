@@ -1049,11 +1049,21 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 			// Curve end point
 			auto endPt = prevTargetPos + prevDir;
 
+			if( _bDebug) {
+				gzmsg << "# onU() prevDir = " << prevDir << ", endPt = "
+					<< endPt << std::endl;
+			}
+
 			// Total time to finish the curve, we try to keep about the same,
 			// speed it will be a bit slower because we're doing an arc, not
 			// a straight line
 			auto curveDist = (endPt - actorPose.Pos()).Length();
 			auto curveTime = curveDist / this->dataPtr->velocity;
+
+			if( _bDebug) {
+				gzmsg << "# onU() curveDist = " << curveDist
+					<< ", curveTime = " << curveTime << std::endl;
+			}
 
 			// Use pose animation for spline
 			this->dataPtr->cornerAnimation = new common::PoseAnimation(
