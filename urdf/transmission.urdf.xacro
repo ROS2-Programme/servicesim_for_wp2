@@ -85,7 +85,16 @@
 
 <!-- ######################################## -->
 <xacro:macro name="add_virtual_joint" params="name type parent child axis
-		base_link_z_offset:=0.0 effort_limit:=1000.0 vel_limit:=0.5">
+		base_link_z_offset:=0.0 effort_limit:=1000.0 vel_limit:=0.5
+		pos_limit_abs:=50.0">
+
+	<xacro:property name="_bNoLimit" value="${True}" />
+
+	<xacro:if value="${str(pos_limit_abs).replace('.','',1).isdigit() and
+			(float(pos_limit_abs) != 0.0)}">
+
+		<xacro:property name="_bNoLimit" value="${False}" />
+	</xacro:if>
 
 	<xacro:property name="_x" value="${(0,1)[ axis == 'x']}" />
 	<xacro:property name="_y" value="${(0,1)[ axis == 'y']}" />
@@ -94,8 +103,14 @@
 	<joint name="${name}" type="${type}">
 		<parent link="${parent}" />
 		<child link="${child}" />
-		<limit effort="${effort_limit}" lower="-5" upper="5"
-			velocity="${vel_limit}" />
+
+		<xacro:if value="${_bNoLimit}">
+			<limit effort="${effort_limit}" velocity="${vel_limit}" />
+		</xacro:if>
+		<xacro:unless value="${_bNoLimit}">
+			<limit effort="${effort_limit}" velocity="${vel_limit}"
+				lower="-${pos_limit_abs}" upper="${pos_limit_abs}" />
+		</xacro:unless>
 
 		<axis xyz="${_x} ${_y} ${_z}" />
 		<origin xyz="0 0 ${base_link_z_offset}" />
@@ -112,11 +127,13 @@
 		_bDebug:=False">
 
 	<xacro:property name="_szAxisPrefix" value="" />
+	<xacro:property name="_fPosLimitAbs" value="50.0" />
 	<xacro:if value="${szJointType == 'prismatic'}">
 		<xacro:property name="_szAxisPrefix" value="t" />
 	</xacro:if>
 	<xacro:if value="${szJointType == 'revolute'}">
 		<xacro:property name="_szAxisPrefix" value="r" />
+		<xacro:property name="_fPosLimitAbs" value="${pi}" />
 	</xacro:if>
 
 	<xacro:property name="_szJ" value="${szJ.strip()}" />
@@ -137,7 +154,8 @@
 	<xacro:add_virtual_joint name="${szJointVirtualPrefix + _szJ}"
 		type="${szJointType}" parent="${szParent}" child="${_szL}"
 		axis="${axis}" base_link_z_offset="${base_link_z_offset}"
-		effort_limit="${effort_limit}" vel_limit="${vel_limit}" />
+		effort_limit="${effort_limit}" vel_limit="${vel_limit}"
+		pos_limit_abs="${_fPosLimitAbs}" />
 
 	<xacro:add_transmission szJ="${_szJ}"
 		szJointPrefix="${szJointVirtualPrefix}" _bDebug="${_bDebug}" />
