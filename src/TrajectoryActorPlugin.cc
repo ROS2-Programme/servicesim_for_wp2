@@ -357,7 +357,7 @@ TrajectoryActorExtendedPlugin::Load( physics::ModelPtr _model,
 	sdf::ElementPtr _sdf)
 {
 	this->dataPtr->actor =
-		boost::dynamic_pointer_cast<physics::Actor>(_model);
+		boost::dynamic_pointer_cast<physics::Actor>( _model);
 
 	this->dataPtr->connections.push_back(
 		event::Events::ConnectWorldUpdateBegin(
@@ -442,7 +442,10 @@ TrajectoryActorExtendedPlugin::Load( physics::ModelPtr _model,
 				physics::Model::EntityType::LINK) ? "Y" : "N")
 			<< " HasType( MODEL) ? "
 			<< (this->dataPtr->actor->HasType(
-				physics::Model::EntityType::MODEL) ? "Y" : "N") << std::endl;
+				physics::Model::EntityType::MODEL) ? "Y" : "N")
+			<< " IsCanonicalLink() ? "
+			<< (this->dataPtr->actor->IsCanonicalLink() ? "Y" : "N")
+			<< std::endl;
 
 		gzmsg << "WTF-1d \"" << _szMe << "\" GetChildCount() = "
 			<< this->dataPtr->actor->GetChildCount() << std::endl;
