@@ -27,7 +27,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <arg name="_this_pkg_loc" default="$(find servicesim_for_wp2)" />
   <arg name="_bUseArg" default="$(eval env('ROS_DISTRO') == 'kinetic')" />
-  <arg name="_bDoWtf" default="false" />
+  <arg name="bDoWtf" default="false" />
 
   <arg name="multimaster" default="false"/>
 
@@ -37,6 +37,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="y" default="0.0"/>
   <arg name="z" default="0.0"/>
   <arg name="yaw" default="0.0"/>
+  <arg name="custom_joint_init" default="" />
 
   <arg name="laser_enabled" default="$(optenv HUSKY_LMS1XX_ENABLED false)"/>
   <arg name="realsense_enabled" default="$(optenv HUSKY_REALSENSE_ENABLED false)"/>
@@ -81,15 +82,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
         <env unless="$(arg _bUseArg)" name="HUSKY_URDF_EXTRAS"
           value="$(arg urdf_extras)" />
 
-        <arg name="enable_ekf" value="$(eval not arg('_bDoWtf'))" />
+<!--
+        <arg name="enable_ekf" value="false" />
+-->
+        <arg name="enable_ekf" value="$(eval not arg('bDoWtf'))" />
       </include>
-
+<!--
       <node pkg="robot_localization" type="ekf_localization_node"
-          name="ekf_localization" if="$(arg _bDoWtf)">
+          name="ekf_localization" if="$(arg bDoWtf)">
 
         <rosparam command="load"
           file="$(arg _this_pkg_loc)/config/localization.yaml" />
       </node>
+-->
     </group>
 
     <!-- Additional nodes for specific accessories -->
@@ -103,6 +108,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
               -y $(arg y)
               -z $(arg z)
               -Y $(arg yaw)
+              $(arg custom_joint_init)
               -urdf
               -param robot_description
               -model husky
