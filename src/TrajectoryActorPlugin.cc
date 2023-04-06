@@ -104,6 +104,7 @@ class servicesim::TrajectoryActorExtendedPlugin_Private
 
     int nSameLastTarget{ 0};
     int nSameTimeInt{ 0};
+    int nIntraCycleMax{ 0};
 
     double dMaxLookAhead{ 5.0};
 
@@ -333,7 +334,16 @@ TrajectoryActorExtendedPlugin::rescaleActorSkeleton(
 	for( const auto &link : this->dataPtr->actor->GetLinks()) {
 		// Init the links, which in turn enables collisions
 		if( this->dataPtr->bUseSkeleton4Collision) {
-			link->Init();
+			// WARNING:
+			// calling link->Init() will cause TrajectoryActorExtendedPlugin
+			// to fail to properly move Actor object (following trajectory) in
+			// Gazebo.
+			// This code fault tracked down by observer correct behaviour when:
+			// - substituting TrajectoryActorExtendedPlugin.so with
+			//   TrajectoryActorPlugin.so in test_single_green.world
+			// - switching from new TrajectoryActorExtendedPlugin::OnUpdate()
+			//   back to original TrajectoryActorPlugin::OnUpdate()
+//			link->Init();
 		}
 
 		if( _bDebug) {
@@ -344,6 +354,9 @@ TrajectoryActorExtendedPlugin::rescaleActorSkeleton(
 		if( this->rescaleAllLinkCollision( link, _pScaleMap, _pOffsetMap,
 				_bDebug) > 0)
 		{
+			if( this->dataPtr->bUseSkeleton4Collision) {
+				link->Update();
+			}
 			_nRet++;
 		}
 	}
@@ -950,6 +963,9 @@ TrajectoryActorExtendedPlugin::genLookAheadStraightLine(
 }
 
 /////////////////////////////////////////////////
+// NOTE: set pre-compiler condition to 0 to switch OnUpdate() back to original
+// version implemented as TrajectoryActorPlugin::OnUpdate()
+#if 1
 void
 TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 {
@@ -973,6 +989,10 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 			<< " same time interval(s)" << std::endl;
 	}
 
+	if( this->dataPtr->nIntraCycleMax < this->dataPtr->nSameTimeInt) {
+		this->dataPtr->nIntraCycleMax = this->dataPtr->nSameTimeInt;
+	}
+
 	this->dataPtr->nSameTimeInt = 0;
 	this->dataPtr->lastUpdate = _info.simTime;
 
@@ -982,7 +1002,8 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 	}
 
 	// Target
-	if( this->UpdateTarget()) {
+	const bool _bClose = this->UpdateTarget();
+	if( _bClose) {
 		if( _bDebug) {
 			gzmsg << "# UT(): close to target ["
 				<< this->dataPtr->currentTarget << "] after "
@@ -995,20 +1016,27 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 	}
 
 	// Current pose - actor is oriented Y-up and Z-front
-	auto actorPose = this->dataPtr->actor->WorldPose();
+	ignition::math::Pose3d actorPose( this->dataPtr->actor->WorldPose());
 
 	// Current target
-	auto targetPose = this->dataPtr->targets[ this->dataPtr->currentTarget];
+	const ignition::math::Pose3d targetPose(
+		this->dataPtr->targets[ this->dataPtr->currentTarget]);
 
 	// Direction to target
-	auto dir = (targetPose.Pos() - actorPose.Pos()).Normalize();
+	const ignition::math::Vector3d dir(
+//		targetPose.Pos() - actorPose.Pos()
+		(targetPose.Pos() - actorPose.Pos()).Normalize()
+	);
 
 	// TODO: generalize for actors facing other directions
-	auto currentYaw = actorPose.Rot().Yaw();
+	const double currentYaw = actorPose.Rot().Yaw();
 
 	// Difference to target
-	ignition::math::Angle yawDiff =
-		atan2( dir.Y(), dir.X()) + IGN_PI_2 - currentYaw;
+	ignition::math::Angle yawDiff( (true || _bClose) ? (
+//		atan2( dir.Y(), dir.X()) - currentYaw
+		atan2( dir.Y(), dir.X()) + IGN_PI_2 - currentYaw
+	) : ignition::math::Angle::Zero
+	);
 
 	if( _bDebug) {
 		gzmsg << "# OU(): before Normalize(): yawDiff / yawDiff.Radian() = "
@@ -1021,8 +1049,8 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 		gzmsg << "# OU(): Current -> target [" << this->dataPtr->currentTarget
 			<< "] = " << actorPose << " / " << targetPose << std::endl;
 		gzmsg << "# OU(): yawDiff.Radian() = " << yawDiff.Radian()
-			<< " dirY/X = " << dir.Y() << ", " << dir.X() << " ("
-			<< atan2( dir.Y(), dir.X()) << ")" << " v.s. "
+			<< " dirY/X/Z = " << dir.Y() << ", " << dir.X() << ", " << dir.Z()
+			<< " (" << atan2( dir.Y(), dir.X()) << ")" << " v.s. "
 			<< currentYaw << std::endl;
 	}
 
@@ -1079,6 +1107,7 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 
 			// End of curve
 			auto endYaw = atan2( prevDir.Y(), prevDir.X()) + IGN_PI_2;
+//			auto endYaw = atan2( dir.Y(), dir.X());
 			auto end = this->dataPtr->cornerAnimation->CreateKeyFrame(
 				curveTime);
 
@@ -1155,16 +1184,21 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 
 	// Update actor
 	this->dataPtr->actor->SetWorldPose( actorPose,
-		this->dataPtr->bUseSkeleton4Collision, false);
+		false && this->dataPtr->bUseSkeleton4Collision, false);
 
-	const double lx( cos( actorPose.Rot().Yaw()) * this->dataPtr->velocity);
-	const double ly( sin( actorPose.Rot().Yaw()) * this->dataPtr->velocity);
-	const double az( yawDiff.Radian() / dt);
+	const double lx = cos( actorPose.Rot().Yaw()) * this->dataPtr->velocity;
+	const double ly = sin( actorPose.Rot().Yaw()) * this->dataPtr->velocity;
+	const double az = yawDiff.Radian() / dt;
+//	const double az = 0;
+//	const double az =
+//		(yawDiff.Radian() / dt) / this->dataPtr->nIntraCycleMax;
 
 	if( _bDebug) {
 		gzmsg << "# Yaw() v.s. linear.x/y = " << actorPose.Rot().Yaw() << " / "
 			<< "[ " << lx << ", " << ly << " ] yawDiff.Radian() / dt = "
-			<< yawDiff.Radian() << " / " << dt << " = " << az << std::endl;
+			<< yawDiff.Radian() << " / " << dt << " (/ "
+			<< this->dataPtr->nIntraCycleMax << ") = " << az
+			<< (_bClose ? " (*)" : "") << std::endl;
 	}
 
 	// Won't work on this->dataPtr->actor - because Actor::HasType() returns
@@ -1174,10 +1208,10 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 //		ignition::math::Vector3d( lx, ly, 0.0),
 //		ignition::math::Vector3d( 0.0, 0.0, az));
 
-	this->dataPtr->mainLink->SetLinearVel(
-		ignition::math::Vector3d( lx, ly, 0.0));
-	this->dataPtr->mainLink->SetAngularVel(
-		ignition::math::Vector3d( 0.0, 0.0, az));
+//	this->dataPtr->mainLink->SetLinearVel(
+//		ignition::math::Vector3d( lx, ly, 0.0));
+//	this->dataPtr->mainLink->SetAngularVel(
+//		ignition::math::Vector3d( 0.0, 0.0, az));
 
 	if( _bDebug) {
 		gzmsg << "# onU(): actor::WorldLinearVel() = "
@@ -1193,3 +1227,110 @@ TrajectoryActorExtendedPlugin::OnUpdate( const common::UpdateInfo &_info)
 	this->dataPtr->actor->SetScriptTime( this->dataPtr->actor->ScriptTime() +
 		(distanceTraveled * this->dataPtr->animationFactor));
 }
+#else
+void TrajectoryActorExtendedPlugin::OnUpdate(const common::UpdateInfo &_info)
+{
+  // Time delta
+  double dt = (_info.simTime - this->dataPtr->lastUpdate).Double();
+
+  if (dt < 1/this->dataPtr->updateFreq)
+    return;
+
+  this->dataPtr->lastUpdate = _info.simTime;
+
+  // Don't move if there's an obstacle on the way
+  if (this->ObstacleOnTheWay())
+    return;
+
+  // Target
+  this->UpdateTarget();
+
+  // Current pose - actor is oriented Y-up and Z-front
+  auto actorPose = this->dataPtr->actor->WorldPose();
+
+  // Current target
+  auto targetPose = this->dataPtr->targets[this->dataPtr->currentTarget];
+
+  // Direction to target
+  auto dir = (targetPose.Pos() - actorPose.Pos()).Normalize();
+
+  // TODO: generalize for actors facing other directions
+  auto currentYaw = actorPose.Rot().Yaw();
+
+  // Difference to target
+  ignition::math::Angle yawDiff = atan2(dir.Y(), dir.X()) + IGN_PI_2 - currentYaw;
+  yawDiff.Normalize();
+
+  // Rotate if needed
+  if (std::abs(yawDiff.Radian()) > IGN_DTOR(10))
+  {
+    // Not rotating yet
+    if (!this->dataPtr->cornerAnimation)
+    {
+      // Previous target (we assume we just reached it)
+      int previousTarget = this->dataPtr->currentTarget - 1;
+      if (previousTarget < 0)
+        previousTarget = this->dataPtr->targets.size() - 1;
+
+      auto prevTargetPos = this->dataPtr->targets[previousTarget].Pos();
+
+      // Direction from previous target to current target
+      auto prevDir = (targetPose.Pos() - prevTargetPos).Normalize() *
+          this->dataPtr->targetRadius;
+
+      // Curve end point
+      auto endPt = prevTargetPos + prevDir;
+
+      // Total time to finish the curve, we try to keep about the same speed,
+      // it will be a bit slower because we're doing an arch, not a straight
+      // line
+      auto curveDist = (endPt - actorPose.Pos()).Length();
+      auto curveTime = curveDist / this->dataPtr->velocity;
+
+      // Use pose animation for spline
+      this->dataPtr->cornerAnimation = new common::PoseAnimation("anim", curveTime, false);
+
+      // Start from actor's current pose
+      auto start = this->dataPtr->cornerAnimation->CreateKeyFrame(0.0);
+      start->Translation(actorPose.Pos());
+      start->Rotation(actorPose.Rot());
+
+      // End of curve
+      auto endYaw = atan2(prevDir.Y(), prevDir.X()) + IGN_PI_2;
+      auto end = this->dataPtr->cornerAnimation->CreateKeyFrame(curveTime);
+      end->Translation(endPt);
+      end->Rotation(ignition::math::Quaterniond(IGN_PI_2, 0, endYaw));
+
+      this->dataPtr->firstCornerUpdate = _info.simTime;
+    }
+
+    // Get point in curve
+    auto cornerDt = (_info.simTime - this->dataPtr->firstCornerUpdate).Double();
+    common::PoseKeyFrame pose(cornerDt);
+    this->dataPtr->cornerAnimation->SetTime(cornerDt);
+    this->dataPtr->cornerAnimation->GetInterpolatedKeyFrame(pose);
+
+    actorPose.Pos() = pose.Translation();
+    actorPose.Rot() = ignition::math::Quaterniond(IGN_PI_2, 0, pose.Rotation().Yaw());
+  }
+  else
+  {
+    this->dataPtr->cornerAnimation = nullptr;
+
+    actorPose.Pos() += dir * this->dataPtr->velocity * dt;
+
+    // TODO: remove hardcoded roll
+    actorPose.Rot() = ignition::math::Quaterniond(IGN_PI_2, 0, currentYaw + yawDiff.Radian());
+  }
+
+  // Distance traveled is used to coordinate motion with the walking
+  // animation
+  double distanceTraveled = (actorPose.Pos() -
+      this->dataPtr->actor->WorldPose().Pos()).Length();
+
+  // Update actor
+  this->dataPtr->actor->SetWorldPose(actorPose, false, false);
+  this->dataPtr->actor->SetScriptTime(this->dataPtr->actor->ScriptTime() +
+    (distanceTraveled * this->dataPtr->animationFactor));
+}
+#endif
