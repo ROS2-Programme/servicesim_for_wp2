@@ -24081,11 +24081,20 @@
         <static>true</static>
         <link name="link">
           <collision name="link">
+<!--
             <pose>0 -0.18 0.05 0 -1.5707963267948966 0</pose>
+-->
+            <pose>0 -0.18 0.05 -1.5707963267948966 0 0</pose>
             <geometry>
+<!--
               <box>
                 <size>0.44 1.62 0.60</size>
               </box>
+-->
+              <cylinder>
+                <radius>0.05</radius>
+                <length>1.62</length>
+              </cylinder>
             </geometry>
           </collision>
         </link>
@@ -24108,6 +24117,9 @@
           <interpolate_x>true</interpolate_x>
         </animation>
         <plugin filename="libTrajectoryActorExtendedPlugin.so" name="trajectory">
+<!--
+        <plugin filename="libTrajectoryActorPlugin.so" name="trajectory">
+-->
           <target>
 		15.3
 		10.0
@@ -24261,6 +24273,16 @@
           <scaling collision="RightForeArm_RightHand_collision" scale="5.0 5.0 1.0"/>
           <scaling collision="RightFingerBase_RightHandIndex1_collision" scale="4.0 4.0 3.0"/>
         </plugin>
+<!--
+        <plugin name="attach_model" filename="libAttachModelPlugin.so">
+          <link>
+            <link_name>human_94763_pose</link_name>
+            <model>
+              <model_name>human_94763_collision_model</model_name>
+            </model>
+          </link>
+        </plugin>
+-->
       </actor>
       <!-- Idling actors -->
       <!-- Competition plugin -->
