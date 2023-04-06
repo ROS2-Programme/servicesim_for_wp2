@@ -416,10 +416,11 @@ TrajectoryActorExtendedPlugin::Load( physics::ModelPtr _model,
 	this->loadDebugFlag( _sdf);
 	const bool _bDebug( this->dataPtr->bDebugOnLoad);
 
+	const gazebo::physics::WorldPtr _world = this->dataPtr->actor->GetWorld();
+
 	assert( this->dataPtr->actor->GetLink( "canonical"));
 
-	this->dataPtr->model = this->dataPtr->actor->GetWorld()->ModelByName(
-		_szMe + "_collision_model");
+	this->dataPtr->model = _world->ModelByName( _szMe + "_collision_model");
 
 	assert( this->dataPtr->model != NULL);
 	assert( this->dataPtr->model->GetLink( "canonical"));
@@ -441,6 +442,9 @@ TrajectoryActorExtendedPlugin::Load( physics::ModelPtr _model,
 	}
 
 	if( _bDebug) {
+		gzmsg << "# onL(): PhysicsEngine.GetType() = \""
+			<< _world->Physics()->GetType() << "\"" << std::endl;
+
 		gzmsg << "# onL(): IGN_PI_2 = " << IGN_PI_2 << " IGN_DTOR(10) = "
 			<< IGN_DTOR(10) << std::endl;
 
@@ -474,14 +478,14 @@ TrajectoryActorExtendedPlugin::Load( physics::ModelPtr _model,
 
 	// Read in the obstacles
 	if( _sdf->HasElement( "obstacle")) {
-		auto world = this->dataPtr->actor->GetWorld();
+//		auto world = this->dataPtr->actor->GetWorld();
 
 		auto obstacleElem = _sdf->GetElement( "obstacle");
 		while( obstacleElem) {
 			auto name = obstacleElem->Get< std::string>();
 			this->dataPtr->obstacles.push_back( name);
 
-			this->checkForModelChildLink( world, name, "door", true);
+			this->checkForModelChildLink( _world, name, "door", true);
 
 			obstacleElem = obstacleElem->GetNextElement( "obstacle");
 		}
