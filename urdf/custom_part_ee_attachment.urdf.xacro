@@ -8,7 +8,7 @@
 
   <!-- End-effector attachment - custom tray -->
   <xacro:property name="_extra_mesh_pkg_path"
-      value="package://mobile_manipulator_moveit_config/meshes/ur5e/" />
+      value="package://servicesim_for_wp2/meshes/end_effector/" />
 
   <link name="EEF" >
     <visual>
