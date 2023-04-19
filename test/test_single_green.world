@@ -24251,7 +24251,7 @@
           <velocity>0.6</velocity>
           <obstacle_margin>1.2</obstacle_margin>
           <obstacle>husky</obstacle>
-          <debug on_adhoc="False" on_load="True" on_update="True"/>
+          <debug on_adhoc="False" on_load="True" on_update="False"/>
           <scaling collision="LHipJoint_LeftUpLeg_collision" scale="0.01 0.001 0.001"/>
           <scaling collision="LeftUpLeg_LeftLeg_collision" scale="8.0 8.0 1.0"/>
           <scaling collision="LeftLeg_LeftFoot_collision" scale="8.0 8.0 1.0"/>
