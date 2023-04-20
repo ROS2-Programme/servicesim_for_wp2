@@ -13,7 +13,7 @@ testing, built using xacro files
 
 <!-- ==================== -->
 <a name="+S1.1.1"></a>
-#### 1.1.1. `husky` repository
+#### 1.1.1. `husky` repository (for `Kinetic` only)
 
 **NOTE**:
 - Source copy of `husky` repository **is not needed** for Noetic - just use
