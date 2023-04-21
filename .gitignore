@@ -1,0 +1,4 @@
+**/.git/**
+**/.gitsubmodule
+**/.vscode/*
+**/__pycache__/*

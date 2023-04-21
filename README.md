@@ -393,7 +393,7 @@ UR_EE_TYPE=tray \
 WHOLE_BODY_PLAN_BY_MOVEIT=1 \
 roslaunch mobile_manipulator_for_wp2_moveit_config_tray demo_gazebo.launch \
   custom:=true \
-  custom_prefix:=${HOME}/ROS2_WP/servicesim_for_wp2/test/test_single_green \
+  custom_prefix:=$(rospack find servicesim_for_wp2)/test/test_single_green \
   custom_spawn:=true \
   pipeline:=ompl_add
 
