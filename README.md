@@ -13,14 +13,33 @@ testing, built using xacro files
 
 <!-- ==================== -->
 <a name="+S1.1.1"></a>
-#### 1.1.1. `husky` repository
+#### 1.1.1. `husky` repository (for `Kinetic` only)
 
-Get Husky source (tested working for Kinetic & Noetic) from official Clearpath
+**NOTE**:
+- Source copy of `husky` repository **is not needed** for Noetic - just use
+  the standard `ros-noetic-husky-*` packages that can be installed via
+  `apt install` command.
+- If it is really necessary to get a copy of `husky` repository source for
+  Noetic, get the `${ROS_DISTRO}.zip` version rather than the
+  `${ROS_DISTRO}-devel.zip` version - the latter's `husky_description` package
+  contains URDF xacro macro names that are named differently from what is
+  expected (e.g. no `intel_realsense_mount` macro in
+  `husky_description/urdf/accesories/intel_realsense.urdf.xacro`).
+
+Get Husky source (tested working for Kinetic) from official Clearpath
 repository:
 ```bash
 wget -O ~/Downloads/husky-${ROS_DISTRO}-devel.zip \
   https://github.com/husky/husky/archive/refs/heads/${ROS_DISTRO}-devel.zip
 ```
+
+> **OR**:  
+> Get Husky source (tested working for Noetic) from official Clearpath
+> repository:
+> ```bash
+> wget -O ~/Downloads/husky-${ROS_DISTRO}.zip \
+>   https://github.com/husky/husky/archive/refs/heads/${ROS_DISTRO}.zip
+> ```
 
 <!-- ==================== -->
 <a name="+S1.1.2"></a>
@@ -135,12 +154,12 @@ part of `roslaunch` command.
 ### 2.1. Manually generating custom `.world` file
 
 **NOTE**:
-- for all the example `xacro` commands shown below, you may set the value of
+- For all the example `xacro` commands shown below, you may set the value of
   the `have_gpu` argument to `0` (i.e. `False`) to disable use of Velodyne or
   Hokuyo lidar plugins that run with GPUs support. The default value of
   `have_gpu` is `1` (i.e. `True`), meaning that the GPU-enabled versions of
   the lidar plugins will be used by default.
-- you also set the value of another optional argument `vis_lidar_2d` to `1`
+- You also set the value of another optional argument `vis_lidar_2d` to `1`
   that will enable visualisation of the Hokuyo sensor's 2D lidar rays within
   Gazebo. There is also a corresponding optional argument `vis_lidar_3d` than
   can be similarly set to visualise the Velodyne sensor's 3D lidar rays within
