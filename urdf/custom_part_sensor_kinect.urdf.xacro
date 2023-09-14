@@ -7,10 +7,21 @@
   <xacro:property name="_parent_link_for_sensor"
       value="$(arg parent_link_for_sensor)" />
 
+  <!--
+    # Name of top-level macro for Realsense camera has been changed after ROS
+    # Kinetic: from "intel_realsense_mount" to "realsense_sensor"; and with
+    # different parameter names.
+  -->
   <xacro:property name="_ros_distro" value="$(optenv ROS_DISTRO)" />
   <xacro:property name="_is_kinetic" value="${_ros_distro == 'kinetic'}" />
 
   <xacro:unless value="${_is_kinetic}">
+    <!--
+      # NOTE: local copy made of original urdf/_d435.urdf.xacro in
+      # realsense2_description package in order to patch original,
+      # by commenting out <xacro:include> of material file which leads to
+      # xacro complaining about some <material> being redefined.
+    -->
     <xacro:include filename="_d435.urdf.xacro" />
 <!--
     <xacro:include
