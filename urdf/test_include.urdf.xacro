@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:arg name="pkg_for_cam" default="open_vico_cameras" />
+<xacro:property name="_pkg_for_cam" default="$(arg pkg_for_cam)" />
+
+<xacro:arg name="pkg_loc_camera_depth" default="$(find ${_pkg_for_cam})" />
+
+<WTF value="$(arg pkg_loc_camera_depth)" />
+
+<xacro:macro name="wtf1">
+  <WTF1 />
+</xacro:macro>
+
+<xacro:macro name="wtf2">
+  <WTF2 />
+</xacro:macro>
+
+<xacro:arg name="macro2run" default="wtf1" />
+
+<xacro:element xacro:name="xacro:$(arg macro2run)" />
+
+</robot>
