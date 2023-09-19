@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<!-- ######################################## -->
+<xacro:macro name="add_depth_camera" params="parent_link base_name mount_edge
+  sensor_name:='' sensor_name_base:='camera'
+  sensor_topic_base:='' sensor_topic_suffix:=''
+  jnt_org_xyz:='' jnt_org_x:='0' jnt_org_y:='0' jnt_org_z:='0'
+  jnt_org_rpy:='' jnt_org_roll:='0' jnt_org_pitch:='0' jnt_org_yaw:='0'
+  camera_model use_openvico:='true' is_kinetic:='false'
+">
+
+  <xacro:property name="_link" value="${base_name}_mount_${mount_edge}" />
+  <xacro:property name="_joint" value="${_link}_joint" />
+
+  <xacro:if value="${len( jnt_org_xyz) == 0}">
+    <xacro:property name="jnt_org_xyz"
+      value="${jnt_org_x} ${jnt_org_y} ${jnt_org_z}" />
+  </xacro:if>
+
+  <xacro:if value="${len( jnt_org_rpy) == 0}">
+    <xacro:property name="jnt_org_rpy"
+      value="${jnt_org_roll} ${jnt_org_pitch} ${jnt_org_yaw}" />
+  </xacro:if>
+
+  <xacro:if value="${len( sensor_topic_base) == 0}">
+    <xacro:property name="sensor_topic_base" value="${base_name}" />
+  </xacro:if>
+
+  <xacro:if value="${len( sensor_topic_suffix) == 0}">
+    <xacro:property name="sensor_topic_suffix" value="${mount_edge}" />
+  </xacro:if>
+
+  <xacro:if value="${len( sensor_name) == 0}">
+    <xacro:property name="sensor_name"
+      value="${sensor_topic_base}_${sensor_topic_suffix}" />
+  </xacro:if>
+
+  <xacro:property name="_sensor_topic"
+    value="${sensor_topic_base}_${sensor_topic_suffix}" />
+
+  <!-- xacro:eval-comments -->
+  <!-- # add_depth_camera(): ${camera_model} @ ${mount_edge}
+       # -->
+  <link name="${_link}"/>
+  <joint name="${_joint}" type="fixed">
+    <origin xyz="${jnt_org_xyz}" rpy="${jnt_org_rpy}" />
+    <parent link="${parent_link}"/>
+    <child link="${_link}" />
+  </joint>
+
+  <xacro:property name="_camera_origin_xyz" value="0.0115 0 0.0100" />
+  <xacro:property name="_camera_origin_rpy" value="0 0 0" />
+
+  <!-- ######################################## -->
+  <!-- Kinect -->
+  <!-- ######################################## -->
+  <xacro:if value="${camera_model == 'kinect'}">
+    <!--
+      # Use OpenVICO version of Kinect description, which uses OpenNI Kinect
+      # plugin implementation.
+    -->
+    <xacro:if value="${use_openvico}">
+      <xacro:microsoft_kinect2 camera_name_prefix="${sensor_name}"
+          parent="${_link}">
+
+        <origin xyz="${_camera_origin_xyz}" rpy="${_camera_origin_rpy}" />
+      </xacro:microsoft_kinect2>
+    </xacro:if>
+    <!--
+      # Use Clearpath's implementation of Realsense description, which is
+      # actually just using official ROS OpenNI implementation of Kinect.
+    -->
+    <xacro:unless value="${use_openvico}">
+      <xacro:if value="${is_kinetic}">
+        <xacro:intel_realsense_mount prefix="${sensor_name}"
+          topic="${sensor_topic}" parent_link="${_link}"/>
+      </xacro:if>
+      <xacro:unless value="${is_kinetic}">
+        <xacro:realsense_sensor prefix="${sensor_name}"
+            topic="${sensor_topic}" parent="${_link}" include="0">
+          <origin xyz="${_camera_origin_xyz}" rpy="${_camera_origin_rpy}" />
+        </xacro:realsense_sensor>
+      </xacro:unless>
+    </xacro:unless>
+  </xacro:if>
+
+  <!-- ######################################## -->
+  <!-- RealSense -->
+  <!-- ######################################## -->
+  <xacro:if value="${camera_model == 'realsense'}">
+    <!--
+      # Use OpenVICO version of Realsense description, which uses PAL Robotics
+      # plugin implementation.
+    -->
+    <xacro:if value="${use_openvico}">
+      <xacro:realsense_d435 camera_name_prefix="${sensor_name}"
+          parent="${_link}">
+        <origin xyz="${_camera_origin_xyz}" rpy="${_camera_origin_rpy}" />
+      </xacro:realsense_d435>
+    </xacro:if>
+    <!--
+      # Use Clearpath's implementation of Realsense description, which is
+      # actually just using official ROS OpenNI implementation of Kinect.
+    -->
+    <xacro:unless value="${use_openvico}">
+      <xacro:if value="${is_kinetic}">
+        <xacro:intel_realsense_mount prefix="${sensor_name}"
+          topic="${sensor_topic}" parent_link="${_link}"/>
+      </xacro:if>
+      <xacro:unless value="${is_kinetic}">
+        <xacro:realsense_sensor prefix="${sensor_name}"
+            topic="${sensor_topic}" parent="${_link}" include="0">
+          <origin xyz="${_camera_origin_xyz}" rpy="${_camera_origin_rpy}" />
+        </xacro:realsense_sensor>
+      </xacro:unless>
+    </xacro:unless>
+  </xacro:if>
+
+  <!-- ######################################## -->
+  <!-- Zed -->
+  <!-- ######################################## -->
+  <xacro:if value="${camera_model == 'zed'}">
+    <!--
+      # Use OpenVICO version of Zed description, which actually uses OpenNI
+      # Kinect plugin implementation.
+    -->
+    <xacro:if value="${use_openvico}">
+      <xacro:stereolabs_zed2 camera_name_prefix="${sensor_name}"
+          parent="${_link}">
+        <origin xyz="${_camera_origin_xyz}" rpy="${_camera_origin_rpy}" />
+      </xacro:stereolabs_zed2>
+    </xacro:if>
+    <!--
+      # No other known implementaton of Zed description.
+    -->
+    <xacro:unless value="${use_openvico}">
+    </xacro:unless>
+  </xacro:if>
+
+</xacro:macro>
+
+</robot>
