@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!--
+    # NOTE:
+    # Different from husky_ur5_e_description.urdf.xacro in that Ranger Mini
+    # base URDF/xacro has to be explicitly <xacro:include>-ed, unlike Husky
+    # where main URDF xacro has been flexibly defined to take in an input
+    # argument "urdf_extras", representing husky_ur5_e_description.urdf.xacro
+    # itself. I.e. the target URDF xacro passed to MoveIt Setup Assistant is
+    # not the husky_ur5_e_for_XXX.urdf.xacro file itself, but the main (and
+    # unmodified) URDF xacro of husky_description itself.
+  -->
+  <!--
+    # Messy original package structure for Ranger repo - has 2 slightly
+    # different copies of ranger_mini.xacro: 1 under ranger_mini package;
+    # 1 under ranger_mini_gazebo package.
+  -->
+<!--
+  <xacro:include filename="$(find ranger_mini)/urdf/ranger_mini.xacro" />
+-->
+  <xacro:include
+    filename="$(find ranger_mini_gazebo)/xacro/ranger_mini.xacro" />
+
+
+  <xacro:arg name="parent_link_for_arm" default="top_plate_front_link" />
+  <xacro:property name="_parent_link_for_arm"
+      value="$(arg parent_link_for_arm)" />
+
+<!--
+  <xacro:include
+    filename="$(find xarm_description)/urdf/xarm_device.urdf.xacro" />
+-->
+  <xacro:include
+    filename="$(find xarm_description)/urdf/xarm_device_macro.xacro" />
+
+  <xacro:property name="_robot_arm_link_prefix"
+      value="$(arg robot_arm_link_prefix)" />
+
+  <!--
+    # NOTE:
+    # No need to explicitly declare <joint> for connecting robot arm to base
+    # for UF xarm as it is baked into "xarm_device" macro (via "attach_to"
+    # parameter).
+  -->
+<!--
+  <joint name="arm_mount_joint" type="fixed">
+    <parent link="${_parent_link_for_arm}" />
+    <child link="${_robot_arm_link_prefix}link_base" />
+    <origin xyz="$(optenv RANGER_XARM_XYZ -0.18 0.0 ${ctrl_box_height/2.0})"
+        rpy="$(optenv RANGER_XARM_RPY 0 0 0)" />
+  </joint>
+-->
+
+<!--
+  <xacro:property name="_ee_type" value="$(arg ee_type)" />
+
+  <xacro:property name="_extra_mesh_pkg_path"
+      value="package://servicesim_for_wp2/meshes/end_effector/" />
+
+  <xacro:xarm_device prefix="${_robot_arm_link_prefix}" limited="true"
+    add_gripper="${_ee_type == 'hand'}" dof="6" robot_type="xarm"
+    attach_to="$(arg parent_link_for_arm)" load_gazebo_plugin="true"
+    add_realsense_d435i="false" add_d435i_links="true" use_gazebo_camera="true"
+    add_other_geometry="${_ee_type == 'tray'}" geometry_type="mesh"
+    geometry_mesh_filename="${_extra_mesh_pkg_path}visual/circle_tray.STL"
+    geometry_mesh_origin_xyz="0.28 0.0 0.02"
+    geometry_mesh_origin_rpy="0 3.14159 3.14159"
+  />
+-->
+
+</robot>
