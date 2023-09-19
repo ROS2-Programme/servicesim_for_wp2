@@ -1,0 +1,6 @@
+camera_name_prefix: webcam
+force_abs_ns: False
+plugin_suffix: _plugin
+always_on: True
+update_rate: 0.0
+hack_baseline: 0.07
