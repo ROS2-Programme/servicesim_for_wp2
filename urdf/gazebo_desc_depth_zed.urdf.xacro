@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<robot name="stereolabs_zed2" xmlns:xacro="http://wiki.ros.org/xacro">
+
+<!--
+  # Copied from part of urdf/stereolabs_zed2.xacro under open_vico_cameras
+  # package of open-vico-melodic-devel repository.
+-->
+<xacro:macro name="stereolabs_zed2_gazebo" params="camera_name_prefix 
+    fps 
+    baseline 
+    hfov 
+    width 
+    height 
+    format 
+    near 
+    far">
+                                                       
+  <gazebo reference="${camera_name_prefix}_base_link">
+    <visual>
+      <material>
+        <ambient>0.35 0.35 0.35 1.0</ambient>
+        <diffuse>0.350754 0.350754 0.350754 1.0</diffuse>
+        <specular>0.308273 0.3508273 0.3508273 1.0</specular>
+        <emissive>0.0 0.0 0.0 0.0</emissive>
+      </material>
+    </visual>
+
+    <sensor name="${camera_name_prefix}color" type="camera">
+      <camera name="${camera_name_prefix}">
+        <horizontal_fov>${hfov}</horizontal_fov>
+        <image>
+          <width>${width}</width>
+          <height>${height}</height>
+          <format>RGB_INT8</format>
+        </image>
+        <clip>
+          <near>${near}</near>
+          <far>${far}</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+
+      <always_on>1</always_on>
+      <update_rate>20</update_rate>
+      <visualize>true</visualize>
+    </sensor>
+
+    <sensor type="depth" name="depth_camera">
+      <update_rate>${fps}</update_rate>
+      <camera>
+        <horizontal_fov>${hfov}</horizontal_fov>
+        <image>
+          <width>${width}</width>
+          <height>${height}</height>
+          <format>${format}</format>
+        </image>
+        <clip>
+          <near>${near}</near>
+          <far>${far}</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+
+      <plugin name="${camera_name_prefix}_plugin"
+          filename="libgazebo_ros_openni_kinect.so">
+
+        <baseline>${baseline}</baseline>
+        <alwaysOn>true</alwaysOn>
+        <!-- Keep this zero, update_rate in the parent <sensor> tag
+            will control the frame rate. -->
+        <updateRate>0.0</updateRate>
+        <cameraName>${camera_name_prefix}</cameraName>
+        <imageTopicName>/${camera_name_prefix}/color/image_raw</imageTopicName>
+        <cameraInfoTopicName>/${camera_name_prefix}/color/camera_info</cameraInfoTopicName>
+        <depthImageTopicName>/${camera_name_prefix}/depth/image_raw</depthImageTopicName>
+        <depthImageCameraInfoTopicName>/${camera_name_prefix}/depth/camera_info</depthImageCameraInfoTopicName>
+        <pointCloudTopicName>/${camera_name_prefix}/depth/points</pointCloudTopicName>
+        <frameName>/${camera_name_prefix}_depth_optical_frame</frameName>
+        <pointCloudCutoff>${near}</pointCloudCutoff>
+        <pointCloudCutoffMax>${far}</pointCloudCutoffMax>
+        <distortionK1>0</distortionK1>
+        <distortionK2>0</distortionK2>
+        <distortionK3>0</distortionK3>
+        <distortionT1>0</distortionT1>
+        <distortionT2>0</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+</xacro:macro>
+
+  <xacro:if value="${enable_gazebo_plugin}">
+      <xacro:stereolabs_zed2_gazebo
+          camera_name_prefix="${camera_name_prefix}"
+          hfov="1.2217"
+          baseline="${baseline}"
+          fps="30"
+          width="1280"
+          height="720"
+          format="${format}"
+          near="${near}"
+          far="${far}"
+          />
+  </xacro:if>
+
+</xacro:macro>
+    
+</robot>
