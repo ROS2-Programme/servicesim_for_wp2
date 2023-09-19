@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:include filename="lib.urdf.xacro" />
+
+<xacro:arg name="test" default="False" />
+
+<!--
+  # Copied & modified from part of urdf/realsense_d435.xacro under
+  # open_vico_cameras package of open-vico-melodic-devel repository.
+-->
+<!-- ######################################## -->
+<xacro:macro name="sensor_plugin_realsense" params="
+    camera_name_prefix
+    fps_colour:=30
+    fps_infra:=30
+    fps_depth:=30
+    range_depth_min:=0.2
+    range_depth_max:=10.0
+    cutoff_pc:=0.5
+    force_abs_ns:=False
+    frame_name_colour_optical:=None
+    frame_name_infra1_optical:=None
+    frame_name_infra2_optical:=None
+    frame_name_depth_optical:=None
+    align_depth:=False
+    enable_pc:=False
+">
+
+  <xacro:property name="_camera_name_prefix"
+    value="${str( camera_name_prefix).strip()}" />
+
+  <xacro:if value="${(_camera_name_prefix.__len__() > 0) and
+      not _camera_name_prefix.endswith( '/')}">
+
+    <xacro:property name="_camera_name_prefix"
+    value="${str( camera_name_prefix).strip() + '/'}" />
+
+  </xacro:if>
+
+  <!-- ==================== -->
+  <xacro:property name="_ns_prefix" value="" />
+
+  <xacro:if value="${force_abs_ns}">
+    <xacro:property name="_ns_prefix" value="/" />
+  </xacro:if>
+
+  <xacro:property name="_topic_prefix"
+    value="${_ns_prefix}${_camera_name_prefix}" />
+
+  <!-- ==================== -->
+  <xacro:if value="${frame_name_colour_optical == None}">
+    <xacro:property name="frame_name_colour_optical"
+      value="${camera_name_prefix}_color_optical_frame" />
+  </xacro:if>
+
+  <xacro:if value="${frame_name_infra1_optical == None}">
+    <xacro:property name="frame_name_infra1_optical"
+      value="${camera_name_prefix}_left_ir_optical_frame" />
+  </xacro:if>
+
+  <xacro:if value="${frame_name_infra2_optical == None}">
+    <xacro:property name="frame_name_infra2_optical"
+      value="${camera_name_prefix}_right_ir_optical_frame" />
+  </xacro:if>
+
+  <xacro:if value="${frame_name_depth_optical == None}">
+    <xacro:property name="frame_name_depth_optical"
+      value="${camera_name_prefix}_depth_optical_frame" />
+  </xacro:if>
+
+  <!-- ==================== -->
+  <xacro:property name="depth_topic_trunk" value="depth" />
+
+  <xacro:if value="${align_depth}">
+    <xacro:property name="frame_name_depth_optical"
+      value="${frame_name_colour_optical}" />
+
+    <xacro:property name="fps_depth" value="${fps_colour}" />
+    <xacro:property name="depth_topic_trunk" value="aligned_depth_to_color" />
+  </xacro:if>
+
+  <!-- ==================== -->
+  <plugin name="${camera_name_prefix}"
+      filename="librealsense_gazebo_plugin.so">
+
+    <prefix>${camera_name_prefix}</prefix>
+
+    <!-- Color camera settings -->
+    <colorUpdateRate>${fps_colour}</colorUpdateRate>
+
+    <xacro:declare_topic_name prefix="color"
+      value="${_topic_prefix}/color/image_raw" />
+    <xacro:declare_topic_name prefix="colorCameraInfo"
+      value="${_topic_prefix}/color/camera_info" />
+
+    <xacro:declare_element prefix="colorOptical" suffix="frameName"
+      value="${frame_name_colour_optical}" />
+
+    <!-- Infrared camera settings -->
+    <infraredUpdateRate>${fps_infra}</infraredUpdateRate>
+
+    <xacro:declare_topic_name prefix="infrared1"
+      value="${_topic_prefix}/infra1/image_rect_raw" />
+    <xacro:declare_topic_name prefix="infrared2"
+      value="${_topic_prefix}/infra2/image_rect_raw" />
+
+    <xacro:declare_topic_name prefix="infrared1CameraInfo"
+      value="${_topic_prefix}/infra1/camera_info" />
+    <xacro:declare_topic_name prefix="infrared2CameraInfo"
+      value="${_topic_prefix}/infra2/camera_info" />
+
+    <xacro:declare_element prefix="infrared1Optical" suffix="frameName"
+      value="${frame_name_infra1_optical}" />
+    <xacro:declare_element prefix="infrared2Optical" suffix="frameName"
+      value="${frame_name_infra2_optical}" />
+
+    <!-- Depth camera settings -->
+    <rangeMinDepth>${range_depth_min}</rangeMinDepth>
+    <rangeMaxDepth>${range_depth_max}</rangeMaxDepth>
+
+    <depthUpdateRate>${fps_depth}</depthUpdateRate>
+
+    <xacro:declare_topic_name prefix="depth"
+      value="${_topic_prefix}/${depth_topic_trunk}/image_raw" />
+    <xacro:declare_topic_name prefix="depthCameraInfo"
+      value="${_topic_prefix}/${depth_topic_trunk}/camera_info" />
+
+    <xacro:declare_element prefix="depthOptical" suffix="frameName"
+      value="${frame_name_depth_optical}" />
+
+    <!-- Pointlcloud settings -->
+    <pointCloud>${enable_pc}</pointCloud>
+    <xacro:declare_topic_name prefix="pointCloud"
+      value="${_topic_prefix}depth/color/points" />
+    <pointCloudTopicName>${_topic_prefix}</pointCloudTopicName>
+    <pointCloudCutoff>${cutoff_pc}</pointCloudCutoff>
+
+  </plugin>
+
+</xacro:macro>
+
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <xacro:sensor_plugin_realsense
+    camera_name_prefix="realsense_front" />
+
+  <xacro:sensor_plugin_realsense
+    camera_name_prefix="realsense_back"
+    force_abs_ns="True" />
+
+  <xacro:sensor_plugin_realsense
+    camera_name_prefix="realsense_right"
+    align_depth="True" />
+
+  <xacro:sensor_plugin_realsense
+    camera_name_prefix="realsense_left"
+    enable_pc="True" />
+
+</xacro:if>
+
+</robot>
