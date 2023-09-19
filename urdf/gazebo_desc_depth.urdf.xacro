@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<!--
+  # Generalised from part of urdf/microsoft_kinect2.xacro under
+  # open_vico_cameras package of open-vico-melodic-devel repository.
+-->
+<!-- ######################################## -->
+<xacro:macro name="sensor_camera_tag" params="
+    camera_name_prefix
+    name_suffix
+    type
+    fov_h_deg:=60.0
+    img_w:=640
+    img_h:=480
+    img_fmt
+    clip_near:=0.05
+    clip_far
+    noise_type:='gaussian'
+    noise_avg:=0.0
+    noise_stddev:=0.0
+    update_rate:=20.0
+    visualise:=False
+    *plugin
+">
+
+  <sensor name="${camera_name_prefix}${name_suffix}" type="${type}">
+    <camera name="${camera_name_prefix}">
+      <horizontal_fov>${fov_h_deg * pi / 180.0}</horizontal_fov>
+      <image>
+        <width>${img_w}</width>
+        <height>${img_h}</height>
+        <format>${img_fmt}</format>
+      </image>
+      <clip>
+        <near>${clip_near}</near>
+        <far>${clip_far}</far>
+      </clip>
+      <xacro:if value="${(noise_avg != 0.0) or (noise_stddev != 0.0)}">
+        <noise>
+          <type>${noise_type}</type>
+          <mean>${noise_avg}</mean>
+          <stddev>${noise_stddev}</stddev>
+        </noise>
+      </xacro:if>
+    </camera>
+
+    <always_on>True</always_on>
+    <update_rate>${update_rate}</update_rate>
+    <visualize>${visualise}</visualize>
+
+    <xacro:insert_block name="plugin" />
+  </sensor>
+
+  <sensor name="${camera_name_prefix}_sensor" type="depth">
+    <camera>
+      <horizontal_fov>${60.0*M_PI/180.0}</horizontal_fov>
+      <image>
+        <format>R8G8B8</format>
+        <width>640</width>
+        <height>480</height>
+      </image>
+      <clip>
+        <near>0.05</near>
+        <far>${far}</far>
+      </clip>
+    </camera>
+
+    <always_on>true</always_on>
+    <update_rate>20.0</update_rate>
+  </sensor>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="sensor_camera_colour" params="
+    camera_name_prefix
+    fov_h_deg:=60.0
+    img_w:=640
+    img_h:=480
+    clip_near:=0.1
+    clip_far
+    noise_stddev:=0.007
+    update_rate:=20.0
+    visualise:=False
+">
+
+  <xacro:sensor_camera_tag
+    camera_name_prefix="${camera_name_prefix}"
+    name_suffix="_colour"
+    type="camera"
+    fov_h_deg="${fov_h_deg}"
+    img_w="${img_w}"
+    img_h="${img_h}"
+    img_fmt="RGB_INT8"
+    clip_near="${clip_near}"
+    clip_far="${clip_far}"
+    noise_stddev="${noise_stddev}"
+    update_rate="${update_rate}"
+    visualise="${visualise}"
+  />
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="sensor_camera_depth" params="
+    camera_name_prefix
+    fov_h_deg:=60.0
+    img_w:=640
+    img_h:=480
+    clip_near:=0.05
+    clip_far
+    update_rate:=20.0
+    visualise:=False
+    *plugin
+">
+
+  <xacro:sensor_camera_tag
+    camera_name_prefix="${camera_name_prefix}"
+    name_suffix="_sensor"
+    type="depth"
+    fov_h_deg="${fov_h_deg}"
+    img_w="${img_w}"
+    img_h="${img_h}"
+    img_fmt="R8G8B8"
+    clip_near="${clip_near}"
+    clip_far="${clip_far}"
+    update_rate="${update_rate}"
+    visualise="${visualise}"
+  >
+    <xacro:insert_block name="plugin" />
+
+  </xacro:sensor_camera_tag>
+
+</xacro:macro>
+
+
+</robot>
