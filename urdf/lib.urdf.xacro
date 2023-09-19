@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:arg name="test" default="False" />
+
+<!-- ######################################## -->
+<xacro:macro name="declare_element" params="prefix suffix value">
+
+  <xacro:element xacro:name="${prefix}${suffix}">${value}</xacro:element>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="declare_topic_name" params="prefix value">
+
+  <xacro:declare_element prefix="${prefix}" suffix="TopicName" value="${value}"
+    />
+
+</xacro:macro>
+
+</robot>
