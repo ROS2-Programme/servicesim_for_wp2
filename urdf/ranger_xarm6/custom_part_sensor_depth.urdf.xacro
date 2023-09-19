@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:arg name="pkg_for_cam" default="open_vico_cameras" />
+  <xacro:property name="_pkg_for_cam" default="$(arg pkg_for_cam)" />
+
+  <xacro:arg name="pkg_loc_camera_depth" default="$(find ${_pkg_for_cam})" />
+  <xacro:property name="_pkg_loc_camera_depth"
+      value="$(arg pkg_loc_camera_depth)" />
+
+  <xacro:property name="_use_openvico_kinect"
+      value="${_pkg_for_cam == 'open_vico_cameras'}" />
+
+  <xacro:arg name="camera_model" default="kinect" />
+  <!--
+    # Macro calls for realsense and zed (from open_vico_cameras) not yet added
+    # in below. Only OpenVICO version of kinect macro added so far.
+  -->
+<!--
+  <xacro:arg name="camera_model" default="realsense" />
+  <xacro:arg name="camera_model" default="zed" />
+-->
+
+  <xacro:property name="_camera_model" value="$(arg camera_model)" />
+  <xacro:property name="_camera_urdf" value="__FILE_NOT_SET__.xacro" />
+
+  <xacro:if value="${_camera_model == 'kinect'}">
+    <xacro:property name="_camera_urdf" value="microsoft_kinect2.xacro" />
+  </xacro:if>
+  <xacro:if value="${_camera_model == 'realsense'}">
+    <xacro:property name="_camera_urdf" value="realsense_d435.xacro" />
+  </xacro:if>
+  <xacro:if value="${_camera_model == 'zed'}">
+    <xacro:property name="_camera_urdf" value="stereolabs_zed2.xacro" />
+  </xacro:if>
+
+  <xacro:include filename="${_pkg_loc_camera_depth}/urdf/${_camera_urdf}"/>
+
+  <xacro:arg name="parent_link_for_sensor" default="control_box" />
+  <xacro:property name="_parent_link_for_sensor"
+      value="$(arg parent_link_for_sensor)" />
+
+  <!--
+    # Name of top-level macro for Realsense camera has been changed after ROS
+    # Kinetic: from "intel_realsense_mount" to "realsense_sensor"; and with
+    # different parameter names.
+  -->
+  <xacro:property name="_ros_distro" value="$(optenv ROS_DISTRO)" />
+  <xacro:property name="_is_kinetic" value="${_ros_distro == 'kinetic'}" />
+
+  <xacro:unless value="${_is_kinetic}">
+    <!--
+      # NOTE: local copy made of original urdf/_d435.urdf.xacro in
+      # realsense2_description package in order to patch original,
+      # by commenting out <xacro:include> of material file which leads to
+      # xacro complaining about some <material> being redefined.
+    -->
+    <xacro:include filename="../_d435.urdf.xacro" />
+<!--
+    <xacro:include
+      filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
+-->
+  </xacro:unless>
+
+  <!-- Control Box Properties -->
+  <xacro:property name="ctrl_box_width" value="0.27" />
+  <xacro:property name="ctrl_box_length" value="0.23" />
+  <xacro:property name="ctrl_box_height" value="0.175" />
+
+  <xacro:property name="cam_front_offset_x" value="0.13" />
+<!--
+  <xacro:property name="cam_front_offset_x" value="0.12" />
+  <xacro:property name="cam_front_offset_x" value="0.15" />
+-->
+  <xacro:property name="cam_front_offset_y" value="0.01" />
+
+  <xacro:property name="cam_right_offset_x" value="-${ctrl_box_length / 2.0}" />
+  <xacro:property name="cam_right_offset_y" value="0.01" />
+<!--
+  <xacro:property name="cam_right_offset_y" value="0.1" />
+-->
+
+  <xacro:property name="cam_any_offset_z" value="0.1" />
+
+  <xacro:if value="${True}">
+    <link name="realsense_mount_front"/>
+    <joint name="realsense_mount_front_joint" type="fixed">
+      <origin xyz="${ctrl_box_width / 2.0 + cam_front_offset_x}
+        ${ctrl_box_length / 2.0 + cam_front_offset_y}
+        ${ctrl_box_height / 2.0 + cam_any_offset_z}" rpy="0 0 0" />
+      <parent link="${_parent_link_for_sensor}"/>
+      <child link="realsense_mount_front" />
+    </joint>
+
+    <xacro:if value="${_use_openvico_kinect}">
+      <xacro:microsoft_kinect2 camera_name_prefix="camera1"
+          parent="realsense_mount_front">
+
+        <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
+      </xacro:microsoft_kinect2>
+    </xacro:if>
+    <xacro:unless value="${_use_openvico_kinect}">
+      <xacro:if value="${_is_kinetic}">
+        <xacro:intel_realsense_mount prefix="camera1" topic="realsense_front"
+          parent_link="realsense_mount_front"/>
+      </xacro:if>
+      <xacro:unless value="${_is_kinetic}">
+        <xacro:realsense_sensor prefix="camera1" topic="realsense_front"
+            parent="realsense_mount_front" include="0">
+          <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
+        </xacro:realsense_sensor>
+      </xacro:unless>
+    </xacro:unless>
+
+  </xacro:if>
+
+  <xacro:if value="${True}">
+    <link name="realsense_mount_right"/>
+    <joint name="realsense_mount_right_joint" type="fixed">
+      <origin xyz="${cam_right_offset_x}
+        ${(ctrl_box_length / 2.0 + cam_right_offset_y) * -1.0}
+        ${ctrl_box_height / 2.0 + cam_any_offset_z}" rpy="0 0 -1.570796" />
+      <parent link="${_parent_link_for_sensor}"/>
+      <child link="realsense_mount_right" />
+    </joint>
+
+    <xacro:if value="${_use_openvico_kinect}">
+      <xacro:microsoft_kinect2 camera_name_prefix="camera2"
+          parent="realsense_mount_right">
+
+        <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
+      </xacro:microsoft_kinect2>
+    </xacro:if>
+    <xacro:unless value="${_use_openvico_kinect}">
+      <xacro:if value="${_is_kinetic}">
+        <xacro:intel_realsense_mount prefix="camera2" topic="realsense_right"
+          parent_link="realsense_mount_right"/>
+      </xacro:if>
+      <xacro:unless value="${_is_kinetic}">
+        <xacro:realsense_sensor prefix="camera2" topic="realsense_right"
+            parent="realsense_mount_right" include="0">
+          <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
+        </xacro:realsense_sensor>
+      </xacro:unless>
+    </xacro:unless>
+
+  </xacro:if>
+
+</robot>
