@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:include
+  filename="ranger_xarm6/custom_part_sensor_depth_single.urdf.xacro" />
+
+<xacro:arg name="test" default="False" />
+
+<!-- ######################################## -->
+
+
+<!-- ######################################## -->
+
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <xacro:property name="ctrl_box_width" value="0.19" />
+  <xacro:property name="ctrl_box_length" value="0.23" />
+  <xacro:property name="ctrl_box_height" value="0.175" />
+
+  <xacro:property name="_ros_distro" value="$(optenv ROS_DISTRO)" />
+  <xacro:property name="_is_kinetic" value="${_ros_distro == 'kinetic'}" />
+
+
+  <xacro:property name="cam_front_offset_x" value="0.13" />
+  <xacro:property name="cam_front_offset_y" value="0.01" />
+
+  <xacro:property name="cam_right_offset_x" value="-${ctrl_box_length / 2.0}" />
+  <xacro:property name="cam_right_offset_y" value="0.01" />
+
+  <xacro:property name="cam_any_offset_z" value="0.1" />
+
+
+  <xacro:arg name="pkg_for_cam" default="open_vico_cameras" />
+  <xacro:property name="_pkg_for_cam" default="$(arg pkg_for_cam)" />
+
+  <xacro:arg name="pkg_loc_camera_depth" default="$(find ${_pkg_for_cam})" />
+  <xacro:property name="_pkg_loc_camera_depth"
+      value="$(arg pkg_loc_camera_depth)" />
+
+  <xacro:property name="_use_openvico"
+      value="${_pkg_for_cam == 'open_vico_cameras'}" />
+
+
+
+  <xacro:arg name="parent_link" default="control_box" />
+  <xacro:arg name="camera_model" default="kinect" />
+  <xacro:arg name="mount_edge" default="front" />
+
+  <xacro:property name="_mount_edge" default="$(arg mount_edge)" />
+
+  <xacro:if value="${_mount_edge == 'front'}">
+    <xacro:property name="_org_xyz"
+      value="${ctrl_box_width / 2.0 + cam_front_offset_x}
+        ${ctrl_box_length / 2.0 + cam_front_offset_y}
+        ${ctrl_box_height / 2.0 + cam_any_offset_z}" />
+
+    <xacro:property name="_org_yaw" value="0" />
+
+  </xacro:if>
+
+  <xacro:if value="${_mount_edge == 'right'}">
+    <xacro:property name="_org_xyz"
+      value="${cam_right_offset_x}
+        ${(ctrl_box_length / 2.0 + cam_right_offset_y) * -1.0}
+        ${ctrl_box_height / 2.0 + cam_any_offset_z}" />
+
+    <xacro:property name="_org_yaw" value="${pi / 2.0}" />
+  </xacro:if>
+
+
+  <xacro:property name="_camera_model" value="$(arg camera_model)" />
+  <xacro:property name="_camera_urdf" value="__FILE_NOT_SET__.xacro" />
+
+  <xacro:if value="${_camera_model == 'kinect'}">
+    <xacro:property name="_camera_urdf" value="microsoft_kinect2.xacro" />
+  </xacro:if>
+  <xacro:if value="${_camera_model == 'realsense'}">
+    <xacro:property name="_camera_urdf" value="realsense_d435.xacro" />
+  </xacro:if>
+  <xacro:if value="${_camera_model == 'zed'}">
+    <xacro:property name="_camera_urdf" value="stereolabs_zed2.xacro" />
+  </xacro:if>
+
+  <xacro:include filename="${_pkg_loc_camera_depth}/urdf/${_camera_urdf}"/>
+
+
+
+  <xacro:add_depth_camera
+    parent_link="$(arg parent_link)"
+    base_name="$(arg camera_model)"
+    mount_edge="$(arg mount_edge)"
+    sensor_name=""
+    sensor_name_base="camera"
+    sensor_topic_base=""
+    sensor_topic_suffix=""
+    jnt_org_xyz="${_org_xyz}"
+    jnt_org_x="0"
+    jnt_org_y="0"
+    jnt_org_z="0"
+    jnt_org_rpy=""
+    jnt_org_roll="0"
+    jnt_org_pitch="0"
+    jnt_org_yaw="${_org_yaw}"
+    camera_model="$(arg camera_model)"
+    use_openvico="${_use_openvico}"
+    is_kinetic="${_is_kinetic}"
+  />
+
+</xacro:if>
+
+</robot>
