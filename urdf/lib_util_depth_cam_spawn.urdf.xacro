@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:include
+  filename="ranger_xarm6/custom_part_sensor_depth_single.urdf.xacro" />
+
+<!-- ######################################## -->
+<xacro:macro name="spawn_all_cam" params="parent_link camera_model
+  use_openvico:=true
+  is_kinetic:=false
+  kv_pairs:=^
+  nest_level:=0
+  explicit_on:=^
+">
+
+  <xacro:if value="${kv_pairs}">
+    <xacro:property name="_kv" value="${kv_pairs.pop(0)}" />
+    <xacro:property name="_mount_label" value="${_kv[0]}" />
+    <xacro:property name="_mount_pos_orient" value="${_kv[1]}" />
+
+    <xacro:property name="_skip" value="False" />
+
+    <xacro:if value="${(explicit_on != None) and
+        (python.type( explicit_on) == dict)}">
+
+      <xacro:property name="_skip"
+        value="${not explicit_on.get( _mount_label, False)}" />
+    </xacro:if>
+
+    <xacro:unless value="${_skip}">
+      <xacro:property name="_pos"
+        value="${_mount_pos_orient.get( 'position', dict())}" />
+
+      <xacro:property name="_pos_x" value="${_pos.get( 'x', 0)}" />
+      <xacro:property name="_pos_y" value="${_pos.get( 'y', 0)}" />
+      <xacro:property name="_pos_z" value="${_pos.get( 'z', 0)}" />
+
+      <xacro:property name="_org_xyz" value="${_pos.get( 'xyz', '')}" />
+
+      <xacro:property name="_orient"
+        value="${_mount_pos_orient.get( 'orientation', dict())}" />
+
+      <xacro:property name="_orient_r" value="${_orient.get( 'roll', 0)}" />
+      <xacro:property name="_orient_p" value="${_orient.get( 'pitch', 0)}" />
+      <xacro:property name="_orient_y" value="${_orient.get( 'yaw', 0)}" />
+
+      <xacro:property name="_org_rpy" value="${_orient.get( 'rpy', '')}" />
+
+      <xacro:add_depth_camera
+        parent_link="${parent_link}"
+        base_name="${camera_model}"
+        mount_edge="${_mount_label}"
+        sensor_name=""
+        sensor_name_base="camera"
+        sensor_topic_base=""
+        sensor_topic_suffix=""
+
+        jnt_org_xyz="${_org_xyz}"
+        jnt_org_x="${_pos_x}"
+        jnt_org_y="${_pos_y}"
+        jnt_org_z="${_pos_z}"
+
+        jnt_org_rpy="${_org_rpy}"
+        jnt_org_roll="${_orient_r}"
+        jnt_org_pitch="${_orient_p}"
+        jnt_org_yaw="${_orient_y}"
+
+        camera_model="$(arg camera_model)"
+        use_openvico="${use_openvico}"
+        is_kinetic="${is_kinetic}"
+      />
+    </xacro:unless>
+
+    <xacro:spawn_all_cam
+      parent_link="${parent_link}"
+      camera_model="${camera_model}"
+      use_openvico="${use_openvico}"
+      is_kinetic="${is_kinetic}"
+      nest_level="${nest_level}"
+    />
+
+  </xacro:if>
+
+</xacro:macro>
+
+</robot>
