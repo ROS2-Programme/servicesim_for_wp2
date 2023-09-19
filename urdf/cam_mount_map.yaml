@@ -1,0 +1,29 @@
+mount_points:
+  front:
+    position:
+      x: _ctrl_box_width / 2.0 + _cam_front_offset_x
+      y: _ctrl_box_length / 2.0 + _cam_front_offset_y
+      z: _ctrl_box_height / 2.0 + _cam_any_offset_z
+    orientation:
+      yaw: 0
+  back:
+    position:
+      x: (_ctrl_box_width / 2.0 + _cam_front_offset_x) * -1.0
+      y: _ctrl_box_length / 2.0 + _cam_front_offset_y
+      z: _ctrl_box_height / 2.0 + _cam_any_offset_z
+    orientation:
+      yaw: pi
+  right:
+    position:
+      x: _cam_right_offset_x
+      y: (_ctrl_box_length / 2.0 + _cam_right_offset_y) * -1.0
+      z: _ctrl_box_height / 2.0 + _cam_any_offset_z
+    orientation:
+      yaw: pi / 2.0
+  left:
+    position:
+      x: _cam_right_offset_x
+      y: _ctrl_box_length / 2.0 + _cam_right_offset_y
+      z: _ctrl_box_height / 2.0 + _cam_any_offset_z
+    orientation:
+      yaw: pi / 2.0 * -1.0
