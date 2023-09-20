@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:include filename="lib.urdf.xacro" />
+
+<xacro:arg name="test" default="False" />
+
+<!-- ######################################## -->
+<xacro:macro name="sensor_camera_camera" params="
+    camera_name_prefix:=^
+    plugin_suffix:=^|'_plugin'
+    always_on:=^|True
+    update_rate:=^|0.0
+    hack_baseline:=^|0.07
+    force_abs_ns:=^|False
+    d_k1:=0.0
+    d_k2:=0.0
+    d_k3:=0.0
+    d_t1:=0.0
+    d_t2:=0.0
+">
+
+  <xacro:property name="_camera_name_prefix"
+    value="${str( camera_name_prefix).strip()}" />
+
+  <!-- ==================== -->
+  <xacro:property name="_topic_path_prefix"
+    value="${_camera_name_prefix.rstrip('_')}" />
+
+  <xacro:if value="${(_topic_path_prefix.__len__() > 0) and
+      not _topic_path_prefix.endswith( '/')}">
+
+    <xacro:property name="_topic_path_prefix"
+      value="${_camera_name_prefix.rstrip('_') + '/'}" />
+
+  </xacro:if>
+
+  <!-- ==================== -->
+  <xacro:property name="_ns_prefix" value="" />
+
+  <xacro:if value="${force_abs_ns}">
+    <xacro:property name="_ns_prefix" value="/" />
+  </xacro:if>
+
+  <xacro:property name="_topic_prefix"
+    value="${_ns_prefix}${_topic_path_prefix}" />
+
+  <!-- ==================== -->
+  <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+    <cameraName>${camera_name_prefix}</cameraName>
+
+    <alwaysOn>${always_on}</alwaysOn>
+    <updateRate>${update_rate}</updateRate>
+
+    <xacro:declare_topic_name prefix="image"
+      value="${_topic_prefix}camera/image_raw" />
+    <xacro:declare_topic_name prefix="cameraInfo"
+      value="${_topic_prefix}camera/camera_info" />
+
+    <xacro:declare_element prefix="" suffix="frameName"
+      value="${camera_name_prefix}camera_frame" />
+
+    <hackBaseline>${hack_baseline}</hackBaseline>
+    <distortionK1>${d_k1}</distortionK1>
+    <distortionK2>${d_k2}</distortionK2>
+    <distortionK3>${d_k3}</distortionK3>
+    <distortionT1>${d_t1}</distortionT1>
+    <distortionT2>${d_t2}</distortionT2>
+  </plugin>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="wtf1" params="macro kv_pair2:=^">
+
+  <xacro:if value="${kv_pairs}">
+    <xacro:property name="_kv" value="${kv_pairs.pop(0)}" />
+    <xacro:property name="${_kv[0]}" value="${_kv[1]}" />
+
+    <xacro:wtf1 macro="${macro}" />
+  </xacro:if>
+
+  <xacro:unless value="${kv_pairs}">
+    <xacro:element xacro:name="xacro:${macro}" />
+  </xacro:unless>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="wtf" params="*macro">
+
+  <xacro:insert_block name="macro" />
+
+</xacro:macro>
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <arg name="camera_name_prefix" default="webcam" />
+  <arg name="force_abs_ns" default="False" />
+
+  <xacro:sensor_camera_camera
+    camera_name_prefix="$(arg camera_name_prefix)"
+    force_abs_ns="$(arg force_abs_ns)"
+  />
+
+  <xacro:element xacro:name="xacro:macro" name="anon">
+    <xacro:property name="camera_name_prefix" value="bar" />
+    <xacro:property name="force_abs_ns" value="True" />
+  </xacro:element>
+
+  <xacro:anon />
+
+  <xxx>
+    <xacro:attribute name="camera_name_prefix" value="bar" />
+  </xxx>
+
+<!--
+  <xacro:macro>
+    <xacro:attribute name="name" value="sensor_camera_camera" />
+  </xacro:macro>
+-->
+
+<!--
+  <xacro:wtf>
+    <xacro:element xacro:name="xacro:sensor_camera_camera"
+    wtf="wtf"
+    />
+  </xacro:wtf>
+-->
+<!--
+  <xacro:wtf>
+    <xacro:element xacro:name="xacro:sensor_camera_camera">
+      <xacro:attribute name="camera_name_prefix"
+        value="$(arg camera_name_prefix)" />
+      <xacro:attribute name="force_abs_ns" value="$(arg force_abs_ns)" />
+    </xacro:element>
+  </xacro:wtf>
+-->
+
+  <!-- This will not work. -->
+<!--
+  <xacro:sensor_camera_camera
+    ${str( dict( [
+      ('camera_name_prefix',"$(arg camera_name_prefix)"),
+      ('force_abs_ns',"$(arg force_abs_ns)"),
+    ]))}
+  />
+-->
+
+  <!-- This will not work. -->
+<!--
+  <xacro:sensor_camera_camera>
+    <xacro:attribute name="camera_name_prefix"
+      value="$(arg camera_name_prefix)" />
+    <xacro:attribute name="force_abs_ns" value="$(arg force_abs_ns)" />
+  </xacro:sensor_camera_camera>
+-->
+
+</xacro:if>
+
+</robot>

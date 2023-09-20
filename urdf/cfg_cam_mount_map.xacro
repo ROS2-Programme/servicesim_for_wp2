@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <!--
+    # NOTE:
+    # scope="global" only needed if <property> is being set inside a macro.
+  -->
+  <xacro:property name="_cam_mount_map" scope="global" value="${dict( [
+    ('mount_points', dict( [
+      ('front', dict( [
+        ('position', dict( [
+          ('x', _ctrl_box_width / 2.0 + _cam_front_offset_x),
+          ('y', _ctrl_box_length / 2.0 + _cam_front_offset_y),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', 0.0)
+        ])),
+      ])),
+      ('back', dict( [
+        ('position', dict( [
+          ('x', (_ctrl_box_width / 2.0 + _cam_front_offset_x) * -1.0),
+          ('y', (_ctrl_box_length / 2.0 + _cam_front_offset_y) * -1.0),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi),
+        ])),
+      ])),
+      ('right', dict( [
+        ('position', dict( [
+          ('x', _cam_right_offset_x),
+          ('y', (_ctrl_box_length / 2.0 + _cam_right_offset_y) * -1.0),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi / 2.0 * -1.0),
+        ])),
+      ])),
+      ('left', dict( [
+        ('position', dict( [
+          ('x', _cam_right_offset_x * -1.0),
+          ('y', _ctrl_box_length / 2.0 + _cam_right_offset_y),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi / 2.0),
+        ])),
+      ])),
+    ]))
+  ])}" />
+
+<!-- ######################################## -->
+<xacro:macro name="test_set_global_prop" params="ret_prop_name">
+
+  <xacro:element xacro:name="property" name="${ret_prop_name}" scope="global"
+    value="${dict( [
+    ('mount_points', dict( [
+      ('front', dict( [
+        ('position', dict( [
+          ('x', _ctrl_box_width / 2.0 + _cam_front_offset_x),
+          ('y', _ctrl_box_length / 2.0 + _cam_front_offset_y),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', 0.0)
+        ])),
+      ])),
+      ('back', dict( [
+        ('position', dict( [
+          ('x', (_ctrl_box_width / 2.0 + _cam_front_offset_x) * -1.0),
+          ('y', (_ctrl_box_length / 2.0 + _cam_front_offset_y) * -1.0),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi),
+        ])),
+      ])),
+      ('right', dict( [
+        ('position', dict( [
+          ('x', _cam_right_offset_x),
+          ('y', (_ctrl_box_length / 2.0 + _cam_right_offset_y) * -1.0),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi / 2.0),
+        ])),
+      ])),
+      ('left', dict( [
+        ('position', dict( [
+          ('x', _cam_right_offset_x * -1.0),
+          ('y', _ctrl_box_length / 2.0 + _cam_right_offset_y),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi / 2.0 * -1.0),
+        ])),
+      ])),
+    ]))
+  ])}" />
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="test_load_yaml_to_global_prop" params="
+    ret_prop_name
+    yaml_path
+">
+
+  <xacro:property name="_yaml_data" scope="parent"
+      value="${xacro.load_yaml( yaml_path)}" />
+
+  <xacro:element xacro:name="property" name="${ret_prop_name}" scope="global"
+    value="${str( _yaml_data.items()).replace(
+      '_ctrl_box_length', str( _ctrl_box_length)).replace(
+      '_ctrl_box_width', str( _ctrl_box_width)).replace(
+      '_ctrl_box_height', str( _ctrl_box_height)).replace(
+      '_cam_front_offset_x', str( _cam_front_offset_x)).replace(
+      '_cam_front_offset_y', str( _cam_front_offset_y)).replace(
+      '_cam_right_offset_x', str( _cam_right_offset_x)).replace(
+      '_cam_right_offset_y', str( _cam_right_offset_y)).replace(
+      '_cam_any_offset_z', str( _cam_any_offset_z)).replace(
+      'pi', str( pi))
+  }" />
+<!--
+  <xacro:recurse_through_dict kv_pairs="${list( _yaml_data.items())}" />
+-->
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="typify_numbers_in_expr" params="expr_var">
+
+  <xacro:property name="_tmp" value="${map( lambda e: (e, 'float(' + e + ')')[
+    e.lstrip( '-+').replace( '.', '', 1).isdigit()], str( expr_var).split())}"
+  />
+
+  <xacro:property name="_v" value="${' '.join( _tmp)}" />
+
+  ${' '.join( _tmp)}
+  <xacro:element xacro:name="xxx">${_v}</xacro:element>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="recurse_through_dict" params="kv_pairs:=^ nest_level:=0">
+
+  <xacro:if value="${kv_pairs}">
+    <xacro:property name="_kv" value="${kv_pairs.pop(0)}" />
+    <xacro:property name="_k" value="${_kv[0]}" />
+    <xacro:property name="_v" value="${_kv[1]}" />
+
+    <xacro:property name="_bNested" value="${str( _v).find( '{') == 0}" />
+
+    <xacro:if value="${_bNested}">
+      <xacro:element xacro:name="dict" key="${_k}" nest="${nest_level}">
+        <xacro:recurse_through_dict kv_pairs="${list( _v.items())}"
+            nest_level="${nest_level + 1}" />
+      </xacro:element>
+    </xacro:if>
+
+    <xacro:unless value="${_bNested}">
+      <xacro:property name="_vv" value="${str( _v).replace(
+        '_ctrl_box_length', str( _ctrl_box_length)).replace(
+        '_ctrl_box_width', str( _ctrl_box_width)).replace(
+        '_ctrl_box_height', str( _ctrl_box_height)).replace(
+        '_cam_front_offset_x', str( _cam_front_offset_x)).replace(
+        '_cam_front_offset_y', str( _cam_front_offset_y)).replace(
+        '_cam_right_offset_x', str( _cam_right_offset_x)).replace(
+        '_cam_right_offset_y', str( _cam_right_offset_y)).replace(
+        '_cam_any_offset_z', str( _cam_any_offset_z)).replace(
+        'pi', str( pi))}" />
+" />
+      <xacro:typify_numbers_in_expr expr_var="${str( _vv)}" />
+<!--
+      <xacro:element xacro:name="dict" key="${_k}"
+          nest="${nest_level}">${__v}</xacro:element>
+-->
+    </xacro:unless>
+
+    <xacro:recurse_through_dict nest_level="${nest_level}" />
+  </xacro:if>
+
+</xacro:macro>
+
+</robot>

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="../lib_util.urdf.xacro" />
+
+  <xacro:include filename="custom_part_control_box.urdf.xacro" />
+<!--
+  <xacro:include filename="custom_part_sensor_depth.urdf.xacro" />
+-->
+
+  <!--
+    # Looks like xarm_device.urdf.xacro macro may support adding custom
+    # geometry (including associated mesh file) to TCP, so may not need to have
+    # custom_part_ee_XXX.urdf.xacro files <xacro:include>-ed below.
+  -->
+<!--
+  <xacro:property name="_ee_type" value="$(arg ee_type)" />
+
+  <xacro:if value="${_ee_type == 'tray'}"> 
+    <xacro:include filename="custom_part_ee_attachment.urdf.xacro" />
+  </xacro:if>
+  <xacro:if value="${_ee_type == 'hand'}"> 
+    <xacro:include filename="custom_part_ee_gripper.urdf.xacro" />
+  </xacro:if>
+-->
+
+  <xacro:eval_to_bool val="$(arg add_world_link)" _bDebug="False" />
+  <xacro:property name="_bAddWorldLink" value="${pRet.pop()}" />
+  <xacro:induce_eval RET="${_bAddWorldLink}" />
+
+  <xacro:if value="${_bAddWorldLink}">
+    <xacro:include filename="../custom_part_world_frame.urdf.xacro" />
+  </xacro:if>
+
+  <gazebo>
+    <plugin filename="libgazebo_ros_moveit_planning_scene.so"
+        name="gazebo_ros_moveit_planning_scene">
+<!--
+      <topicName>/planning_scene</topicName>
+-->
+      <topicName>/planning_scene_wtf</topicName>
+      <sceneName>servicesim</sceneName>
+      <robotName>ranger_mini</robotName>
+      <updatePeriod>0.5</updatePeriod>
+    </plugin>
+  </gazebo>
+
+</robot>

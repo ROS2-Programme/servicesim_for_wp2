@@ -1,0 +1,215 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:include filename="origin.urdf.xacro" />
+
+<xacro:arg name="test" default="False" />
+
+<!-- ######################################## -->
+<xacro:macro name="create_child_link_joint_pair_with_origin_block" params="
+    parent_link
+    child_part_prefix:=''
+    child_part_suffix:=''
+    child_link:='UNNAMED_NEW_LINK'
+    child_joint:=''
+    joint_type:='fixed'
+    *origin
+">
+
+  <xacro:property name="_child_link" value="${
+    str( child_part_prefix).strip() +
+    str( child_link).strip() +
+    str( child_part_suffix).strip()
+  }" />
+  <xacro:property name="_child_joint" value="${str( child_joint).strip()}" />
+
+  <xacro:if value="${_child_joint.__len__() == 0}">
+    <xacro:property name="_child_joint" value="${_child_link + '_joint'}" />
+  </xacro:if>
+
+
+  <link name="${_child_link}" />
+  <joint name="${_child_joint}" type="${joint_type}">
+    <xacro:insert_block name="origin" />
+
+    <parent link="${parent_link}" />
+    <child link="${_child_link}" />
+  </joint>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="create_child_link_joint_old" params="
+    parent_link
+    child_part_prefix:=''
+    child_part_suffix:=''
+    child_link:='UNNAMED_NEW_LINK'
+    child_joint:=''
+    parent_link_w:=0.0
+    parent_link_l:=0.0
+    parent_link_h:=0.0
+    origin_x:=None
+    origin_y:=None
+    origin_z:=None
+    origin_roll:=0.0
+    origin_pitch:=0.0
+    origin_yaw:=0.0
+    joint_type:='fixed'
+">
+
+  <xacro:if value="${origin_x == None}">
+    <xacro:property name="origin_x" value="${parent_link_w / 2.0}" />
+  </xacro:if>
+  <xacro:if value="${origin_y == None}">
+    <xacro:property name="origin_y" value="${parent_link_l / 2.0}" />
+  </xacro:if>
+  <xacro:if value="${origin_z == None}">
+    <xacro:property name="origin_z" value="${parent_link_h / 2.0}" />
+  </xacro:if>
+
+
+  <xacro:create_child_link_joint_pair_with_origin_block
+      parent_link="${parent_link}"
+      child_part_prefix="${child_part_prefix}"
+      child_part_suffix="${child_part_suffix}"
+      child_link="${child_link}"
+      child_joint="${child_joint}"
+      joint_type="${joint_type}">
+
+    <origin xyz="${origin_x} ${origin_y} ${origin_z}"
+      rpy="${origin_roll} ${origin_pitch} ${origin_yaw}" />
+
+  </xacro:create_child_link_joint_pair_with_origin_block>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="create_child_link_joint_with_origin_block" params="
+    parent_link
+    child_part_prefix:=''
+    child_part_suffix:=''
+    child_link:='UNNAMED_NEW_LINK'
+    child_joint:=''
+    joint_type:='fixed'
+    *origin
+">
+
+  <xacro:create_child_link_joint_pair_with_origin_block
+      parent_link="${parent_link}"
+      child_part_prefix="${child_part_prefix}"
+      child_part_suffix="${child_part_suffix}"
+      child_link="${child_link}"
+      child_joint="${child_joint}"
+      joint_type="${joint_type}">
+
+   <xacro:insert_block name="origin" />
+
+  </xacro:create_child_link_joint_pair_with_origin_block>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="create_child_link_joint_wrt_box_side" params="
+    parent_link
+    child_part_prefix:=''
+    child_part_suffix:=''
+    child_link:='UNNAMED_NEW_LINK'
+    child_joint:=''
+    joint_type:='fixed'
+    parent_box_w:=1.0
+    parent_box_l:=1.0
+    parent_box_h:=1.0
+    rel_pos_to_box:='front'
+">
+
+  <xacro:create_child_link_joint_pair_with_origin_block
+      parent_link="${parent_link}"
+      child_part_prefix="${child_part_prefix}"
+      child_part_suffix="${child_part_suffix}"
+      child_link="${child_link}"
+      child_joint="${child_joint}"
+      joint_type="${joint_type}">
+
+    <xacro:create_origin_wrt_box_side
+      parent_box_w="${parent_box_w}"
+      parent_box_l="${parent_box_l}"
+      parent_box_h="${parent_box_h}"
+      rel_pos_to_box="${rel_pos_to_box}"
+    />
+
+  </xacro:create_child_link_joint_pair_with_origin_block>
+
+</xacro:macro>
+
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <xacro:property name="box_w" value="0.52" />
+  <xacro:property name="box_l" value="0.59" />
+  <xacro:property name="box_h" value="0.68" />
+<!--
+  <xacro:property name="box_w" value="0.27" />
+  <xacro:property name="box_l" value="0.23" />
+  <xacro:property name="box_h" value="0.175" />
+-->
+
+  <xacro:create_child_link_joint_old
+    parent_link="control_box"
+    child_part_prefix="realsense_mount_"
+    child_part_suffix="front_left"
+    child_link=""
+    parent_link_w="${box_w}"
+    parent_link_l="${box_l}"
+    parent_link_h="${box_h}" />
+
+  <xacro:create_child_link_joint_with_origin_block
+      parent_link="control_box"
+      child_part_prefix="realsense_mount_"
+      child_part_suffix="front"
+      child_link="">
+
+    <xacro:create_origin_wrt_box_side
+      parent_box_w="${box_w}"
+      parent_box_l="${box_l}"
+      parent_box_h="${box_h}"
+      rel_pos_to_box="front" />
+
+  </xacro:create_child_link_joint_with_origin_block>
+
+  <xacro:create_child_link_joint_wrt_box_side
+    parent_link="control_box"
+    child_part_prefix="realsense_mount_"
+    child_part_suffix="back"
+    child_link=""
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="back" />
+
+  <xacro:create_child_link_joint_wrt_box_side
+    parent_link="control_box"
+    child_part_prefix="realsense_mount_"
+    child_part_suffix="left"
+    child_link=""
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="left" />
+
+  <xacro:create_child_link_joint_wrt_box_side
+    parent_link="control_box"
+    child_part_prefix="realsense_mount_"
+    child_part_suffix="right"
+    child_link=""
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="right" />
+
+</xacro:if>
+
+</robot>

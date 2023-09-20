@@ -7,6 +7,28 @@
   <xacro:property name="_parent_link_for_sensor"
       value="$(arg parent_link_for_sensor)" />
 
+  <!--
+    # Name of top-level macro for Realsense camera has been changed after ROS
+    # Kinetic: from "intel_realsense_mount" to "realsense_sensor"; and with
+    # different parameter names.
+  -->
+  <xacro:property name="_ros_distro" value="$(optenv ROS_DISTRO)" />
+  <xacro:property name="_is_kinetic" value="${_ros_distro == 'kinetic'}" />
+
+  <xacro:unless value="${_is_kinetic}">
+    <!--
+      # NOTE: local copy made of original urdf/_d435.urdf.xacro in
+      # realsense2_description package in order to patch original,
+      # by commenting out <xacro:include> of material file which leads to
+      # xacro complaining about some <material> being redefined.
+    -->
+    <xacro:include filename="_d435.urdf.xacro" />
+<!--
+    <xacro:include
+      filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
+-->
+  </xacro:unless>
+
   <!-- Control Box Properties -->
   <xacro:property name="ctrl_box_width" value="0.52" />
   <xacro:property name="ctrl_box_length" value="0.59" />
@@ -20,8 +42,18 @@
       <parent link="${_parent_link_for_sensor}"/>
       <child link="realsense_mount_front" />
     </joint>
-    <xacro:intel_realsense_mount prefix="camera1" topic="realsense_front"
-      parent_link="realsense_mount_front"/>
+
+    <xacro:if value="${_is_kinetic}">
+      <xacro:intel_realsense_mount prefix="camera1" topic="realsense_front"
+        parent_link="realsense_mount_front"/>
+    </xacro:if>
+    <xacro:unless value="${_is_kinetic}">
+      <xacro:realsense_sensor prefix="camera1" topic="realsense_front"
+          parent="realsense_mount_front" include="0">
+        <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
+      </xacro:realsense_sensor>
+    </xacro:unless>
+
   </xacro:if>
 
   <xacro:if value="${True}">
@@ -32,8 +64,18 @@
       <parent link="${_parent_link_for_sensor}"/>
       <child link="realsense_mount_right" />
     </joint>
-    <xacro:intel_realsense_mount prefix="camera2" topic="realsense_right"
-      parent_link="realsense_mount_right"/>
+
+    <xacro:if value="${_is_kinetic}">
+      <xacro:intel_realsense_mount prefix="camera2" topic="realsense_right"
+        parent_link="realsense_mount_right"/>
+    </xacro:if>
+    <xacro:unless value="${_is_kinetic}">
+      <xacro:realsense_sensor prefix="camera2" topic="realsense_right"
+          parent="realsense_mount_right" include="0">
+        <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
+      </xacro:realsense_sensor>
+    </xacro:unless>
+
   </xacro:if>
 
 </robot>

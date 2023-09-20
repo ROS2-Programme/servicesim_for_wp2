@@ -21,6 +21,7 @@ class MyMoveGroup( object):
 	def __init__( self, argv, _szGroup='panda_arm',
 			_szNodeName='my_move_group', _bAnon=False,
 			_szTrajVisTopic='/move_group/display_planned_path',
+			_fMaxAccelScaleFactor=0.01,
 			_nTrajVisTopicQ=None, _bLatch=True):
 
 		super( MyMoveGroup, self).__init__()
@@ -44,6 +45,8 @@ class MyMoveGroup( object):
 		## This interface can be used to plan and execute motions on the robot:
 		self.group_name = _szGroup
 		self.group = moveit_commander.MoveGroupCommander( self.group_name)
+
+		self.group.set_max_acceleration_scaling_factor( _fMaxAccelScaleFactor)
 
 		## Create a `DisplayTrajectory`_ publisher which is used later to
 		## publish trajectories for RViz to visualize:

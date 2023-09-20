@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="../lib_util_depth_cam_spawn.urdf.xacro" />
+  <xacro:include filename="custom_part_sensor_depth_single.urdf.xacro" />
+
+  <xacro:arg name="pkg_for_cam" default="open_vico_cameras" />
+  <xacro:property name="_pkg_for_cam" default="$(arg pkg_for_cam)" />
+
+  <xacro:arg name="pkg_loc_camera_depth" default="$(find ${_pkg_for_cam})" />
+  <xacro:property name="_pkg_loc_camera_depth"
+      value="$(arg pkg_loc_camera_depth)" />
+
+  <xacro:property name="_use_openvico"
+      value="${_pkg_for_cam == 'open_vico_cameras'}" />
+
+  <xacro:arg name="camera_model" default="zed" />
+  <!--
+    # Macro calls for realsense and zed (from open_vico_cameras) not yet added
+    # in below. Only OpenVICO version of kinect macro added so far.
+  -->
+<!--
+  <xacro:arg name="camera_model" default="kinect" />
+  <xacro:arg name="camera_model" default="realsense" />
+-->
+
+  <xacro:property name="_camera_model" value="$(arg camera_model)" />
+  <xacro:property name="_camera_urdf" value="__FILE_NOT_SET__.xacro" />
+
+  <xacro:if value="${_camera_model == 'kinect'}">
+    <xacro:property name="_camera_urdf" value="microsoft_kinect2.xacro" />
+  </xacro:if>
+  <xacro:if value="${_camera_model == 'realsense'}">
+    <xacro:property name="_camera_urdf" value="realsense_d435.xacro" />
+  </xacro:if>
+  <xacro:if value="${_camera_model == 'zed'}">
+    <xacro:property name="_camera_urdf" value="stereolabs_zed2.xacro" />
+  </xacro:if>
+
+  <xacro:include filename="${_pkg_loc_camera_depth}/urdf/${_camera_urdf}"/>
+
+  <xacro:arg name="parent_link_for_sensor" default="control_box" />
+  <xacro:property name="_parent_link_for_sensor"
+      value="$(arg parent_link_for_sensor)" />
+
+  <!--
+    # Name of top-level macro for Realsense camera has been changed after ROS
+    # Kinetic: from "intel_realsense_mount" to "realsense_sensor"; and with
+    # different parameter names.
+  -->
+  <xacro:property name="_ros_distro" value="$(optenv ROS_DISTRO)" />
+  <xacro:property name="_is_kinetic" value="${_ros_distro == 'kinetic'}" />
+
+  <xacro:unless value="${_is_kinetic}">
+    <!--
+      # NOTE: local copy made of original urdf/_d435.urdf.xacro in
+      # realsense2_description package in order to patch original,
+      # by commenting out <xacro:include> of material file which leads to
+      # xacro complaining about some <material> being redefined.
+    -->
+    <xacro:include filename="../_d435.urdf.xacro" />
+<!--
+    <xacro:include
+      filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
+-->
+  </xacro:unless>
+
+  <!-- Control Box Properties -->
+  <xacro:arg name="ctrl_box_width" default="0.19" />
+  <xacro:arg name="ctrl_box_length" default="0.23" />
+  <xacro:arg name="ctrl_box_height" default="0.175" />
+  <xacro:property name="_ctrl_box_width" value="$(arg ctrl_box_width)" />
+  <xacro:property name="_ctrl_box_length" value="$(arg ctrl_box_length)" />
+  <xacro:property name="_ctrl_box_height" value="$(arg ctrl_box_height)" />
+
+
+  <xacro:arg name="cam_front_offset_x" default="0.13" />
+  <xacro:arg name="cam_front_offset_y" default="0.01" />
+  <xacro:property name="_cam_front_offset_x" value="$(arg cam_front_offset_x)"
+    />
+  <xacro:property name="_cam_front_offset_y" value="$(arg cam_front_offset_x)"
+    />
+
+  <xacro:arg name="cam_right_offset_x" default="-${_ctrl_box_length / 2.0}" />
+  <xacro:arg name="cam_right_offset_y" default="0.01" />
+  <xacro:property name="_cam_right_offset_x" value="$(arg cam_right_offset_x)"
+    />
+  <xacro:property name="_cam_right_offset_y" value="$(arg cam_right_offset_y)"
+    />
+
+  <xacro:arg name="cam_any_offset_z" default="0.1" />
+  <xacro:property name="_cam_any_offset_z" value="$(arg cam_any_offset_z)" />
+
+
+  <xacro:include filename="../cfg_cam_mount_map.xacro" />
+  <xacro:property name="_cam_mount_point_origin_map"
+    value="${_cam_mount_map.get( 'mount_points')}" />
+
+
+  <xacro:spawn_all_cam
+    parent_link="${_parent_link_for_sensor}"
+    camera_model="${_camera_model}"
+    use_openvico="${_use_openvico}"
+    is_kinetic="${_is_kinetic}"
+    kv_pairs="${list( _cam_mount_point_origin_map.items())}"
+    explicit_on="${dict( [ ('front', True), ('right', True) ])}"
+  />
+
+</robot>

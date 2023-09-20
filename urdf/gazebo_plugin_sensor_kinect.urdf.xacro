@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:include filename="lib.urdf.xacro" />
+
+<xacro:arg name="test" default="False" />
+
+<!--
+  # Copied & modified from part of urdf/microsoft_kinect2.xacro (and
+  # urdf/stereolabs_zed2.xacro) under open_vico_cameras package of
+  # open-vico-melodic-devel repository.
+-->
+<!-- ######################################## -->
+<xacro:macro name="sensor_plugin_kinect" params="
+    camera_name_prefix
+    baseline
+    pc_cutoff_min
+    pc_cutoff_max
+    update_rate:=0.0
+    force_abs_ns:=False
+    extra_cfg:=False
+    plugin_so_file:='libgazebo_ros_openni_kinect.so'
+">
+
+  <xacro:property name="_camera_name_prefix"
+    value="${str( camera_name_prefix).strip()}" />
+
+  <xacro:if value="${(len( _camera_name_prefix) > 0) and
+      not _camera_name_prefix.endswith( '/')}">
+
+    <xacro:property name="_camera_name_prefix"
+      value="${str( camera_name_prefix).strip() + '/'}" />
+
+  </xacro:if>
+
+  <!-- ==================== -->
+  <xacro:property name="_ns_prefix" value="" />
+
+  <xacro:if value="${force_abs_ns}">
+    <xacro:property name="_ns_prefix" value="/" />
+  </xacro:if>
+
+  <xacro:property name="_topic_prefix"
+    value="${_ns_prefix}${camera_name_prefix}" />
+
+  <!-- ==================== -->
+  <plugin name="${camera_name_prefix}_plugin" filename="${plugin_so_file}">
+
+    <cameraName>${camera_name_prefix}</cameraName>
+    <alwaysOn>true</alwaysOn>
+    <!--
+      # Keep this zero, update_rate in the parent <sensor> tag
+      # will control the frame rate.
+     -->
+    <updateRate>${update_rate}</updateRate>
+
+    <xacro:declare_topic_name prefix="image"
+      value="${_topic_prefix}color/image_raw" />
+    <xacro:declare_topic_name prefix="cameraInfo"
+      value="${_topic_prefix}color/camera_info" />
+
+    <xacro:declare_topic_name prefix="depthImage"
+      value="${_topic_prefix}depth/image_raw" />
+    <xacro:declare_topic_name prefix="depthImageCameraInfo"
+      value="${_topic_prefix}depth/camera_info" />
+
+    <xacro:declare_topic_name prefix="pointCloud"
+      value="${_topic_prefix}depth/points" />
+
+    <xacro:declare_element prefix="" suffix="frameName"
+      value="${camera_name_prefix}_depth_optical_frame" />
+
+    <baseline>${baseline}</baseline>
+
+    <pointCloudCutoff>${pc_cutoff_min}</pointCloudCutoff>
+    <pointCloudCutoffMax>${pc_cutoff_max}</pointCloudCutoffMax>
+
+    <distortionK1>0</distortionK1>
+    <distortionK2>0</distortionK2>
+    <distortionK3>0</distortionK3>
+    <distortionT1>0</distortionT1>
+    <distortionT2>0</distortionT2>
+
+    <CxPrime>0</CxPrime>
+    <Cx>0</Cx>
+    <Cy>0</Cy>
+
+    <xacro:if value="${extra_cfg}">
+      <focalLength>0</focalLength>
+      <hackBaseline>0</hackBaseline>
+    </xacro:if>
+  </plugin>
+
+</xacro:macro>
+
+<!-- ######################################## -->
+<xacro:macro name="sensor_plugin_kinect_dict" params="
+    camera_name_prefix
+    baseline
+    pc_cutoff_min
+    pc_cutoff_max
+    update_rate:=0
+    force_abs_ns:=False
+    extra_cfg:=False
+    plugin_so_file:='libgazebo_ros_openni_kinect.so'
+">
+
+<!--
+  <xacro:sensor_plugin_kinect
+    camera_name_prefix="${camera_name_prefix}"
+    baseline
+    pc_cutoff_min
+    pc_cutoff_max
+    update_rate:=0
+    force_abs_ns:=False
+    extra_cfg:=False
+    plugin_so_file:='libgazebo_ros_openni_kinect.so'
+-->
+
+</xacro:macro>
+
+<!-- #################### -->
+<xacro:property name="kinect_plugin_cfg_map" value="${dict( [
+
+  [ 'kinect', dict( [
+    ( 'baseline', 0.1 ),
+    ( 'pc_cutoff_min', 0.4 ),
+    ( 'pc_cutoff_max', 5.0 ),
+    ( 'update_rate', 20.0 ),
+  ]) ],
+
+  [ 'realsense', dict( [
+    ( 'baseline', 0.2 ),
+    ( 'pc_cutoff_min', 0.105 ),
+    ( 'pc_cutoff_max', 8.0 ),
+    ( 'update_rate', 30.0 ),
+    ( 'extra_cfg', True ),
+  ]) ],
+
+  [ 'zed', dict( [
+    ( 'baseline', 0.12 ),
+    ( 'pc_cutoff_min', 0.5 ),
+    ( 'pc_cutoff_max', 30.0 ),
+    ( 'update_rate', 0.0 ),
+  ]) ],
+
+])}" />
+
+
+<xacro:if value="$(arg test)">
+
+  <xacro:sensor_plugin_kinect
+    camera_name_prefix="zed_front"
+    baseline="0.12"
+    pc_cutoff_min="0.5"
+    pc_cutoff_max="30"
+    extra_cfg="True" />
+
+  <xacro:sensor_plugin_kinect
+    camera_name_prefix="kinect_back"
+    baseline="0.1"
+    pc_cutoff_min="0.4"
+    pc_cutoff_max="5.0"
+    update_rate="30" />
+
+  <xacro:sensor_plugin_kinect
+    camera_name_prefix="realsense_right"
+    baseline="0.1"
+    pc_cutoff_min="0.4"
+    pc_cutoff_max="5.0"
+    force_abs_ns="True" />
+
+</xacro:if>
+    
+</robot>

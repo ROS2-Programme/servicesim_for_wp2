@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:include filename="lib.urdf.xacro" />
+
+<xacro:arg name="test" default="False" />
+
+<!-- ######################################## -->
+<xacro:macro name="sensor_camera_camera" params="
+    camera_name_prefix:=^
+    plugin_suffix:=^|'_plugin'
+    always_on:=^|True
+    update_rate:=^|0.0
+    hack_baseline:=^|0.07
+    force_abs_ns:=^|False
+    d_k1:=0.0
+    d_k2:=0.0
+    d_k3:=0.0
+    d_t1:=0.0
+    d_t2:=0.0
+">
+
+  <xacro:property name="_camera_name_prefix"
+    value="${str( camera_name_prefix).strip()}" />
+
+  <!-- ==================== -->
+  <xacro:property name="_topic_path_prefix"
+    value="${_camera_name_prefix.rstrip('_')}" />
+
+  <xacro:if value="${(_topic_path_prefix.__len__() > 0) and
+      not _topic_path_prefix.endswith( '/')}">
+
+    <xacro:property name="_topic_path_prefix"
+      value="${_camera_name_prefix.rstrip('_') + '/'}" />
+
+  </xacro:if>
+
+  <!-- ==================== -->
+  <xacro:property name="_ns_prefix" value="" />
+
+  <xacro:if value="${force_abs_ns}">
+    <xacro:property name="_ns_prefix" value="/" />
+  </xacro:if>
+
+  <xacro:property name="_topic_prefix"
+    value="${_ns_prefix}${_topic_path_prefix}" />
+
+  <!-- ==================== -->
+  <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+    <cameraName>${camera_name_prefix}</cameraName>
+
+    <alwaysOn>${always_on}</alwaysOn>
+    <updateRate>${update_rate}</updateRate>
+
+    <xacro:declare_topic_name prefix="image"
+      value="${_topic_prefix}camera/image_raw" />
+    <xacro:declare_topic_name prefix="cameraInfo"
+      value="${_topic_prefix}camera/camera_info" />
+
+    <xacro:declare_element prefix="" suffix="frameName"
+      value="${camera_name_prefix}camera_frame" />
+
+    <hackBaseline>${hack_baseline}</hackBaseline>
+    <distortionK1>${d_k1}</distortionK1>
+    <distortionK2>${d_k2}</distortionK2>
+    <distortionK3>${d_k3}</distortionK3>
+    <distortionT1>${d_t1}</distortionT1>
+    <distortionT2>${d_t2}</distortionT2>
+  </plugin>
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="call_all_caret_param_macro" params="macro kv_pairs:=^">
+
+  <xacro:if value="${kv_pairs}">
+    <xacro:property name="kv" value="${kv_pairs.pop(0)}" />
+    <xacro:property name="k" value="wtf" />
+    <xacro:property name="v" value="${kv[1]}" />
+<!--
+    <xacro:element xacro:name="xacro:property" name="${k}" value="${v}" />
+-->
+    <xacro:property name="${k}" value="${v}" />
+
+    <xacro:call_all_caret_param_macro macro="${macro}" />
+  </xacro:if>
+
+  <xacro:unless value="${kv_pairs}">
+    <xacro:element xacro:name="xacro:${macro}" />
+  </xacro:unless>
+
+</xacro:macro>
+
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <xacro:arg name="yaml_file" default="" />
+  <xacro:property name="_yaml_file" value="$(arg yaml_file)" />
+
+  <xacro:property name="_param_map" value="${dict()}" />
+
+  <xacro:if value="${_yaml_file.strip().__len__() > 0}">
+    <xacro:property name="_param_map" value="${load_yaml( _yaml_file)}" />
+  </xacro:if>
+
+  <xacro:arg name="camera_name_prefix" default="webcam" />
+  <xacro:arg name="force_abs_ns" default="False" />
+  <xacro:arg name="plugin_suffix" default="_plugin" />
+  <xacro:arg name="always_on" default="True" />
+  <xacro:arg name="update_rate" default="0.0" />
+  <xacro:arg name="hack_baseline" default="0.07" />
+
+<!--
+  <xacro:property name="_param_map" value="${dict( [
+      ( 'camera_name_prefix', camera_name_prefix ),
+      ( 'force_abs_ns', force_abs_ns ),
+      ( 'plugin_suffix', plugin_suffix ),
+      ( 'always_on', always_on ),
+      ( 'update_rate', update_rate ),
+      ( 'hack_baseline', hack_baseline ),
+  ])}" />
+-->
+
+  <xacro:call_all_caret_param_macro macro="sensor_camera_camera"
+    kv_pairs="${list( _param_map.items())}" />
+
+</xacro:if>
+
+</robot>

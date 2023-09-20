@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:arg name="test" default="False" />
+
+<!-- ######################################## -->
+
+
+<!-- ######################################## -->
+
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <xacro:arg name="ctrl_box_width" default="0.19" />
+  <xacro:arg name="ctrl_box_length" default="0.23" />
+  <xacro:arg name="ctrl_box_height" default="0.175" />
+  <xacro:property name="_ctrl_box_width" value="$(arg ctrl_box_width)" />
+  <xacro:property name="_ctrl_box_length" value="$(arg ctrl_box_length)" />
+  <xacro:property name="_ctrl_box_height" value="$(arg ctrl_box_height)" />
+
+  <xacro:arg name="cam_front_offset_x" default="0.13" />
+  <xacro:arg name="cam_front_offset_y" default="0.01" />
+  <xacro:property name="_cam_front_offset_x" value="$(arg cam_front_offset_x)"
+    />
+  <xacro:property name="_cam_front_offset_y" value="$(arg cam_front_offset_x)"
+    />
+
+  <xacro:arg name="cam_right_offset_x" default="-${_ctrl_box_length / 2.0}" />
+  <xacro:arg name="cam_right_offset_y" default="0.01" />
+  <xacro:property name="_cam_right_offset_x" value="$(arg cam_right_offset_x)"
+    />
+  <xacro:property name="_cam_right_offset_y" value="$(arg cam_right_offset_y)"
+    />
+
+  <xacro:arg name="cam_any_offset_z" default="0.1" />
+  <xacro:property name="_cam_any_offset_z" value="$(arg cam_any_offset_z)" />
+
+
+  <xacro:arg name="yaml_file" default="cam_mount_map.yaml" />
+  <xacro:property name="_yaml_file" default="$(arg yaml_file)" />
+
+  <xacro:include filename="cfg_cam_mount_map.xacro" />
+<!--
+  <xacro:property name="_cam_mount_map" value="${dict( [
+    ('mount_points', dict( [
+      ('front', dict( [
+        ('position', dict( [
+          ('x', _ctrl_box_width / 2.0 + _cam_front_offset_x),
+          ('y', _ctrl_box_length / 2.0 + _cam_front_offset_y),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', 0.0)
+        ])),
+      ])),
+      ('back', dict( [
+        ('position', dict( [
+          ('x', (_ctrl_box_width / 2.0 + _cam_front_offset_x) * -1.0),
+          ('y', (_ctrl_box_length / 2.0 + _cam_front_offset_y) * -1.0),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi),
+        ])),
+      ])),
+      ('right', dict( [
+        ('position', dict( [
+          ('x', _cam_right_offset_x),
+          ('y', (_ctrl_box_length / 2.0 + _cam_right_offset_y) * -1.0),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi / 2.0),
+        ])),
+      ])),
+      ('left', dict( [
+        ('position', dict( [
+          ('x', _cam_right_offset_x * -1.0),
+          ('y', _ctrl_box_length / 2.0 + _cam_right_offset_y),
+          ('z', _ctrl_box_height / 2.0 + _cam_any_offset_z),
+        ])),
+        ('orientation', dict( [
+          ('yaw', pi / 2.0 * -1.0),
+        ])),
+      ])),
+    ]))
+  ])}" />
+-->
+<!--
+  <xacro:property name="_cam_mount_map" value="${load_yaml( _yaml_file)}" />
+  <xacro:property name="_wtf" value="${(lambda s, k, v: str( s).replace( k, v))(
+    str( _cam_mount_map), '_cam_right_offset_x', '_WTF_WTF_')}"
+  />
+  <xacro:property name="_wtf_map" value="${dict( _wtf)}" />
+-->
+
+  <xacro:property name="_cam_mount_point_origin_map"
+    value="${_cam_mount_map.get( 'mount_points')}" />
+
+  <mount_points>${_cam_mount_point_origin_map.keys()}</mount_points>
+
+<!--
+  <xacro:property name="wtf" value="${_cam_mount_point_origin_map.get('right').get('position').get('x')}" />
+  <xacro:property name="_wtf" value="${wtf}" />
+-->
+
+  <mount_point name="front">
+    <position>
+      ${_cam_mount_point_origin_map.get('front').get('position').get('x')}
+      ${_cam_mount_point_origin_map.get('front').get('position').get('y')}
+      ${_cam_mount_point_origin_map.get('front').get('position').get('z')}
+    </position>
+  </mount_point>
+
+  <mount_point name="right">
+    <position>
+      ${_cam_mount_point_origin_map.get('right').get('position').get('x')}
+      ${_cam_mount_point_origin_map.get('right').get('position').get('y')}
+      ${_cam_mount_point_origin_map.get('right').get('position').get('z')}
+    </position>
+  </mount_point>
+
+  ${_cam_mount_point_origin_map}
+
+  <xacro:test_set_global_prop ret_prop_name="wtf_map" />
+
+  ${'mount_points' in wtf_map}
+<!--
+  ${wtf_map.getattr( 'mount_points')}
+-->
+  ${wtf_map.values()}
+<!--
+  ${dir( wtf_map)}
+-->
+
+  <xacro:test_load_yaml_to_global_prop ret_prop_name="wtf_map2"
+      yaml_path="cam_mount_map.yaml" />
+<!--
+  ${wtf_map2}
+-->
+<!--
+  <xacro:recurse_through_dict kv_pairs="${list( wtf_map.items())}" />
+-->
+
+  ${xacro}
+
+  ${xacro.dotify}
+<!--
+  ${xacro.dotify.__getattr__}
+-->
+
+  ${xacro.tokenize( str( _yaml_data))}
+<!--
+  ${xacro.YamlDictWrapper}
+  ${xacro.dotify( wtf_map2)}
+-->
+  ${xacro.tokenize( wtf_map2)}
+<!--
+  ${xacro.dotify( xacro.tokenize( wtf_map2))}
+  ${xacro.open_output}
+  ${xacro.isnumber}
+-->
+
+</xacro:if>
+
+</robot>

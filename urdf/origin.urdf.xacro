@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:arg name="test" default="False" />
+
+<xacro:property name="_M_PI" value="${pi}" />
+<!--
+<xacro:property name="_M_PI_HALF" value="${_M_PI / 2.0}"/>
+<xacro:property name="_M_PI_QUARTER" value="${_M_PI / 4.0}"/>
+-->
+
+<!-- ######################################## -->
+<xacro:macro name="create_origin_raw" params="
+	origin_x:=0.0
+	origin_y:=0.0
+	origin_z:=0.0
+    origin_roll:=0.0
+    origin_pitch:=0.0
+    origin_yaw:=0.0
+">
+
+  <origin xyz="${origin_x} ${origin_y} ${origin_z}"
+    rpy="${origin_roll} ${origin_pitch} ${origin_yaw}" />
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="create_origin_scale" params="
+    parent_box_w:=1.0
+    parent_box_l:=1.0
+    parent_box_h:=1.0
+	offset_scale_x:=0.0
+	offset_scale_y:=0.0
+	offset_scale_z:=0.0
+    origin_roll:=0.0
+    origin_pitch:=0.0
+    origin_yaw:=0.0
+">
+
+  <xacro:create_origin_raw
+    origin_x="${parent_box_w * offset_scale_x}"
+    origin_y="${parent_box_l * offset_scale_y}"
+    origin_z="${parent_box_h * offset_scale_z}"
+    origin_roll="${origin_roll}"
+    origin_pitch="${origin_pitch}"
+    origin_yaw="${origin_yaw}" />
+
+</xacro:macro>
+
+
+<!-- ######################################## -->
+<xacro:macro name="create_origin_wrt_box_side" params="
+    parent_box_w:=1.0
+    parent_box_l:=1.0
+    parent_box_h:=1.0
+    rel_pos_to_box:='front'
+">
+
+  <xacro:property name="ppOffsetScaleWLHY" value="${dict( [
+    [ 'front', [  0.5,  0.0,  0.5,  0.0] ],
+    [ 'back',  [ -0.5,  0.0,  0.5, -1.0 * _M_PI] ],
+    [ 'left',  [  0.0,  0.5,  0.5,  0.5 * _M_PI] ],
+    [ 'right', [  0.0, -0.5,  0.5, -0.5 * _M_PI] ],
+  ])}" />
+
+  <xacro:property name="_bValidPosKey"
+    value="${rel_pos_to_box in ppOffsetScaleWLHY}" />
+
+  <xacro:if value="${_bValidPosKey}">
+    <xacro:property name="pfScaleXYZandYaw"
+      value="${ppOffsetScaleWLHY[ rel_pos_to_box]}" />
+
+    <xacro:create_origin_scale
+      parent_box_w="${parent_box_w}"
+      parent_box_l="${parent_box_l}"
+      parent_box_h="${parent_box_h}"
+	  offset_scale_x="${pfScaleXYZandYaw[ 0]}"
+	  offset_scale_y="${pfScaleXYZandYaw[ 1]}"
+	  offset_scale_z="${pfScaleXYZandYaw[ 2]}"
+      origin_roll="0.0"
+      origin_pitch="0.0"
+      origin_yaw="${pfScaleXYZandYaw[ 3]}" />
+
+  </xacro:if>
+
+  <xacro:unless value="${_bValidPosKey}">
+    <ERROR message="
+# Invalid 'rel_pos_to_box' value ${rel_pos_to_box}.
+# Value must be one of: ${ppOffsetScaleWLHY.keys()}.
+" />
+  </xacro:unless>
+
+</xacro:macro>
+
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <xacro:property name="box_w" value="0.52" />
+  <xacro:property name="box_l" value="0.59" />
+  <xacro:property name="box_h" value="0.68" />
+<!--
+  <xacro:property name="box_w" value="0.27" />
+  <xacro:property name="box_l" value="0.23" />
+  <xacro:property name="box_h" value="0.175" />
+-->
+  <xacro:create_origin_wrt_box_side
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="front" />
+
+  <xacro:create_origin_wrt_box_side
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="back" />
+
+  <xacro:create_origin_wrt_box_side
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="left" />
+
+  <xacro:create_origin_wrt_box_side
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="right" />
+
+  <xacro:create_origin_wrt_box_side
+    parent_box_w="${box_w}"
+    parent_box_l="${box_l}"
+    parent_box_h="${box_h}"
+    rel_pos_to_box="foo" />
+
+</xacro:if>
+
+</robot>

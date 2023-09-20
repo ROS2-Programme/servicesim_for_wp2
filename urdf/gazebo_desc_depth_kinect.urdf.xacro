@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot name="microsoft_kinect2" xmlns:xacro="http://wiki.ros.org/xacro">
+
+<xacro:include filename="gazebo_desc_depth.urdf.xacro" />
+
+<xacro:arg name="test" default="False" />
+
+<!--
+  # Generalised from part of urdf/microsoft_kinect2.xacro under
+  # open_vico_cameras package of open-vico-melodic-devel repository.
+-->
+<xacro:macro name="sensor_camera_depth_microsoft_kinect2" params="
+    camera_name_prefix 
+    depth_far:=8.0 
+    add_plugin_block:=False
+    cfg_key:='kinect'
+">
+
+  <xacro:property name="_clip_dist_max" value="100" />
+  <xacro:property name="_noise_stddev" value="0.007" />
+
+  <gazebo reference="${camera_name_prefix}_rgb_base_link">
+    <!-- ==================== -->
+    <xacro:sensor_camera_colour
+        camera_name_prefix="${camera_name_prefix}"
+        clip_far="${_clip_dist_max}"
+        noise_stddev="${_noise_stddev}" />
+
+    <!-- ==================== -->
+    <xacro:sensor_camera_depth
+        camera_name_prefix="${camera_name_prefix}"
+        clip_far="${depth_far}"
+        noise_stddev="${_noise_stddev}">
+
+      <xacro:if value="${add_plugin_block}">
+        <xacro:sensor_plugin_kinect camera_name_prefix="${camera_name_prefix}">
+
+          <xacro:attribute name="baseline" value="0.001" />
+
+        </xacro:sensor_plugin_kinect>
+      </xacro:if>
+
+    </xacro:sensor_camera_depth>
+  </gazebo>
+
+</xacro:macro>
+
+
+<!-- #################### -->
+<xacro:if value="$(arg test)">
+
+  <xacro:sensor_camera_depth_microsoft_kinect2
+    camera_name_prefix="kinect_front"
+    add_plugin_block="True"
+  />
+
+</xacro:if>
+
+</robot>

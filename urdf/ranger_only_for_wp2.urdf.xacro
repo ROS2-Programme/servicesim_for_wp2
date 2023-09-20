@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="ranger_mini">
+
+  <xacro:arg name="parent_link_for_custom" default="base_link" />
+  <xacro:arg name="parent_link_for_arm" default="control_box" />
+  <xacro:arg name="robot_arm_link_prefix" default="uf_xarm6_" />
+  <xacro:arg name="gripper_link_prefix" default="hand_" />
+  <xacro:arg name="ee_type" default="tray" />
+<!--
+  <xacro:arg name="ee_type" default="hand" />
+-->
+  <xacro:arg name="add_world_link" default="0" />
+
+  <!-- Control Box Properties -->
+  <!--
+    # "ctrl_box_height" property replicated here from custom.urdf.xacro so that
+    # ranger_xarm6_description.urdf.xacro can be included ahead of
+    # custom.urdf.xacro, so that stupid setup_assistant won't complain that
+    # parent links referenced in the latter are not defined.
+  -->
+  <xacro:property name="ctrl_box_height" value="0.175" />
+
+  <xacro:include filename="ranger_only_description.urdf.xacro" />
+  <xacro:include filename="ranger_xarm6/custom.urdf.xacro" />
+
+</robot>
