@@ -69,7 +69,7 @@
   #define ROS_NODE NodeHandle
 
   #define PUB_DECL( _var_name, _ros2msg_type) \
-    ros_::Publisher _var_name
+    std::shared_ptr< ros_::Publisher> _var_name
 
   #define GEN_DURATION( _d) \
     ros::Duration( _d)
@@ -78,7 +78,8 @@
     ros::Time::now()
 
   #define GEN_PUB( _node, _topic_name, _msg_type, _queue_size) \
-    _node->advertise< _msg_type>( _topic_name, _queue_size)
+    std::make_shared< ros::Publisher>( \
+        _node->advertise< _msg_type>( _topic_name, _queue_size))
 
   namespace std_msgs_ = std_msgs;
   #include <geometry_msgs/Point.h>
