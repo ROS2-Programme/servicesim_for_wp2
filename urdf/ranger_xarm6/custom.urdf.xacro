@@ -4,8 +4,8 @@
   <xacro:include filename="../lib_util.urdf.xacro" />
 
   <xacro:include filename="custom_part_control_box.urdf.xacro" />
-<!--
   <xacro:include filename="custom_part_sensor_depth.urdf.xacro" />
+<!--
 -->
 
   <!--
