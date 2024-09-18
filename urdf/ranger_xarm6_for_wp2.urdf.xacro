@@ -10,6 +10,7 @@
   <xacro:arg name="ee_type" default="hand" />
 -->
   <xacro:arg name="add_world_link" default="0" />
+  <xacro:arg name="ros_ctrl_ns" default="xarm" />
 
   <!-- Control Box Properties -->
   <!--
