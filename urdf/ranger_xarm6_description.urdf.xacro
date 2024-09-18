@@ -65,14 +65,16 @@
 -->
 
   <xacro:property name="_ee_type" value="$(arg ee_type)" />
+  <xacro:property name="_ros_ctrl_ns" value="$(arg ros_ctrl_ns)" />
 
   <xacro:property name="_extra_mesh_pkg_path"
       value="package://servicesim_for_wp2/meshes/end_effector/" />
 
-  <xacro:xarm_device prefix="${_robot_arm_link_prefix}" limited="true"
-    add_gripper="${_ee_type == 'hand'}" dof="6" robot_type="xarm"
-    attach_to="$(arg parent_link_for_arm)" load_gazebo_plugin="true"
-    add_realsense_d435i="false" add_d435i_links="true" use_gazebo_camera="true"
+  <xacro:xarm_device prefix="${_robot_arm_link_prefix}"
+    hw_ns="${_ros_ctrl_ns}" limited="true" add_gripper="${_ee_type == 'hand'}"
+    dof="6" robot_type="xarm" attach_to="$(arg parent_link_for_arm)"
+    load_gazebo_plugin="true" add_realsense_d435i="false"
+    add_d435i_links="true" use_gazebo_camera="true"
     add_other_geometry="${_ee_type == 'tray'}" geometry_type="mesh"
     geometry_mesh_filename="${_extra_mesh_pkg_path}visual/circle_tray.STL"
     geometry_mesh_origin_xyz="0.28 0.0 0.02"
