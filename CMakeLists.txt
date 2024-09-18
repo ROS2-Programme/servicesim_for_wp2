@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.3)
 project(servicesim_for_wp2)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -7,17 +7,61 @@ project(servicesim_for_wp2)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  gazebo_plugins
-  xacro
-  roscpp
-  std_msgs
-  geometry_msgs
-  message_generation
+# find_package(ros_environment)
+
+message(STATUS "${PROJECT_NAME}: ENV{ROS_VERSION} = \"$ENV{ROS_VERSION}\"")
+
+find_package(ament_cmake
+  COMPONENTS
+#    rclcpp
+    pcl_ros
+#    visualization_msgs
 )
+if(ament_cmake_FOUND)
+  message(STATUS "${PROJECT_NAME}: Configuring as ROS2 package")
+  if(DEFINED ENV{ROS_VERSION})
+    set(ROS_VERSION $ENV{ROS_VERSION})
+    if(NOT ${ROS_VERSION} EQUAL 2)
+      message(WARNING
+        "${PROJECT_NAME}: ROS_VERSION not as expected (2): ${ROS_VERSION}")
+    endif()
+  else()
+    set(ROS_VERSION 2)
+    message(STATUS
+      "${PROJECT_NAME}: Manually set ROS_VERSION to ${ROS_VERSION}")
+  endif()
+else()
+  message(STATUS "${PROJECT_NAME}: Configuring as ROS (ROS1) package")
+  if(NOT DEFINED ROS_VERSION)
+    set(ROS_VERSION 1)
+    message(STATUS
+      "${PROJECT_NAME}: Manually set ROS_VERSION to ${ROS_VERSION}")
+  else()
+    if(NOT ${ROS_VERSION} EQUAL 1)
+      message(WARNING
+        "${PROJECT_NAME}: ROS_VERSION not as expected (1): ${ROS_VERSION}")
+    endif()
+  endif()
+  find_package(catkin REQUIRED COMPONENTS
+    gazebo_plugins
+    xacro
+    roscpp
+    std_msgs
+    geometry_msgs
+    message_generation
+  )
+endif()
+
+set(CMAKE_CXX_FLAGS "-DROS_VERSION=${ROS_VERSION}")
 
 find_package( gazebo REQUIRED)
 # find_package( ignition-math5 REQUIRED)
+
+find_package( visualization_msgs REQUIRED)
+if(${ROS_VERSION} EQUAL 2)
+  find_package( rclcpp REQUIRED)
+  find_package( rosidl_default_generators REQUIRED)
+endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -110,20 +154,40 @@ set(trajectory_actor_plugin_name TrajectoryActorExtendedPlugin)
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES servicesim_for_wp2
-  LIBRARIES
+if(${ROS_VERSION} EQUAL 2)
+  ament_export_libraries(
     ${trajectory_actor_plugin_name}
-  CATKIN_DEPENDS
+  )
+  ament_export_include_directories(
+    pcl_ros
+    visualization_msgs
+  )
+  ament_export_dependencies(
     gazebo_plugins
     xacro
     geometry_msgs
     message_runtime
     roscpp
     std_msgs
-#  DEPENDS system_lib
-)
+    visualization_msgs
+  )
+#  ament_package()
+else()
+  catkin_package(
+#    INCLUDE_DIRS include
+#    LIBRARIES servicesim_for_wp2
+    LIBRARIES
+      ${trajectory_actor_plugin_name}
+    CATKIN_DEPENDS
+      gazebo_plugins
+      xacro
+      geometry_msgs
+      message_runtime
+      roscpp
+      std_msgs
+#    DEPENDS system_lib
+  )
+endif()
 
 ###########
 ## Build ##
@@ -190,11 +254,24 @@ target_link_libraries(velodyne_plugin
 add_library(${trajectory_actor_plugin_name} SHARED
   src/TrajectoryActorPlugin.cc
 )
+if(${ROS_VERSION} EQUAL 2)
+ament_target_dependencies(${trajectory_actor_plugin_name}
+  gazebo
+  rclcpp
+  visualization_msgs
+)
+# rosidl_target_interfaces(${trajectory_actor_plugin_name} ${PROJECT_NAME}_msg_srv
+#   "rosidl_typesupport_cpp"
+# )
+ament_package()
+else()
 target_link_libraries(${trajectory_actor_plugin_name}
   ${GAZEBO_LIBRARIES}
   ${catkin_LIBRARIES}
   ${roscpp_LIBRARIES}
 )
+endif()
+
 install(TARGETS ${trajectory_actor_plugin_name}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
