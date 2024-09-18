@@ -26,10 +26,68 @@
 #include <gazebo/common/KeyFrame.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <std_msgs/Header.h>
-#include <geometry_msgs/Point.h>
-#include <visualization_msgs/Marker.h>
-#include <ros/ros.h>
+// #include <std_msgs/Header.h>
+
+// ########################################
+// Main block of extended declarations to support easy(-ish) ROS2 & ROS(1)
+// cross-compatibility, with:
+// - incompatible header file includes
+// - macros
+// - namespace aliasing
+#if (ROS_VERSION == 2)
+  // ####################
+  // ROS2
+  #include <rclcpp/rclcpp.hpp>
+  #include <std_msgs/msg/header.hpp>
+  namespace ros_ = rclcpp;
+  #define ROS_NODE Node
+
+  #define PUB_DECL( _var_name, _ros2msg_type) \
+    std::shared_ptr< ros_::Publisher< _ros2msg_type> > _var_name
+
+  #define GEN_DURATION( _d) \
+    rclcpp::Duration::from_seconds( _d)
+
+  #define GEN_NOW() \
+    rclcpp::Clock().now()
+
+  #define GEN_PUB( _node, _topic_name, _msg_type, _queue_size) \
+    _node->create_publisher< _msg_type>( _topic_name, _queue_size)
+
+  namespace std_msgs_ = std_msgs::msg;
+  // namespace std_msgs_ = std_msgs;
+  #include <geometry_msgs/msg/point.hpp>
+  namespace geometry_msgs_ = geometry_msgs::msg;
+  #include <visualization_msgs/msg/marker.hpp>
+  namespace visualization_msgs_ = visualization_msgs::msg;
+#else // (ROS_VERSION == 2)
+  // ####################
+  // ROS(1)
+  #include <ros/ros.h>
+  #include <std_msgs/header.h>
+  namespace ros_ = ros;
+  #define ROS_NODE NodeHandle
+
+  #define PUB_DECL( _var_name, _ros2msg_type) \
+    ros_::Publisher _var_name
+
+  #define GEN_DURATION( _d) \
+    ros::Duration( _d)
+
+  #define GEN_NOW() \
+    ros::Time::now()
+
+  #define GEN_PUB( _node, _topic_name, _msg_type, _queue_size) \
+    _node->advertise< _msg_type>( _topic_name, _queue_size)
+
+  namespace std_msgs_ = std_msgs;
+  #include <geometry_msgs/Point.h>
+  namespace geometry_msgs_ = geometry_msgs;
+  #include <visualization_msgs/Marker.h>
+  namespace visualization_msgs_ = visualization_msgs;
+#endif // (ROS_VERSION == 2)
+// Temporary - for testing.
+// #include <ros/ros.h>
 
 #include "TrajectoryActorPlugin.hh"
 
@@ -83,12 +141,15 @@ class servicesim::TrajectoryActorExtendedPlugin_Private
 
 
   /// \brief Ignition communication node.
-  public: ros::NodeHandle *rosnode_;
+//  public: ros::NodeHandle *rosnode_;
+  public: std::shared_ptr< ros_::ROS_NODE> rosnode_;
+//  public: ros_::ROS_NODE *rosnode_{NULL};
 
   /// \brief Publisher used to publish the messages.
-  public: ros::Publisher pub_;
+//  public: ros::Publisher pub_;
+  public: PUB_DECL( pub_, std_msgs_::Header);
 
-  public: std_msgs::Header hdrMsg;
+  public: std_msgs_::Header hdrMsg;
 
 
   public:
@@ -109,7 +170,8 @@ class servicesim::TrajectoryActorExtendedPlugin_Private
     double dMaxLookAhead{ 5.0};
 
   public:
-    ros::Publisher pub4LookAhead;
+//    ros::Publisher pub4LookAhead;
+    PUB_DECL( pub4LookAhead, visualization_msgs_::Marker);
 
   public:
     static bool bFirstIter;
@@ -133,10 +195,19 @@ TrajectoryActorExtendedPlugin::TrajectoryActorExtendedPlugin()
 // ########################################
 TrajectoryActorExtendedPlugin::~TrajectoryActorExtendedPlugin()
 {
-	this->dataPtr->pub_.shutdown();
+#if (ROS_VERSION == 1)
+	this->dataPtr->pub_->shutdown();
+	this->dataPtr->pub4LookAhead->shutdown();
 	this->dataPtr->rosnode_->shutdown();
-	delete( this->dataPtr->rosnode_);
-	this->dataPtr->rosnode_ = NULL;
+#endif
+//	delete( this->dataPtr->rosnode_);
+//	this->dataPtr->rosnode_ = NULL;
+	this->dataPtr->pub_.reset();
+	this->dataPtr->pub_ = nullptr;
+	this->dataPtr->pub4LookAhead.reset();
+	this->dataPtr->pub4LookAhead = nullptr;
+	this->dataPtr->rosnode_.reset();
+	this->dataPtr->rosnode_ = nullptr;
 }
 
 // ########################################
@@ -541,22 +612,33 @@ TrajectoryActorExtendedPlugin::Load( physics::ModelPtr _model,
 	const std::string _szTopic4WayPt = _sdf->Get<std::string>( "topic",
 		"/gazebo/actor/way_pt").first;
 
+#if (ROS_VERSION == 1)
 	this->dataPtr->hdrMsg.seq = 0;
+#endif
 	this->dataPtr->hdrMsg.frame_id = _szMe;
 
-	if( !( _szTopic4WayPt.empty())) {
-		this->dataPtr->rosnode_ = new ros::NodeHandle();
+	if( !( this->dataPtr->rosnode_)) {
+//		this->dataPtr->rosnode_ = new ros::NodeHandle();
+		this->dataPtr->rosnode_ = std::make_shared< ros_::ROS_NODE>(
+			_szMe + "_node");
+//		this->dataPtr->rosnode_ = new ros_::ROS_NODE( _szMe + "_node");
+	}
 
+	if( !( _szTopic4WayPt.empty())) {
 		// Create the publisher of header messages
-		this->dataPtr->pub_ = this->dataPtr->rosnode_->advertise<
-			std_msgs::Header>( _szTopic4WayPt, 1);
+//		this->dataPtr->pub_ = this->dataPtr->rosnode_->advertise<
+//			std_msgs_::Header>( _szTopic4WayPt, 1);
+		this->dataPtr->pub_ = GEN_PUB( this->dataPtr->rosnode_,
+			_szTopic4WayPt, std_msgs_::Header, 1);
 	}
 
 	const std::string _szTopic4LookAhead = _sdf->Get<std::string>(
 		"topic_look_ahead", "/gazebo/actor/look_ahead").first;
 
-	this->dataPtr->pub4LookAhead = this->dataPtr->rosnode_->advertise<
-		visualization_msgs::Marker>( _szTopic4LookAhead + "/" + _szMe, 1);
+//	this->dataPtr->pub4LookAhead = this->dataPtr->rosnode_->advertise<
+//		visualization_msgs_::Marker>( _szTopic4LookAhead + "/" + _szMe, 1);
+	this->dataPtr->pub4LookAhead = GEN_PUB( this->dataPtr->rosnode_,
+		_szTopic4LookAhead + "/" + _szMe, visualization_msgs_::Marker, 1);
 }
 
 /////////////////////////////////////////////////
@@ -912,8 +994,11 @@ bool TrajectoryActorExtendedPlugin::UpdateTarget()
     this->dataPtr->currentTarget = 0;
 
   if( this->dataPtr->pub_) {
+#if (ROS_VERSION == 1)
     this->dataPtr->hdrMsg.seq = this->dataPtr->currentTarget;
-    this->dataPtr->pub_.publish( this->dataPtr->hdrMsg);
+#endif
+//    this->dataPtr->pub_.publish( this->dataPtr->hdrMsg);
+    this->dataPtr->pub_->publish( this->dataPtr->hdrMsg);
   }
 
   return true;
@@ -931,10 +1016,10 @@ TrajectoryActorExtendedPlugin::genLookAheadStraightLine(
 
 	ignition::math::Pose3d _intraPt( _current);
 
-	visualization_msgs::Marker mFuturePose;
+	visualization_msgs_::Marker mFuturePose;
 
 	for( int i = 0; i < _nInt; ++i) {
-		geometry_msgs::Point _pt;
+		geometry_msgs_::Point _pt;
 		_pt.x = _intraPt.Pos().X();
 		_pt.y = _intraPt.Pos().Y();
 		_pt.z = _intraPt.Pos().Z();
@@ -942,12 +1027,12 @@ TrajectoryActorExtendedPlugin::genLookAheadStraightLine(
 		mFuturePose.points.push_back( _pt);
 	}
 
-//	mFuturePose.lifetime = ros::Duration( 1);
-	mFuturePose.lifetime = ros::Duration( 1 / this->dataPtr->velocity);
+//	mFuturePose.lifetime = GEN_DURATION( 1);
+	mFuturePose.lifetime = GEN_DURATION( 1 / this->dataPtr->velocity);
 	mFuturePose.text = this->dataPtr->hdrMsg.frame_id;
-//	mFuturePose.type = visualization_msgs::Marker::POINTS;
-	mFuturePose.type = visualization_msgs::Marker::SPHERE_LIST;
-	mFuturePose.action = visualization_msgs::Marker::ADD;
+//	mFuturePose.type = visualization_msgs_::Marker::POINTS;
+	mFuturePose.type = visualization_msgs_::Marker::SPHERE_LIST;
+	mFuturePose.action = visualization_msgs_::Marker::ADD;
 
 	mFuturePose.ns = "prediction_fake";
 	mFuturePose.id = 999;
@@ -961,9 +1046,10 @@ TrajectoryActorExtendedPlugin::genLookAheadStraightLine(
 	mFuturePose.color.a = 1.0;
 
 	mFuturePose.header.frame_id = "world";
-	mFuturePose.header.stamp = ros::Time::now();
+	mFuturePose.header.stamp = GEN_NOW();
 
-	this->dataPtr->pub4LookAhead.publish( mFuturePose);
+//	this->dataPtr->pub4LookAhead.publish( mFuturePose);
+	this->dataPtr->pub4LookAhead->publish( mFuturePose);
 }
 
 /////////////////////////////////////////////////
