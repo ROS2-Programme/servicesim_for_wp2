@@ -314,6 +314,9 @@ install(TARGETS ${trajectory_actor_plugin_name}
 #   PATTERN ".svn" EXCLUDE
 # )
 
+install(DIRECTORY urdf DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY meshes DESTINATION share/${PROJECT_NAME})
+
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
 #   # myfile1
