@@ -12,8 +12,11 @@
     # Kinetic: from "intel_realsense_mount" to "realsense_sensor"; and with
     # different parameter names.
   -->
+  <xacro:property name="_ros_version" value="$(optenv ROS_VERSION 1)" />
   <xacro:property name="_ros_distro" value="$(optenv ROS_DISTRO)" />
   <xacro:property name="_is_kinetic" value="${_ros_distro == 'kinetic'}" />
+  <xacro:property name="_is_kinetic_or_ros2"
+    value="${_is_kinetic or (_ros_version == 2)}" />
 
   <xacro:unless value="${_is_kinetic}">
     <!--
@@ -35,6 +38,9 @@
   <xacro:property name="ctrl_box_height" value="0.68" />
 
   <xacro:if value="${True}">
+    <!--
+      # Front-side mounted/facing camera.
+    -->
     <link name="realsense_mount_front"/>
     <joint name="realsense_mount_front_joint" type="fixed">
       <origin xyz="${ctrl_box_width / 2.0} 0 ${ctrl_box_height / 2.0}"
@@ -43,11 +49,11 @@
       <child link="realsense_mount_front" />
     </joint>
 
-    <xacro:if value="${_is_kinetic}">
+    <xacro:if value="${_is_kinetic_or_ros2}">
       <xacro:intel_realsense_mount prefix="camera1" topic="realsense_front"
         parent_link="realsense_mount_front"/>
     </xacro:if>
-    <xacro:unless value="${_is_kinetic}">
+    <xacro:unless value="${_is_kinetic_or_ros2}">
       <xacro:realsense_sensor prefix="camera1" topic="realsense_front"
           parent="realsense_mount_front" include="0">
         <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
@@ -57,6 +63,9 @@
   </xacro:if>
 
   <xacro:if value="${True}">
+    <!--
+      # Right-side mounted/facing camera.
+    -->
     <link name="realsense_mount_right"/>
     <joint name="realsense_mount_right_joint" type="fixed">
       <origin xyz="0 -${ctrl_box_length / 2.0} ${ctrl_box_height / 2.0}"
@@ -65,11 +74,11 @@
       <child link="realsense_mount_right" />
     </joint>
 
-    <xacro:if value="${_is_kinetic}">
+    <xacro:if value="${_is_kinetic_or_ros2}">
       <xacro:intel_realsense_mount prefix="camera2" topic="realsense_right"
         parent_link="realsense_mount_right"/>
     </xacro:if>
-    <xacro:unless value="${_is_kinetic}">
+    <xacro:unless value="${_is_kinetic_or_ros2}">
       <xacro:realsense_sensor prefix="camera2" topic="realsense_right"
           parent="realsense_mount_right" include="0">
         <origin xyz="0.0115 0 0.0100" rpy="0 0 0" />
