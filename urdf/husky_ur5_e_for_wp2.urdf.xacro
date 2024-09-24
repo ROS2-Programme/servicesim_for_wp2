@@ -24,6 +24,22 @@
   -->
   <xacro:property name="ctrl_box_height" value="0.68" />
 
+  <xacro:property name="_M_PI" value="${pi}"/>
+  <xacro:property name="_ros_version" value="$(optenv ROS_VERSION 1)" />
+
+  <xacro:arg name="robot_arm_link_prefix" default="" />
+
+  <xacro:if value="${_ros_version == 1}">
+    <xacro:property name="_robot_arm_ee_attach_angle_roll" value="0" />
+  </xacro:if>
+  <xacro:if value="${_ros_version == 2}">
+    <xacro:property name="_robot_arm_ee_attach_angle_roll" value="${_M_PI}" />
+  </xacro:if>
+
+  <xacro:arg name="robot_arm_ee_attach_angle_roll"
+    default="${str( _robot_arm_ee_attach_angle_roll)}" />
+
+
   <xacro:include filename="husky_ur5_e_description.urdf.xacro" />
   <xacro:include filename="custom.urdf.xacro" />
 
