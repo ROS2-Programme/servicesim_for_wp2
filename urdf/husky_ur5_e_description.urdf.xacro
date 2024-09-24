@@ -7,17 +7,78 @@
   <xacro:property name="_parent_link_for_arm"
       value="$(arg parent_link_for_arm)" />
 
-  <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
-
   <xacro:property name="_robot_arm_link_prefix"
       value="$(arg robot_arm_link_prefix)" />
 
+  <xacro:property name="_ros_version" value="$(optenv ROS_VERSION 1)" />
+
+  <xacro:if value="${_ros_version == 1}">
+    <xacro:arg name="robot_arm_ee_attach_link_base_name" default="ee_link" />
+  </xacro:if>
+  <xacro:if value="${_ros_version == 2}">
+    <xacro:arg name="robot_arm_ee_attach_link_base_name" default="flange" />
+  </xacro:if>
+<!--
+  <DEBUG>ROS_VERSION=${_ros_version}</DEBUG>
+-->
+
+  <xacro:if value="${_ros_version == 1}">
+    <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
+  </xacro:if>
+  <xacro:if value="${_ros_version == 2}">
+<!--
+    <DEBUG>find(ur_description)=$(find ur_description)</DEBUG>
+-->
+    <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro" />
+  </xacro:if>
+
+  <xacro:if value="${_ros_version == 1}">
   <joint name="arm_mount_joint" type="fixed">
     <parent link="${_parent_link_for_arm}" />
     <child link="${_robot_arm_link_prefix}base_link" />
     <origin xyz="$(optenv HUSKY_UR_XYZ -0.18 0.0 ${ctrl_box_height/2.0})"
         rpy="$(optenv HUSKY_UR_RPY 0 0 0)" />
   </joint>
+  </xacro:if>
 
-  <xacro:ur5e_robot prefix="${_robot_arm_link_prefix}" joint_limited="true" />
+  <xacro:if value="${_ros_version == 1}">
+    <xacro:ur5e_robot prefix="${_robot_arm_link_prefix}" joint_limited="true" />
+  </xacro:if>
+  <xacro:if value="${_ros_version == 2}">
+    <xacro:arg name="ur_type" default="ur5e" />
+    <xacro:property name="_ur_type_config_path"
+      value="$(find ur_description)/config/$(arg ur_type)" />
+
+    <xacro:arg name="joint_limit_params"
+      default="${_ur_type_config_path}/joint_limits.yaml"/>
+    <xacro:arg name="kinematics_params"
+      default="${_ur_type_config_path}/default_kinematics.yaml"/>
+    <xacro:arg name="physical_params"
+      default="${_ur_type_config_path}/physical_parameters.yaml"/>
+    <xacro:arg name="visual_params"
+      default="${_ur_type_config_path}/visual_parameters.yaml"/>
+
+    <xacro:property name="initial_positions_file"
+      value="$(find ur_description)/config/initial_positions.yaml" />
+
+    <xacro:ur_robot
+      name="$(arg ur_type)"
+      tf_prefix="${_robot_arm_link_prefix}"
+      parent="${_parent_link_for_arm}"
+      joint_limits_parameters_file="$(arg joint_limit_params)"
+      kinematics_parameters_file="$(arg kinematics_params)"
+      physical_parameters_file="$(arg physical_params)"
+      visual_parameters_file="$(arg visual_params)"
+      transmission_hw_interface=""
+      sim_gazebo="true"
+      sim_ignition="false"
+      initial_positions="${xacro.load_yaml(initial_positions_file)}"
+      script_filename=""
+      output_recipe_filename=""
+      input_recipe_filename=""
+    >
+      <origin xyz="$(optenv HUSKY_UR_XYZ -0.18 0.0 ${ctrl_box_height/2.0})"
+        rpy="$(optenv HUSKY_UR_RPY 0 0 0)" />
+    </xacro:ur_robot>
+  </xacro:if>
 </robot>
