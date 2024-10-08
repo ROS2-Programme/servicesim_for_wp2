@@ -17,13 +17,38 @@
   <xacro:arg name="is_sim" default="false" />
   <xacro:arg name="urdf_extras" default="$(optenv CPR_URDF_EXTRAS empty.urdf)" />
 
-  <!-- Included URDF/XACRO Files -->
-  <xacro:include filename="$(find husky_description)/urdf/decorations.urdf.xacro" />
-  <xacro:include filename="$(find husky_description)/urdf/wheel.urdf.xacro" />
+    <!-- Hack to get round retarded Gazebo non-support for package://
+         protocol format in ROS2 -->
+    <xacro:property name="_ros_version" value="$(optenv ROS_VERSION 1)" />
+    <xacro:if value="${_ros_version == 1}">
+        <xacro:property name="_default_mesh_proto" value="package" />
+    </xacro:if>
+    <xacro:if value="${_ros_version == 2}">
+        <xacro:property name="_default_mesh_proto" value="file" />
+    </xacro:if>
+    <xacro:arg name="mesh_protocol" default="${_default_mesh_proto}" />
+    <xacro:property name="_mesh_protocol" default="$(arg mesh_protocol)" />
 
-  <xacro:include filename="$(find husky_description)/urdf/accessories/intel_realsense.urdf.xacro"/>
-  <xacro:include filename="$(find husky_description)/urdf/accessories/sick_lms1xx_mount.urdf.xacro"/>
-  <xacro:include filename="$(find husky_description)/urdf/accessories/sensor_arch.urdf.xacro"/>
+    <xacro:property name="_mesh_pkg_name" value="husky_description" />
+    <xacro:property name="_default_pkg_loc"
+        value="$(find husky_description)" />
+
+    <xacro:property name="_mesh_pkg_loc" value="${_mesh_pkg_name}" />
+    <xacro:if value="${_mesh_protocol == 'file'}">
+        <xacro:property name="_mesh_pkg_loc" value="${_default_pkg_loc}" />
+    </xacro:if>
+
+    <xacro:property name="_mesh_proto_pkg_prefix"
+        value="${_mesh_protocol}://${_mesh_pkg_loc}" />
+
+
+  <!-- Included URDF/XACRO Files -->
+  <xacro:include filename="husky_mod/decorations.urdf.xacro" />
+  <xacro:include filename="husky_mod/wheel.urdf.xacro" />
+
+  <xacro:include filename="husky_mod/accessories/intel_realsense.urdf.xacro"/>
+  <xacro:include filename="husky_mod/accessories/sick_lms1xx_mount.urdf.xacro"/>
+  <xacro:include filename="husky_mod/accessories/sensor_arch.urdf.xacro"/>
 
   <xacro:property name="M_PI" value="3.14159"/>
 
@@ -43,12 +68,13 @@
     <xacro:property name="wheel_length" value="0.1143" />
     <xacro:property name="wheel_radius" value="0.1651" />
 
+
     <!-- Base link is the center of the robot's bottom plate -->
     <link name="${prefix}base_link">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://husky_description/meshes/base_link.dae" />
+          <mesh filename="${_mesh_proto_pkg_prefix}/meshes/base_link.dae" />
         </geometry>
       </visual>
       <collision>
