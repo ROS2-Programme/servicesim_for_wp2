@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
+<!--
   <xacro:include filename="$(find husky_description)/urdf/accessories/intel_realsense.urdf.xacro"/>
+-->
+  <xacro:include filename="husky_mod/accessories/intel_realsense.urdf.xacro"/>
 
   <xacro:arg name="parent_link_for_sensor" default="control_box" />
   <xacro:property name="_parent_link_for_sensor"
